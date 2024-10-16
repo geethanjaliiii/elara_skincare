@@ -107,7 +107,6 @@ const Signup = () => {
 
 
   const handleFormSubmit = async () => {
-   
     try {
       setError("");
       const response = await axiosInstance.post("/api/users/signup", {

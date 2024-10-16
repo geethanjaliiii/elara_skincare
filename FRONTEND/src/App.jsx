@@ -1,6 +1,7 @@
-import { Button } from "@/components/ui/button";
+
 import UserSignup from "./pages/user/auth/UserSignup";
 import UserLogin from "./pages/user/auth/UserLogin";
+import AdminLoginPage from "./pages/admin/adminLoginPage";
 import LandingPage from "./pages/user/LandingPage";
 import { Route,Routes } from "react-router-dom";
 import { Provider } from "react-redux";
@@ -13,6 +14,7 @@ export default function App() {
         <Route path="/login" element={<UserLogin/>}/>
         <Route path="/signup" element={<UserSignup/>}/>
         <Route path="/" element={<LandingPage/>}/>
+        <Route path="/admin" element={<AdminLoginPage/>}/>
       </Routes>
       </Provider>
     </div>

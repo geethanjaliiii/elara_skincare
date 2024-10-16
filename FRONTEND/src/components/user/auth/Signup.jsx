@@ -1,343 +1,334 @@
-// import { useState } from 'react';
-// import { Button } from "@/components/ui/button";
-// import { Input } from "@/components/ui/input";
-// import Footer from '@/components/ui/Footer';
-// import Navbar from '@/components/ui/Navbar';
-
-// const Signup = () => {
-//     const [name, setName] = useState('');
-//     const [lastName, setLastName] = useState('');
-//     const [email, setEmail] = useState('');
-//     const [password, setPassword] = useState('');
-
-//     const handleSubmit = (e) => {
-//         e.preventDefault();
-//         console.log('Signup attempted with:', name, lastName, email, password);
-//     };
-
-//     return (
-//         <div className="min-h-screen bg-[rgb(248,248,248)] text-[#4a4a4a]">
-//             <Navbar />
-//             <main className="container mx-auto px-4 lg:px-11 py-8 md:py-12 flex flex-col md:flex-row items-center justify-center">
-//                 <div
-//                     className="md:w-1/4 hidden md:block bg-cover bg-center h-full rounded-lg shadow-lg"
-//                     style={{
-//                         backgroundImage: "url('/images/signup (2).jpg')",
-//                         height: "500px",
-//                         width: "40%",
-//                     }}
-//                 >
-//                 </div>
-//                 <div className="md:w-3/4 md:pl-12 w-full max-w-md ml-3">
-//                     <h2 className="text-3xl font-semibold mb-6 text-[#6e665e]">Create Account</h2>
-//                     <form onSubmit={handleSubmit} className="space-y-4">
-//                         {/* First Name Field */}
-//                         <div className="space-y-2">
-//                             <Input
-//                                 type="text"
-//                                 placeholder="First Name"
-//                                 value={name}
-//                                 onChange={(e) => setName(e.target.value)}
-//                                 required
-//                                 className="border rounded-lg p-2 bg-[#fafafa] focus:ring-[#c4b7a6] focus:border-[#c4b7a6]"
-//                             />
-//                         </div>
-//                         {/* Last Name Field */}
-//                         <div className="space-y-2">
-//                             <Input
-//                                 type="text"
-//                                 placeholder="Last Name"
-//                                 value={lastName}
-//                                 onChange={(e) => setLastName(e.target.value)}
-//                                 required
-//                                 className="border rounded-lg p-2 bg-[#fafafa] focus:ring-[#c4b7a6] focus:border-[#c4b7a6]"
-//                             />
-//                         </div>
-//                         {/* Email Field */}
-//                         <div className="space-y-2">
-//                             <Input
-//                                 type="email"
-//                                 placeholder="Email *"
-//                                 value={email}
-//                                 onChange={(e) => setEmail(e.target.value)}
-//                                 required
-//                                 className="border rounded-lg p-2 bg-[#fafafa] focus:ring-[#c4b7a6] focus:border-[#c4b7a6]"
-//                             />
-//                         </div>
-//                         {/* Password Field */}
-//                         <div className="space-y-2">
-//                             <Input
-//                                 type="password"
-//                                 placeholder="Password *"
-//                                 value={password}
-//                                 onChange={(e) => setPassword(e.target.value)}
-//                                 required
-//                                 className="border rounded-lg p-2 bg-[#fafafa] focus:ring-[#c4b7a6] focus:border-[#c4b7a6]"
-//                             />
-//                         </div>
-//                         <Button type="submit" className="w-full bg-[#8b7456] text-white hover:bg-[#b19987] rounded-lg py-2">
-//                             CREATE ACCOUNT
-//                         </Button>
-//                     </form>
-//                     <p className="mt-4 text-center text-sm text-[#8e8e8e]">
-//                         Already have an account?{' '}
-//                         <a href="#" className="font-medium text-[#826745] hover:underline">
-//                             Login here
-//                         </a>
-//                     </p>
-//                 </div>
-//             </main>
-//             <Footer />
-//         </div>
-//     );
-// };
-
-// export default Signup;
-
-
-// import { useState } from 'react';
-// import { Button } from "@/components/ui/button";
-// import { Input } from "@/components/ui/input";
-// import { Label } from "@/components/ui/label";
-// import { FcGoogle } from 'react-icons/fc';
-// import Footer from '@/components/ui/Footer';
-// import Navbar from '@/components/ui/Navbar';
-
-// const Signup = () => {
-//     const [name, setName] = useState('');
-//     const [email, setEmail] = useState('');
-//     const [phone, setPhone] = useState('');
-//     const [password, setPassword] = useState('');
-//     const [confirmPassword, setConfirmPassword] = useState('');
-
-//     const handleSubmit = (e) => {
-//         e.preventDefault();
-//         // Handle signup logic here
-//         if (password !== confirmPassword) {
-//             console.error("Passwords do not match");
-//             return;
-//         }
-//         console.log('Signup attempted with:', name, email, phone, password);
-//     };
-
-//     return (
-//         <div className="min-h-screen bg-background text-foreground">
-//             <Navbar />
-//             <main className="container mx-auto px-4 lg:px-11 py-8 md:py-12 flex flex-col md:flex-row items-center justify-center">
-//                 {/* Set the background image using inline styles or Tailwind custom background utility */}
-//                 <div
-//                     className="md:w-1/4 hidden md:block bg-cover bg-center h-full rounded-lg shadow-lg"
-//                     style={{
-//                         backgroundImage: "url('/images/signup (2).jpg')",
-//                         height: "600px", // You can adjust this value for height
-//                         width: "50%", // Adjust this to fit your layout
-//                     }}
-//                 >
-//                 </div>
-//                 <div className="md:w-3/4 md:pl-12 w-full max-w-md ml-3">
-//                     <h2 className="text-3xl font-semibold mb-6">Create your account</h2>
-//                     <form onSubmit={handleSubmit} className="space-y-4">
-//                         {/* Name Field */}
-//                         <div className="space-y-2">
-//                             <Label htmlFor="name">Name</Label>
-//                             <Input
-//                                 type="text"
-//                                 id="name"
-//                                 value={name}
-//                                 onChange={(e) => setName(e.target.value)}
-//                                 required
-//                             />
-//                         </div>
-//                         {/* Email Field */}
-//                         <div className="space-y-2">
-//                             <Label htmlFor="email">Email</Label>
-//                             <Input
-//                                 type="email"
-//                                 id="email"
-//                                 value={email}
-//                                 onChange={(e) => setEmail(e.target.value)}
-//                                 required
-//                             />
-//                         </div>
-//                         {/* Phone Field */}
-//                         <div className="space-y-2">
-//                             <Label htmlFor="phone">Phone Number</Label>
-//                             <Input
-//                                 type="tel"
-//                                 id="phone"
-//                                 value={phone}
-//                                 onChange={(e) => setPhone(e.target.value)}
-//                                 required
-//                             />
-//                         </div>
-//                         {/* Password Field */}
-//                         <div className="space-y-2">
-//                             <Label htmlFor="password">Password</Label>
-//                             <Input
-//                                 type="password"
-//                                 id="password"
-//                                 value={password}
-//                                 onChange={(e) => setPassword(e.target.value)}
-//                                 required
-//                             />
-//                         </div>
-//                         {/* Confirm Password Field */}
-//                         <div className="space-y-2">
-//                             <Label htmlFor="confirmPassword">Confirm Password</Label>
-//                             <Input
-//                                 type="password"
-//                                 id="confirmPassword"
-//                                 value={confirmPassword}
-//                                 onChange={(e) => setConfirmPassword(e.target.value)}
-//                                 required
-//                             />
-//                         </div>
-//                         <Button type="submit" className="w-full">
-//                             Sign up
-//                         </Button>
-//                     </form>
-//                     <div className="mt-4">
-//                         <Button variant="outline" className="w-full flex items-center justify-center">
-//                             <FcGoogle className="mr-2 h-4 w-4" />
-//                             Sign up with Google
-//                         </Button>
-//                     </div>
-//                     <p className="mt-4 text-center text-sm text-muted-foreground">
-//                         Already have an account?{' '}
-//                         <a href="#" className="font-medium text-primary hover:underline">
-//                             Login
-//                         </a>
-//                     </p>
-//                 </div>
-//             </main>
-//             <Footer />
-//         </div>
-//     );
-// };
-
-// export default Signup;
-
-
-import { useState } from 'react';
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FcGoogle } from 'react-icons/fc';
-import Footer from '@/components/ui/Footer';
-import Navbar from '@/components/ui/Navbar';
+import { FcGoogle } from "react-icons/fc";
+import OTPEnterModal from "./OTPEnterModal";
+import Footer from "@/components/ui/Footer";
+import Navbar from "@/components/ui/Navbar";
+import axiosInstance from "@/config/axiosConfig";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { setUserDetails } from "@/store/slices/userSlice";
+import { Link } from "react-router-dom";
+
+const validationSchema = Yup.object({
+  name: Yup.string()
+    .matches(/^[A-Za-z\s]+$/, "Name should only contain alphabets and spaces")
+    .required("Name is required"),
+  email: Yup.string()
+    .email("Please enter a valid email address")
+    .required("Email is required"),
+  phone: Yup.string()
+    .matches(/^\d{10}$/, "Phone number must be exactly 10 digits")
+    .required("Phone number is required"),
+  password: Yup.string()
+    .min(8, "Password must be at least 8 characters")
+    .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
+    .matches(/\d/, "Password must contain at least one number")
+    .matches(
+      /[!@#$%^&*(),.?":{}|<>]/,
+      "Password must contain at least one special character"
+    )
+    .required("Password is required"),
+  confirmPassword: Yup.string()
+    .oneOf([Yup.ref("password"), null], "Passwords do not match")
+    .required("Please confirm your password"),
+});
 
 const Signup = () => {
-    const initialFormData = {
-        name: "",
-        email: "",
-        phone: "",
-        password: "",
-        confirmPassword:""
+  const initialValues = {
+    name: "",
+    email: "",
+    phone: "",
+    password: "",
+    confirmPassword: "",
+  };
+  const [formData, setFormData] = useState(null);
+  const [isOTPModelOpen, setIsOTPModelOpen] = useState(false);
+  const [otpMessage, setOtpMessage] = useState("");
+  const [otpErrMessage, setOtpErrMessage] = useState("");
+  const [error, setError] = useState("");
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (values) => {
+    console.log("signup attempted with:", values);
+    setFormData(values);
+    try {
+      const response = await axiosInstance.post("/api/users/send-otp", {
+        email: values.email,
+      });
+      if (response?.data?.success) {
+        setIsOTPModelOpen(true);
+        setOtpMessage("OTP sent successfullly. Please check your email.");
+        setOtpErrMessage("");
+        setError("");
+      }
+    } catch (error) {
+      if (error?.response) {
+        setError(error.response?.data?.message);
+      }
+      console.log(error);
     }
-    
-    const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
-    const [phone, setPhone] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
+  };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-       
-        if (password !== confirmPassword) {
-            console.error("Passwords do not match");
-            return;
-        }
-        console.log('Signup attempted with:', name, email, phone, password);
-    };
+  //logic to send otp to backend for verification
+  const handleOTPSubmit = async (otp) => {
+    console.log("OTP submitted", otp, formData.email);
+    try {
+      const response = await axiosInstance.post("/api/users/verify-otp", {
+        otp,
+        email: formData.email,
+      });
+      console.log("otp verified",response);
+      
+      console.log(response?.data);
+      if (response?.data?.invalid) {
+        setOtpErrMessage(response.data.message);
+        setOtpMessage("");
+      }
 
-    return (
-        <div className="min-h-screen bg-background text-foreground">
-            <Navbar />
-            <main className="container mx-auto px-4 lg:px-11 py-8 md:py-12 flex flex-col md:flex-row items-center justify-center">
-           
-                <div
-                    className="md:w-1/4 hidden md:block bg-cover bg-center h-full rounded-lg shadow-lg"
-                    style={{
-                        backgroundImage: "url('/images/signup (2).jpg')",
-                        height: "600px", // You can adjust this value for height
-                        width: "50%", // Adjust this to fit your layout
-                    }}
+      if (response?.data.expires) {
+        setOtpErrMessage(response.data.message);
+        setOtpMessage("");
+      }
+
+      if (response?.data?.success) {
+        setIsOTPModelOpen(false);
+        handleFormSubmit();
+      }
+    } catch (error) {
+      console.error("error verifying otp", error);
+    }
+  };
+
+
+  const handleFormSubmit = async () => {
+   
+    try {
+      setError("");
+      const response = await axiosInstance.post("/api/users/signup", {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        password: formData.password,
+      });
+      console.log(response.data);
+
+      if (response?.data?.success) {
+        dispatch(setUserDetails(response?.data?.newUser));
+        navigate("/login");
+      }
+    } catch (error) {
+      if (error?.response) {
+        setError(error.response?.data?.message);
+      }
+      console.log("ERROR IN FORM SUBMISSION",error);
+    }
+  };
+
+  const resendOTPHandle = async () => {
+    try {
+      setOtpErrMessage("");
+      const response = await axiosInstance.post("/api/users/send-otp", {
+        email: formData.email,
+      });
+      if (response?.data?.success) {
+        setOtpMessage("OTP sent successfully.please check your email.");
+        setOtpErrMessage("");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      <Navbar />
+      <main className="container mx-auto px-4 lg:px-11 py-8 md:py-12 flex flex-col md:flex-row items-center justify-center">
+        <div
+          className="md:w-1/4 hidden md:block bg-cover bg-center h-full rounded-lg shadow-lg"
+          style={{
+            backgroundImage: "url('/images/signup (2).jpg')",
+            height: "600px", // You can adjust this value for height
+            width: "50%", // Adjust this to fit your layout
+          }}
+        ></div>
+        <div className="md:w-3/4 md:pl-12 w-full max-w-md ml-3">
+          <h2 className="text-3xl font-semibold mb-6">Create your account</h2>
+
+          <Formik
+            initialValues={initialValues}
+            validationSchema={validationSchema}
+            onSubmit={handleSubmit}
+          >
+            {({ isSubmitting }) => (
+              <Form className="space-y-4">
+                {/* Name Field */}
+                <div className="space-y-2">
+                  <Field
+                    type="text"
+                    name="name"
+                    placeholder="Name"
+                    className="border rounded-lg p-2 w-full"
+                  />
+                  <ErrorMessage
+                    name="name"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
+                </div>
+                {/* Email Field */}
+                <div className="space-y-2">
+                  <Field
+                    type="email"
+                    name="email"
+                    placeholder="Email"
+                    className="border rounded-lg p-2 w-full"
+                  />
+                  <ErrorMessage
+                    name="email"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
+                </div>
+                {/* Phone Field */}
+                <div className="space-y-2">
+                  <Field
+                    type="tel"
+                    name="phone"
+                    placeholder="Phone Number"
+                    className="border rounded-lg p-2 w-full"
+                  />
+                  <ErrorMessage
+                    name="phone"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
+                </div>
+                {/* Password Field */}
+                <div className="space-y-2">
+                  <Field
+                    type="password"
+                    name="password"
+                    placeholder="Password"
+                    className="border rounded-lg p-2 w-full"
+                  />
+                  <ErrorMessage
+                    name="password"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
+                </div>
+                {/* Confirm Password Field */}
+                <div className="space-y-2">
+                  <Field
+                    type="password"
+                    name="confirmPassword"
+                    placeholder="Confirm Password"
+                    className="border rounded-lg p-2 w-full"
+                  />
+                  <ErrorMessage
+                    name="confirmPassword"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
+                </div>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={isSubmitting}
                 >
-                </div>
-                <div className="md:w-3/4 md:pl-12 w-full max-w-md ml-3">
-                    <h2 className="text-3xl font-semibold mb-6">Create your account</h2>
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        {/* Name Field */}
-                        <div className="space-y-2">
-                            <Input
-                                type="text"
-                                placeholder="Name"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                required
-                            />
-                        </div>
-                        {/* Email Field */}
-                        <div className="space-y-2">
-                            <Input
-                                type="email"
-                                placeholder="Email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                            />
-                        </div>
-                        {/* Phone Field */}
-                        <div className="space-y-2">
-                            <Input
-                                type="tel"
-                                placeholder="Phone Number"
-                                value={phone}
-                                onChange={(e) => setPhone(e.target.value)}
-                                required
-                            />
-                        </div>
-                        {/* Password Field */}
-                        <div className="space-y-2">
-                            <Input
-                                type="password"
-                                placeholder="Password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                            />
-                        </div>
-                        {/* Confirm Password Field */}
-                        <div className="space-y-2">
-                            <Input
-                                type="password"
-                                placeholder="Confirm Password"
-                                value={confirmPassword}
-                                onChange={(e) => setConfirmPassword(e.target.value)}
-                                required
-                            />
-                        </div>
-                        <Button type="submit" className="w-full">
-                            Sign up
-                        </Button>
-                    </form>
-                    <div className="mt-4">
-                        <Button variant="outline" className="w-full flex items-center justify-center">
-                            <FcGoogle className="mr-2 h-4 w-4" />
-                            Sign up with Google
-                        </Button>
-                    </div>
-                    <p className="mt-4 text-center text-sm text-muted-foreground">
-                        Already have an account?{' '}
-                        <a href="#" className="font-medium text-primary hover:underline">
-                            Login
-                        </a>
-                    </p>
-                </div>
-            </main>
-            <Footer />
+                  Sign up
+                </Button>
+              </Form>
+            )}
+          </Formik>
+         <OTPEnterModal isOpen={isOTPModelOpen}
+         closeModal={()=>setIsOTPModelOpen(false)}
+         onSubmit={handleOTPSubmit}
+         onResendOTP={resendOTPHandle}
+         otpMessage={otpMessage}
+         otpErrMessage={otpErrMessage}/>
+          <div className="mt-4">
+            <Button
+              variant="outline"
+              className="w-full flex items-center justify-center"
+            >
+              <FcGoogle className="mr-2 h-4 w-4" />
+              Sign up with Google
+            </Button>
+          </div>
+          <p className="mt-4 text-center text-sm text-muted-foreground">
+            Already have an account?{" "}
+            <Link to="/login" className="font-medium text-primary hover:underline">
+              Login
+            </Link>
+          </p>
         </div>
-    );
+      </main>
+      <Footer />
+    </div>
+  );
 };
 
 export default Signup;
+
+// <form onSubmit={handleSubmit} className="space-y-4">
+// {/* Name Field */}
+// <div className="space-y-2">
+//     <Input
+//         type="text"
+//         placeholder="Name"
+//         value={name}
+//         onChange={(e) => setName(e.target.value)}
+//         required
+//     />
+// </div>
+// {/* Email Field */}
+// <div className="space-y-2">
+//     <Input
+//         type="email"
+//         placeholder="Email"
+//         value={email}
+//         onChange={(e) => setEmail(e.target.value)}
+//         required
+//     />
+// </div>
+// {/* Phone Field */}
+// <div className="space-y-2">
+//     <Input
+//         type="tel"
+//         placeholder="Phone Number"
+//         value={phone}
+//         onChange={(e) => setPhone(e.target.value)}
+//         required
+//     />
+// </div>
+// {/* Password Field */}
+// <div className="space-y-2">
+//     <Input
+//         type="password"
+//         placeholder="Password"
+//         value={password}
+//         onChange={(e) => setPassword(e.target.value)}
+//         required
+//     />
+// </div>
+// {/* Confirm Password Field */}
+// <div className="space-y-2">
+//     <Input
+//         type="password"
+//         placeholder="Confirm Password"
+//         value={confirmPassword}
+//         onChange={(e) => setConfirmPassword(e.target.value)}
+//         required
+//     />
+// </div>
+// <Button type="submit" className="w-full">
+//     Sign up
+// </Button>
+// </form>

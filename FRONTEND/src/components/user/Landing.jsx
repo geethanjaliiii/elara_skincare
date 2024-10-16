@@ -1,45 +1,13 @@
 import { useState } from 'react'
 import { Button } from '../ui/button'// Assuming you have a Button component
+import Navbar from '../ui/Navbar'
 
 export default function EvaraLandingPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   return (
     <div className="flex flex-col min-h-screen">
-      <header className="px-4 lg:px-6 h-14 flex items-center justify-between">
-        <a className="flex items-center justify-center" href="#">
-          <span className="sr-only">EVARA</span>
-          <span className="font-bold text-2xl">EVARA</span>
-        </a>
-        <button
-          className="lg:hidden"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <line x1="3" y1="12" x2="21" y2="12" />
-            <line x1="3" y1="6" x2="21" y2="6" />
-            <line x1="3" y1="18" x2="21" y2="18" />
-          </svg>
-        </button>
-        <nav className={`${isMenuOpen ? 'block' : 'hidden'} lg:block absolute top-14 left-0 right-0 bg-white shadow-md lg:shadow-none lg:static`}>
-          <ul className="flex flex-col lg:flex-row gap-4 p-4 lg:p-0">
-            <li><a className="text-sm font-medium hover:underline underline-offset-4" href="#">Home</a></li>
-            <li><a className="text-sm font-medium hover:underline underline-offset-4" href="#">Products</a></li>
-            <li><a className="text-sm font-medium hover:underline underline-offset-4" href="#">About</a></li>
-            <li><a className="text-sm font-medium hover:underline underline-offset-4" href="#">Contact</a></li>
-          </ul>
-        </nav>
-      </header>
+     <Navbar/>
       <main className="flex-1">
         <section className="w-full py-12 md:py-24 lg:py-32">
           <div className="container px-4 md:px-6 mx-auto">

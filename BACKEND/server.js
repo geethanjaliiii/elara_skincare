@@ -4,6 +4,7 @@ const cookieParser=require('cookie-parser')
 const dotenv = require('dotenv')
 const connectDB = require('./config/connectDB')
 const userRoute=require('./routes/userRoutes')
+const adminRoute =require('./routes/adminRoute')
 dotenv.config()
 
 const app = express()
@@ -20,7 +21,8 @@ app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 
 app.use('/api/users',userRoute)
-// app.use('/api/admin',adminRoute)
+
+app.use('/api/admin',adminRoute)
 app.listen(PORT,()=>{
     console.log(`server is running at`);   
 })

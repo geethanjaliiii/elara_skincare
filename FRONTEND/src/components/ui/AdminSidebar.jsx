@@ -8,7 +8,7 @@ const Sidebar = () => {
   const menuItems = [
     { name: 'Dashboard', path: '/dashboard', icon: <FiHome /> },
     { name: 'Products', path: '/products', icon: <FiShoppingCart /> },
-    { name: 'Customers', path: '/customers', icon: <FaUsers /> },
+    { name: 'Customers', path: '/admin/dashboard/customers', icon: <FaUsers /> },
     { name: 'Sales', path: '/analytics', icon: <FaChartLine /> },
     { name: 'Order List', path: '/orders', icon: <FaClipboardList /> },
     { name: 'Coupons', path: '/coupons', icon: <FaTags /> },

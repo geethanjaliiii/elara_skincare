@@ -7,7 +7,12 @@ import { Route,Routes } from "react-router-dom";
 import { Provider } from "react-redux";
 import store from "./store/store";
 import Customers from "./components/admin/Customers";
+import Categories from "./components/admin/Categories";
 import DashboardLayout from "./pages/admin/DashboardLayout";
+import AddCategory from "./components/admin/AddCategory";
+import EditCategory from "./components/admin/EditCategory";
+import AddProduct from "./components/admin/AddProduct";
+import Products from "./components/admin/Products";
 
 export default function App() {
   return (
@@ -21,8 +26,12 @@ export default function App() {
         {/* admin */}
         <Route path="/admin/dashboard" element={<DashboardLayout />}>
           <Route path="dashboard" element={<div>Dashboard Content</div>} />
-          <Route path="products" element={<div>Products Content</div>} />
+          <Route path="products" element={<Products></Products>} />
+             <Route path="products/add" element={<AddProduct/>} />
           <Route path="customers" element={<Customers/>} />
+          <Route path="categories" element={<Categories/>}/>
+            <Route path="categories/add" element={<AddCategory/>}/>
+            <Route path="categories/edit" element={<EditCategory/>}/>
           <Route path="sales" element={<div>Sales Content</div>} />
           <Route path="settings" element={<div>Settings Content</div>} />
         </Route>

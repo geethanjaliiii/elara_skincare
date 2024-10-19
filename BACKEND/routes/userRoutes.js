@@ -1,5 +1,5 @@
 const express = require('express')
-const {sendOTP,signup, verifyOTP, login} = require('../controllers/userController')
+const {sendOTP,signup, verifyOTP, login} = require('../controllers/user/userController')
 const userRoute = express()
 
 userRoute.post('/send-otp',sendOTP)

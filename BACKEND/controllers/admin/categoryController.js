@@ -38,7 +38,7 @@ const showCategories = async (req, res) => {
       .status(200)
       .json({ success: true, message: "Categories fetched.", categories });
   } catch (error) {
-    console.log("error in fetching categories".error.message);
+    console.log("error in fetching categories".error);
     res
       .status(error?.status || 500)
       .json({ message: error.message || "Something went wrong" });

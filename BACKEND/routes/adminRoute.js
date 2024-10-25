@@ -2,7 +2,7 @@ const express = require('express')
 const upload =require('../config/multerConfig')
 
 const {login,getCustomerDetails,editCustomerStatus} = require('../controllers/admin/adminController')
-const {addProduct}=require('../controllers/admin/productController')
+const {addProduct,showProducts,listProduct}=require('../controllers/admin/productController')
 const{addCategory,showCategories,editCategory,listCategory,showCategory}=require('../controllers/admin/categoryController')
 const adminRoute = express()
 
@@ -18,4 +18,6 @@ adminRoute.patch('/categories/list/:categoryId',listCategory)
  
 //products
 adminRoute.post('/products',upload.array('images',4),addProduct)
+adminRoute.get('/products',showProducts)
+adminRoute.patch('/products/:id',listProduct)
 module.exports = adminRoute

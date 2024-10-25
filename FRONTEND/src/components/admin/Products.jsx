@@ -1,235 +1,455 @@
-import React, { useState } from 'react'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Slider } from "@/components/ui/slider"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Checkbox } from "@/components/ui/checkbox"
-import { ChevronDown, ChevronUp, Edit, Plus, Search, Trash2 } from 'lucide-react'
-import Image from 'next/image'
+import React, { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Toaster, toast } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  ChevronDown,
+  Edit,
+  List,
+  Grid,
+  Filter,
+  X,
+  Search,
+  Eye,
+  EyeOff,
+} from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import axiosInstance from "@/config/axiosConfig";
 
-// Mock data for demonstration
-const mockProducts = [
-  { id: 1, name: "Hydrating Serum", description: "Intense hydration for all skin types", variant: "30ml", stock: 50, price: 29.99, category: "Serum", brand: "Elara", image: "/placeholder.svg" },
-  { id: 2, name: "Gentle Cleanser", description: "Soft, foaming cleanser for sensitive skin", variant: "200ml", stock: 100, price: 19.99, category: "Cleanser", brand: "Elara", image: "/placeholder.svg" },
-  { id: 3, name: "Brightening Moisturizer", description: "Illuminating daily moisturizer with SPF 30", variant: "50ml", stock: 75, price: 34.99, category: "Moisturizer", brand: "Elara", image: "/placeholder.svg" },
-  { id: 4, name: "Exfoliating Toner", description: "Clarifying toner with AHAs and BHAs", variant: "150ml", stock: 60, price: 24.99, category: "Toner", brand: "Elara", image: "/placeholder.svg" },
-  { id: 5, name: "Nourishing Night Cream", description: "Rich, restorative night treatment", variant: "50ml", stock: 40, price: 39.99, category: "Moisturizer", brand: "Elara", image: "/placeholder.svg" },
-]
+const skinTypes = [
+  "Dry",
+  "Oily",
+  "Combination",
+  "Normal",
+  "Sensitive",
+  "All Skin Types",
+];
 
 export default function Products() {
-  const [products, setProducts] = useState(mockProducts)
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' })
-  const [filters, setFilters] = useState({ category: 'all', priceRange: [0, 100], quantity: [0, 100] })
-  const [searchTerm, setSearchTerm] = useState('')
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [sortOption, setSortOption] = useState("recommended");
+  const [categoryFilters, setCategoryFilters] = useState([]);
+  const [skinTypeFilters, setSkinTypeFilters] = useState([]);
+  const [priceRange, setPriceRange] = useState([0, 500]);
+  const [viewMode, setViewMode] = useState("grid");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [list, setList] = useState(false);
+  const navigate =useNavigate()
+  //fetch product details
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        //construct query paramenters for filters and sorting
+        const queryParams = new URLSearchParams();
 
-  const sortProducts = (key) => {
-    let direction = 'ascending'
-    if (sortConfig.key === key && sortConfig.direction === 'ascending') {
-      direction = 'descending'
-    }
-    setSortConfig({ key, direction })
-  }
-
-  const getSortedProducts = () => {
-    const sortableProducts = [...products]
-    if (sortConfig.key !== null) {
-      sortableProducts.sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key]) {
-          return sortConfig.direction === 'ascending' ? -1 : 1
+        if (categoryFilters.length > 0) {
+          queryParams.append("categoryIds", categoryFilters.join(","));
         }
-        if (a[sortConfig.key] > b[sortConfig.key]) {
-          return sortConfig.direction === 'ascending' ? 1 : -1
+        if (skinTypeFilters.length > 0) {
+          queryParams.append("skinTypes", skinTypeFilters.join(","));
         }
-        return 0
-      })
+        if (priceRange[0] > 0 || priceRange[1] < 500) {
+          queryParams.append("minPrice", priceRange[0]);
+          queryParams.append("maxPrice", priceRange[1]);
+        }
+        if (searchTerm) {
+          queryParams.append("searchTerm", searchTerm);
+        }
+        if (sortOption !== "recommended") {
+          queryParams.append("sort", sortOption);
+        }
+
+        const response = await axiosInstance.get(
+          `api/admin/products?${queryParams.toString()}`
+        );
+        if (!response) {
+          console.log("products not found");
+          toast.error("Products not found!");
+          return;
+        }
+        setProducts(response?.data?.products);
+        console.log("pro", products);
+      } catch (error) {
+        console.log("products not found", error.message);
+      }
     }
-    return sortableProducts
-  }
+    fetchData();
+  }, [list, categoryFilters, priceRange, searchTerm, sortOption]);
 
-  const getFilteredProducts = () => {
-    return getSortedProducts().filter(product => 
-      (filters.category === 'all' || product.category === filters.category) &&
-      (product.price >= filters.priceRange[0] && product.price <= filters.priceRange[1]) &&
-      (product.stock >= filters.quantity[0] && product.stock <= filters.quantity[1]) &&
-      (product.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-       product.description.toLowerCase().includes(searchTerm.toLowerCase()))
-    )
-  }
+  //fetch category details
+  useEffect(() => {
+    async function fetchCategory() {
+      try {
+        const response = await axiosInstance.get("api/admin/categories");
+        console.log(response.data);
 
-  const handleCategoryChange = (value) => {
-    setFilters(prev => ({ ...prev, category: value }))
-  }
+        if (!response) {
+          console.log("categories not found");
+          return;
+        }
+        setCategories(response?.data?.categories);
+        console.log(response.data.categories);
+      } catch (error) {
+        console.log("categoried not found", error);
+      }
+      console.log("categories", categories);
+    }
+    fetchCategory();
+  }, []);
 
-  const handlePriceRangeChange = (value) => {
-    setFilters(prev => ({ ...prev, priceRange: value }))
-  }
+  const handleCategoryChange = (categoryId) => {
+    setCategoryFilters((prev) =>
+      prev.includes(categoryId)
+        ? prev.filter((c) => c !== categoryId)
+        : [...prev, categoryId]
+    );
+  };
 
-  const handleQuantityChange = (value) => {
-    setFilters(prev => ({ ...prev, quantity: value }))
-  }
+  const handleSkinTypeChange = (type) => {
+    setSkinTypeFilters((prev) =>
+      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
+    );
+  };
 
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value)
-  }
+  //list or unlist products
+  const toggleListed = async (_id) => {
+    setProducts((prevProducts) =>
+      prevProducts.map((product) =>
+        product._id === _id
+          ? { ...product, isListed: !product.isListed }
+          : product
+      )
+    );
+    try {
+      await axiosInstance.patch(`/api/admin/products/${_id}`);
+      setList(!list);
+    } catch (error) {
+      console.log("error in listing products", error.message);
+    }
+  };
+  const handleAddProduct = () => {
+    navigate('/admin/dashboard/products/add')
+  };
+  const FilterSidebar = () => (
+    <div className="bg-white p-4 rounded-lg shadow-lg">
+      <h2 className="font-bold text-lg mb-4">Filters</h2>
 
-  const handleEdit = (id) => {
-    // Implement edit functionality
-    console.log(`Editing product with id: ${id}`)
-  }
+      <div className="mb-4">
+        <h3 className="font-semibold mb-2">Category</h3>
+        {categories.map((category) => (
+          <div key={category._id} className="flex items-center mb-2">
+            <Checkbox
+              id={`category-${category.name}`}
+              checked={categoryFilters.includes(category._id)}
+              onCheckedChange={() => handleCategoryChange(category._id)}
+            />
+            <label
+              htmlFor={`category-${category.name}`}
+              className="ml-2 text-sm"
+            >
+              {category.name}
+            </label>
+          </div>
+        ))}
+      </div>
 
-  const handleUnlist = (id) => {
-    // Implement unlist functionality
-    console.log(`Unlisting product with id: ${id}`)
-  }
+      <div className="mb-4">
+        <h3 className="font-semibold mb-2">Skin Type</h3>
+        {skinTypes.map((type) => (
+          <div key={type} className="flex items-center mb-2">
+            <Checkbox
+              id={`skinType-${type}`}
+              checked={skinTypeFilters.includes(type)}
+              onCheckedChange={() => handleSkinTypeChange(type)}
+            />
+            <label htmlFor={`skinType-${type}`} className="ml-2 text-sm">
+              {type}
+            </label>
+          </div>
+        ))}
+      </div>
+
+      <div>
+        <h3 className="font-semibold mb-2">Price Range</h3>
+        <Slider
+          min={0}
+          max={500}
+          step={10}
+          value={priceRange}
+          onValueChange={setPriceRange}
+        />
+        <div className="flex justify-between mt-2 text-sm">
+          <span>₹{priceRange[0]}</span>
+          <span>₹{priceRange[1]}</span>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gray-100 p-4 sm:p-6 lg:p-8">
+      <Toaster />
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Skin Care Product List</h1>
-          <Button>
-            <Plus className="w-4 h-4 mr-2" /> Add New Product
-          </Button>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-          <div className="md:col-span-1 space-y-4">
-            <div>
-              <Label htmlFor="category-filter">Category</Label>
-              <Select onValueChange={handleCategoryChange}>
-                <SelectTrigger id="category-filter">
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
-                  <SelectItem value="Cleanser">Cleanser</SelectItem>
-                  <SelectItem value="Toner">Toner</SelectItem>
-                  <SelectItem value="Serum">Serum</SelectItem>
-                  <SelectItem value="Moisturizer">Moisturizer</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>Price Range</Label>
-              <Slider
-                min={0}
-                max={100}
-                step={1}
-                value={filters.priceRange}
-                onValueChange={handlePriceRangeChange}
-                className="mt-2"
-              />
-              <div className="flex justify-between mt-2">
-                <span>${filters.priceRange[0]}</span>
-                <span>${filters.priceRange[1]}</span>
-              </div>
-            </div>
-            <div>
-              <Label>Quantity</Label>
-              <Slider
-                min={0}
-                max={100}
-                step={1}
-                value={filters.quantity}
-                onValueChange={handleQuantityChange}
-                className="mt-2"
-              />
-              <div className="flex justify-between mt-2">
-                <span>{filters.quantity[0]}</span>
-                <span>{filters.quantity[1]}</span>
-              </div>
-            </div>
+        <div className="flex flex-col md:flex-row gap-6">
+          {/* Sidebar for larger screens */}
+          <div className="hidden md:block w-64">
+            <FilterSidebar />
           </div>
 
-          <div className="md:col-span-3">
-            <div className="mb-4">
-              <Input
-                type="text"
-                placeholder="Search products..."
-                value={searchTerm}
-                onChange={handleSearch}
-                className="w-full"
-                icon={<Search className="w-4 h-4" />}
-              />
-            </div>
+          {/* Product List */}
+          <div className="flex-1">
+            <div className="bg-white shadow-lg rounded-lg overflow-hidden">
+              <div className="p-4 border-b border-gray-200 space-y-4">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <h1 className="text-2xl font-bold">Product List</h1>
+                  <div className="flex flex-wrap gap-4 items-center">
+                    <Button
+                      onClick={handleAddProduct}
+                      className="sm:p-2"
+                    >
+                      Add Product
+                    </Button>
+                    <div className="flex space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setViewMode("list")}
+                      >
+                        <List className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setViewMode("grid")}
+                      >
+                        <Grid className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <Select
+                      value={sortOption}
+                      onValueChange={(value) => setSortOption(value)}
+                    >
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Sort by" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="recommended">Recommended</SelectItem>
+                        <SelectItem value="priceHighLow">
+                          Price: High to Low
+                        </SelectItem>
+                        <SelectItem value="priceLowHigh">
+                          Price: Low to High
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="flex gap-4 items-center">
+                  <div className="relative flex-grow">
+                    <Input
+                      type="text"
+                      placeholder="Search products..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10"
+                    />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  </div>
+                  {/* Filter button for mobile */}
+                  <div className="md:hidden">
+                    <Sheet>
+                      <SheetTrigger asChild>
+                        <Button variant="outline">
+                          <Filter className="w-4 h-4 mr-2" /> Filters
+                        </Button>
+                      </SheetTrigger>
+                      <SheetContent side="left">
+                        <SheetHeader>
+                          <SheetTitle>Filters</SheetTitle>
+                          <SheetDescription>
+                            Apply filters to refine your product search.
+                          </SheetDescription>
+                        </SheetHeader>
+                        <div className="mt-4">
+                          <FilterSidebar />
+                        </div>
+                      </SheetContent>
+                    </Sheet>
+                  </div>
+                </div>
+              </div>
 
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Image</TableHead>
-                  <TableHead className="w-[250px]">
-                    <button className="font-semibold" onClick={() => sortProducts('name')}>
-                      Product Name
-                      {sortConfig.key === 'name' && (
-                        sortConfig.direction === 'ascending' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
-                      )}
-                    </button>
-                  </TableHead>
-                  <TableHead>
-                    <button className="font-semibold" onClick={() => sortProducts('category')}>
-                      Category
-                      {sortConfig.key === 'category' && (
-                        sortConfig.direction === 'ascending' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
-                      )}
-                    </button>
-                  </TableHead>
-                  <TableHead>
-                    <button className="font-semibold" onClick={() => sortProducts('brand')}>
-                      Brand
-                      {sortConfig.key === 'brand' && (
-                        sortConfig.direction === 'ascending' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
-                      )}
-                    </button>
-                  </TableHead>
-                  <TableHead>
-                    <button className="font-semibold" onClick={() => sortProducts('price')}>
-                      Price
-                      {sortConfig.key === 'price' && (
-                        sortConfig.direction === 'ascending' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
-                      )}
-                    </button>
-                  </TableHead>
-                  <TableHead>
-                    <button className="font-semibold" onClick={() => sortProducts('stock')}>
-                      Quantity
-                      {sortConfig.key === 'stock' && (
-                        sortConfig.direction === 'ascending' ? <ChevronUp className="inline ml-1" /> : <ChevronDown className="inline ml-1" />
-                      )}
-                    </button>
-                  </TableHead>
-                  <TableHead>Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {getFilteredProducts().map((product) => (
-                  <TableRow key={product.id}>
-                    <TableCell>
-                      <Image src={product.image} alt={product.name} width={50} height={50} className="rounded-md" />
-                    </TableCell>
-                    <TableCell className="font-medium">{product.name}</TableCell>
-                    <TableCell>{product.category}</TableCell>
-                    <TableCell>{product.brand}</TableCell>
-                    <TableCell>${product.price.toFixed(2)}</TableCell>
-                    <TableCell>{product.stock}</TableCell>
-                    <TableCell>
-                      <div className="flex space-x-2">
-                        <Button variant="outline" size="sm" onClick={() => handleEdit(product.id)}>
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={() => handleUnlist(product.id)}>
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+              {/* Toggle between grid and list views */}
+              {viewMode === "grid" ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+                  {products.map((product) => (
+                    <div
+                      key={product._id}
+                      className="border rounded-lg p-4 bg-white shadow-md relative"
+                    >
+                      <img
+                        src={product.images[0]}
+                        alt={product.name}
+                        className="w-full h-40 object-cover rounded-md mb-4"
+                      />
+                      <h2 className="text-lg font-bold mb-2">{product.name}</h2>
+                      <p className="text-sm mb-2">
+                        Category: {product.categoryId.name}
+                      </p>
+                      <p className="text-sm mb-2">
+                        SkinType: {product.skinType}
+                      </p>
+                      <p className="text-lg font-semibold">₹{product.price}</p>
+
+                      {/* Admin actions */}
+                      <div className="absolute top-2 right-2 flex flex-col space-y-2">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button size="icon" variant="ghost">
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Edit product</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                onClick={() => toggleListed(product._id)}
+                              >
+                                {product.isListed ? (
+                                  <Eye className="w-4 h-4" />
+                                ) : (
+                                  <EyeOff className="w-4 h-4" />
+                                )}
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>
+                                {product.isListed ? "Unlist" : "List"} product
+                              </p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Image</TableHead>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Category</TableHead>
+                        <TableHead>Price</TableHead>
+                        <TableHead>Stock</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {products.map((product) => (
+                        <TableRow key={product._id}>
+                          <TableCell>
+                            <img
+                              src={product.images[0]}
+                              alt={product.name}
+                              className="w-10 h-10 object-cover rounded-md"
+                            />
+                          </TableCell>
+                          <TableCell>{product.name}</TableCell>
+                          <TableCell>{product.categoryId.name}</TableCell>
+                          <TableCell>₹{product.price}</TableCell>
+                          <TableCell>{product.totalStock}</TableCell>
+                          <TableCell>
+                            <div className="flex space-x-2">
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button size="icon" variant="ghost">
+                                      <Edit className="w-4 h-4" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Edit product</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      size="icon"
+                                      variant="ghost"
+                                      onClick={() => toggleListed(product._id)}
+                                    >
+                                      {product.isListed ? (
+                                        <Eye className="w-4 h-4" />
+                                      ) : (
+                                        <EyeOff className="w-4 h-4" />
+                                      )}
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>
+                                      {product.isListed ? "Unlist" : "List"}{" "}
+                                      product
+                                    </p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }

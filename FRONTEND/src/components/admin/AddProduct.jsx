@@ -14,27 +14,39 @@ import {
 } from "@/components/ui/select";
 import axiosInstance from "@/config/axiosConfig";
 import ImageCropper from "../ui/ImageCropper";
+import { useNavigate } from "react-router-dom";
 
 export default function AddProduct() {
-  const [productData, setProductData] = useState({name:"",description:"",ingredient:"",categoryId:""});
+  const [productData, setProductData] = useState({name:"",description:"",ingredient:"",categoryId:"",price:"",discount:"",skinType:""});
   const [selectedImages, setSelectedImages] = useState([]);
   const [croppedImages, setCroppedImages] = useState([]);
   const [categories, setCategories] = useState([]);
   const [sizes, setSizes] = useState([{ size: "", stock: "", price: "" }]);
   const [crop, setCrop] = useState(false);
   const [error, setError] = useState({});
+  const navigate =useNavigate()
+
   const handleProductChange = (e) => {
     const { name, value } = e.target;
     setProductData({ ...productData, [name]: value });
   };
 
   const handleImageChange = (event) => {
-    setCrop(true);
+    
     const files = Array.from(event.target.files);
     if (files.length > 4) {
       toast.error("You can only select up to 4 images");
       return;
     }
+
+    //validate each file type
+    const imageFiles =files.filter(file=>file.type.startsWith("image/"))
+    if(imageFiles.length!=files.length){
+      toast.error("Only image files (PNG, JPG) are allowed");
+      return 
+    }
+   
+    //if no files are selected
     if(files.length===0){
       setCrop(false)
     }
@@ -44,6 +56,7 @@ export default function AddProduct() {
       url: URL.createObjectURL(file),
     }));
     setSelectedImages(imageUrls);
+    setCrop(true);
   };
 
   const handleCroppedImage = (croppedImageUrl, compressedImage) => {
@@ -53,6 +66,8 @@ export default function AddProduct() {
     ]);
     setCrop(false);
   };
+  
+
 
   const handleSizeChange = (index, field, value) => {
     const updatedSizes = sizes.map((size, i) =>
@@ -75,6 +90,7 @@ export default function AddProduct() {
       try {
         const response = await axiosInstance.get("/api/admin/categories");
         setCategories(response?.data?.categories);
+        
       } catch (error) {
         console.log("error in fetching categories", error.message);
       }
@@ -98,13 +114,27 @@ export default function AddProduct() {
     if (!productData.categoryId) {
       newError.category = "Please select a category.";
     }
+    if(!productData.price){
+      newError.price="Product is required."
+    }else if(productData.price <0){
+      newError.price ="Price cannot be negative."
+    }
+    if(!productData.discount){
+     newError.discount="Discount is required."
+    }else if(productData.discount<0 || productData.discount>100){
+      newError.discount ="Discount must be between 0 and 100"
+    }
+    if(!productData.skinType){
+      newError.skinType ="Skin tyoe is required."
+    }
     if (sizes.length === 0 || sizes.some(size => !size.size || !size.price || !size.stock)) {
       newError.sizes = "Please add at least one size variant with valid size, price, and stock.";
     }
   
     // Validate images
-    if (croppedImages.length === 0) {
-      newError.images = "Please upload at least one image.";
+    if (croppedImages.length <3) {
+      console.log(croppedImages)
+      newError.images = "Please upload at least three image.";
     }else if(croppedImages.length>4){
       console.log(croppedImages);
       
@@ -129,7 +159,8 @@ export default function AddProduct() {
     formData.append("ingredient", productData.ingredient);
     formData.append("skinType", productData.skinType);
     formData.append("categoryId", productData.categoryId);
-
+    formData.append("price",productData.price);
+    formData.append("discount",productData.discount)
     //append sizes
     sizes.forEach((size, index) => {
       formData.append(`sizes[${index}][size]`, size.size);
@@ -151,9 +182,11 @@ export default function AddProduct() {
           },
         }
       );
+      console.log(response);
+      
       toast.success("Product added successfully");
       //reset form state
-      setProductData({name:"",description:"",ingredient:"",categoryId:""});
+      setProductData({name:"",description:"",ingredient:"",categoryId:"",price:"",discount:""});
       setCroppedImages([]);
       setCrop(false);
       setSizes([{ size: "", stock: "", price: "" }]);
@@ -168,6 +201,7 @@ export default function AddProduct() {
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
       <Toaster />
+      <Button onClick={()=>navigate('/admin/dashboard/products')} className="p-2 h-9">Go Back</Button>
       <h1 className="text-3xl font-bold mb-8 text-center text-primary">
         Add New Product
       </h1>
@@ -194,6 +228,7 @@ export default function AddProduct() {
           </div>
         </div>
       )}
+
 
       {croppedImages.length > 0 && (
         <div className="mt-6">
@@ -285,7 +320,35 @@ export default function AddProduct() {
             <p className="text-red-500 text-sm">{error.description}</p>
           )}
         </div>
+        <div>
+          <Label htmlFor="price">Price</Label>
+          <Input
+          id="price"
+          placeholder="price"
+          type="number"
+          name="price"
+          onChange={handleProductChange}
+          value={productData.price}
+          />
+          {error.price &&  (
+            <p className="text-red-500 text-sm">{error.price}</p>
+          )}
+        </div>
 
+        <div>
+          <Label htmlFor="discount">Discount (%)</Label>
+          <Input
+          id="discount"
+          placeholder="Enter discount"
+          type="number"
+          value={productData.discount}
+          name="discount"
+          onChange={handleProductChange}
+          />
+          {error.discount && (
+          <p className="text-red-500 text-sm">{error.discount}</p>
+        )}
+        </div>
         <div>
           <Label htmlFor="key-ingredient">Key Ingredient</Label>
           <Input
@@ -318,6 +381,7 @@ export default function AddProduct() {
               <SelectItem value="oily">Oily</SelectItem>
               <SelectItem value="combination">Combination</SelectItem>
               <SelectItem value="sensitive">Sensitive</SelectItem>
+              <SelectItem value="All skin types">All skin types</SelectItem>
             </SelectContent>
           </Select>
           {error.skinType && (
@@ -374,7 +438,6 @@ export default function AddProduct() {
           </button>
           {error.sizes && <p className="text-red-500 text-sm">{error.sizes}</p>}
         </div>
-
         <div>
           <Label htmlFor="category">Category</Label>
           <Select

@@ -75,6 +75,7 @@ const login = async (req, res) => {
     res.status(500).json({ success: false, mesaage: "Login failed", error });
   }
 };
+
 //logic for signup
 const signup = async (req, res) => {
   const { name, email, phone, password } = req.body;
@@ -172,6 +173,7 @@ const verifyOTP = async (req, res) => {
     console.log("error in otp verification", error.message);
   }
 };
+
 module.exports = {
   signup,
   sendOTP,

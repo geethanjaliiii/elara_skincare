@@ -26,7 +26,7 @@ export default function App() {
         {/* admin */}
         <Route path="/admin/dashboard" element={<DashboardLayout />}>
           <Route path="dashboard" element={<div>Dashboard Content</div>} />
-          <Route path="products" element={<Products></Products>} />
+          <Route path="products" element={<Products/>} />
              <Route path="products/add" element={<AddProduct/>} />
           <Route path="customers" element={<Customers/>} />
           <Route path="categories" element={<Categories/>}/>

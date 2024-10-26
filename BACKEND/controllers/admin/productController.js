@@ -233,4 +233,6 @@ const listProduct = async (req, res) => {
       .json({ message: error || "Something went wrong" });
   }
 };
+
+
 module.exports = { addProduct, showProducts, listProduct };

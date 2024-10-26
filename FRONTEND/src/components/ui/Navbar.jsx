@@ -21,6 +21,7 @@ const Navbar = () => {
   };
 
   const handleLogout=()=>{
+    document.cookie = "userRefreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
        dispatch(logoutUser())
   }
   return (
@@ -34,7 +35,13 @@ const Navbar = () => {
           <Link to="/contact" className="text-sm font-medium hover:text-primary">CONTACT</Link>
         </nav>
         <div className="flex items-center space-x-4">
-          <FiSearch className="text-muted-foreground" />
+          {!isLoggedIn && (<Button className="font-medium w-20" onClick={()=>navigate('/login')}>Login</Button>)}
+          {/* <input
+          type="text"
+          placeholder="Search..."
+          className="px-3 py-2 border rounded-lg hidden md:block focus:outline-none focus:ring-2 focus:ring-primary"
+        /> */}
+        <FiSearch className="text-muted-foreground" />
           <button onClick={handleCartClick} className="relative">
             <FiShoppingCart
               className="text-muted-foreground transition-transform transform hover:scale-110"

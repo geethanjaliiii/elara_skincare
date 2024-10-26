@@ -20,6 +20,8 @@ const sendVerificationEmail = require("../../utils/nodemailer/sendVerificationEm
 const login = async (req, res) => {
   const { email, password } = req.body;
   try {
+    console.log("logging..");
+    
     const userExist = await User.findOne({ email });
     if (!userExist) {
       return res.status(404).json({
@@ -94,18 +96,6 @@ const signup = async (req, res) => {
       password: securePassword,
     });
     console.log("User registered successfully");
-    const userData = { id: newUser._id, email: newUser.email };
-    const accessToken = generateAccessToken(userData);
-    const refreshToken = generateRefreshToken(userData);
-
-    const newRefreshToken = new RefreshToken({
-      token: refreshToken,
-      user: newUser._id,
-      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
-    });
-
-    await newRefreshToken.save();
-    setCookie("userRefreshToken", refreshToken, 24 * 60 * 60 * 1000, res);
     res.json({
       success: true,
       message: "User Registered Successfully",
@@ -115,8 +105,31 @@ const signup = async (req, res) => {
         email: newUser.email,
         phone: newUser.phone,
       },
-      accessToken,
     });
+    // const userData = { id: newUser._id, email: newUser.email };
+    // const accessToken = generateAccessToken(userData);
+    // const refreshToken = generateRefreshToken(userData);
+
+    // const newRefreshToken = new RefreshToken({
+    //   token: refreshToken,
+    //   user: newUser._id,
+    //   expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+    // });
+
+    // await newRefreshToken.save();
+    // setCookie("userRefreshToken", refreshToken, 24 * 60 * 60 * 1000, res);
+    // res.json({
+    //   success: true,
+    //   message: "User Registered Successfully",
+    //   newUser: {
+    //     id: newUser._id,
+    //     name: newUser.name,
+    //     email: newUser.email,
+    //     phone: newUser.phone,
+    //   },
+    //   accessToken,
+    // });
+   
   } catch (error) {
     console.log(error);
 
@@ -174,9 +187,52 @@ const verifyOTP = async (req, res) => {
   }
 };
 
+const refreshUserToken=async(req,res)=>{
+  console.log("refreshing access token");
+  
+  const refreshToken =req.cookies.userRefreshToken;
+  if(!refreshToken){
+    return res.status(401).json({error:"No refresh token provided."})
+  }
+try {
+  
+  const decoded= jwt.verify(refreshToken,process.env.REFRESH_TOKEN_KEY)
+  const userId =decoded.id
+  const storedToken = await RefreshToken.findOne({token:refreshToken, user:userId})
+  if(!storedToken){
+    return res.status(403).json({success:false, error:"Invalid refresh token"})
+  }
+
+  //generate access token
+  const newAccessToken =generateAccessToken({id:userId,email:decoded.email})
+
+  //send new access token as a response
+  res.status(200).json({success:true,accessToken:newAccessToken})
+
+} catch (error) {
+  console.log("error in refreshing token",error.message);
+  res.status(403).json({success:false,message:'Token verification failed',error})
+}
+}
+
+const logout=async(req,res)=>{
+  try {
+    const refreshToken= req.cookies['userRefreshToken']
+    console.log(refreshToken);
+    await RefreshToken.deleteOne({token:refreshToken})
+    document.cookie = "userRefreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    res.cookie("userRefreshToken", "", { maxAge: 1 })
+    res.status(200).json({message:"Logged out successfully"})
+  } catch (error) {
+    console.log("error in logout",error);
+    res.json({success:false,error:error})
+  }
+}
 module.exports = {
   signup,
   sendOTP,
   verifyOTP,
   login,
+  refreshUserToken,
+  logout
 };

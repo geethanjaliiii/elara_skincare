@@ -11,7 +11,8 @@ import { useEffect,useState } from 'react';
 import axiosInstance from '@/config/axiosConfig';
 import { useDispatch } from 'react-redux';
 import { setUserDetails } from '@/store/slices/userSlice';
-
+import toast, { Toaster } from 'react-hot-toast';
+import GoogleAuth from '@/components/ui/GoogleAuth';
 const Login = () => {
     const [formData, setFormData] =useState(null)
     const[error,setError]=useState('')
@@ -29,11 +30,21 @@ const Login = () => {
         setFormData(values)
         try {
            const response= await axiosInstance.post('/api/users/login',values)
-           console.log(response?.data);
-           
-           dispatch(setUserDetails(response?.data?.user))
-           navigate('/')
+           if(response?.data){
+            const{accessToken}= response.data
+
+            //store access token in localstorage
+            localStorage.setItem('accessToken',accessToken)
+            console.log("responw",response?.data);
+            
+            dispatch(setUserDetails(response?.data?.user))
+            toast.success("User logged in successfully.")
+            setTimeout(()=>{
+             navigate('/')
+            },1000)
+           }
         } catch (error) {
+            toast.error("User login failed.")
             console.log("error in login",error.message);
             if(error?.response?.status===400){
                     setError("Invalid credentials")
@@ -53,6 +64,7 @@ const Login = () => {
     return (
         <div className="min-h-screen bg-background text-foreground">
             <Navbar />
+            <Toaster/>
             <main className="container mx-auto px-4 lg:px-11 py-8 md:py-12 flex flex-col md:flex-row items-center justify-center">
                 <div
                     className="md:w-1/4 hidden md:block bg-cover bg-center h-full rounded-lg shadow-lg"
@@ -100,12 +112,13 @@ const Login = () => {
                             </Form>
                         )}
                     </Formik>
-                    <div className="mt-4">
+                    <GoogleAuth/>
+                    {/* <div className="mt-4">
                         <Button variant="outline" className="w-full flex items-center justify-center">
                             <FcGoogle className="mr-2 h-4 w-4" />
                             Sign in with Google
                         </Button>
-                    </div>
+                    </div> */}
                     <p className="mt-4 text-center text-sm text-muted-foreground">
                         Don't have an account?{' '}
                         <Link to="/signup" className="font-medium text-primary hover:underline">

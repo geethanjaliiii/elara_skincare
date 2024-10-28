@@ -30,7 +30,7 @@ function GoogleAuth() {
         localStorage.setItem('accessToken',accessToken)
         navigate("/");
       }
-      console.log("Sign in with google success", response);
+      console.log("Sign in with google success");
     } catch (error) {
       console.log("error in google signin",error);
     }

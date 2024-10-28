@@ -187,7 +187,7 @@ const refreshUserToken=async(req,res)=>{
   if(!refreshToken){
     console.log("No refresh token provided");
     
-    return res.status(401).json({error:"No refresh token provided."})
+    return res.status(401).json({error:"No refresh token provided.",success:false})
   }
 try {
   

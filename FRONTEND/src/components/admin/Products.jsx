@@ -339,7 +339,7 @@ export default function Products() {
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Button size="icon" variant="ghost">
+                              <Button size="icon" variant="ghost" onClick={()=>navigate('/')}>
                                 <Edit className="w-4 h-4" />
                               </Button>
                             </TooltipTrigger>
@@ -406,7 +406,7 @@ export default function Products() {
                               <TooltipProvider>
                                 <Tooltip>
                                   <TooltipTrigger asChild>
-                                    <Button size="icon" variant="ghost">
+                                    <Button size="icon" variant="ghost" onClick={()=>navigate}>
                                       <Edit className="w-4 h-4" />
                                     </Button>
                                   </TooltipTrigger>

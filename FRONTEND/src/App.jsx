@@ -13,7 +13,9 @@ import AddCategory from "./components/admin/AddCategory";
 import EditCategory from "./components/admin/EditCategory";
 import AddProduct from "./components/admin/AddProduct";
 import Products from "./components/admin/Products";
+import EditProduct from './components/admin/EditProduct'
 import ProductPage from "./pages/user/ProductPage";
+import ShopPage from "./pages/user/ShopPage";
 
 export default function App() {
   return (
@@ -29,6 +31,7 @@ export default function App() {
           <Route path="dashboard" element={<div>Dashboard Content</div>} />
           <Route path="products" element={<Products/>} />
              <Route path="products/add" element={<AddProduct/>} />
+             <Route path="products/edit" element={<EditProduct/>}/>
           <Route path="customers" element={<Customers/>} />
           <Route path="categories" element={<Categories/>}/>
             <Route path="categories/add" element={<AddCategory/>}/>
@@ -38,6 +41,7 @@ export default function App() {
         </Route>
         {/* user */}
         <Route path="/product" element={<ProductPage/>}/>
+        <Route path="/shop" element={<ShopPage/>}/>
       </Routes>
       </Provider>
     </div>

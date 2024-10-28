@@ -15,6 +15,10 @@ const refreshTokenSchema = new mongoose.Schema({
         type: Date,
         required: true,
     },
+    createdAt:{
+        type:Date,
+        default:Date.now
+    }
 });
 
 module.exports = mongoose.model('RefreshToken', refreshTokenSchema);

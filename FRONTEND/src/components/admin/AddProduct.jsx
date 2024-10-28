@@ -24,6 +24,7 @@ export default function AddProduct() {
   const [sizes, setSizes] = useState([{ size: "", stock: "", price: "" }]);
   const [crop, setCrop] = useState(false);
   const [error, setError] = useState({});
+  const [loading,setLoading]=useState(false)
   const navigate =useNavigate()
 
   const handleProductChange = (e) => {
@@ -173,6 +174,7 @@ export default function AddProduct() {
       formData.append(`images`, image.compressedImage);
     });
     try {
+      
       const response = await axiosInstance.post(
         "/api/admin/products",
         formData,
@@ -182,8 +184,9 @@ export default function AddProduct() {
           },
         }
       );
+      setLoading(true)
       console.log(response);
-      
+      toast.loading("Product is addding.Please wait.")
       toast.success("Product added successfully");
       //reset form state
       setProductData({name:"",description:"",ingredient:"",categoryId:"",price:"",discount:""});
@@ -462,7 +465,7 @@ export default function AddProduct() {
           )}
         </div>
 
-        <Button type="submit" className="w-full">
+        <Button type="submit" className={loading ?"w-full cursor-not-allowed":"w-full cursor-pointer"}>
           Add Product
         </Button>
       </form>

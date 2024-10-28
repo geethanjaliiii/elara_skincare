@@ -12,12 +12,10 @@ const userSchema = new mongoose.Schema({
     },
     phone:{
         type:String,
-        required:true,
-        trim:true
     },
     password:{
         type:String,
-        required:true
+        
     },
     isBlocked:{
          type:Boolean,

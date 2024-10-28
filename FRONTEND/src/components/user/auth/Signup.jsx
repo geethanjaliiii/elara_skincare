@@ -12,6 +12,7 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { setUserDetails } from "@/store/slices/userSlice";
 import { Link } from "react-router-dom";
+import toast, { Toaster } from "react-hot-toast";
 
 const validationSchema = Yup.object({
   name: Yup.string()
@@ -84,7 +85,7 @@ const Signup = () => {
         email: formData.email,
       });
       console.log("otp verified",response);
-      
+      toast.success("OTP verified.")
       console.log(response?.data);
       if (response?.data?.invalid) {
         setOtpErrMessage(response.data.message);
@@ -118,8 +119,10 @@ const Signup = () => {
       console.log(response.data);
 
       if (response?.data?.success) {
+        const{accessToken}= response.data
         dispatch(setUserDetails(response?.data?.newUser));
-        navigate("/login");
+        localStorage.setItem('accessToken',accessToken)
+        navigate("/");
       }
     } catch (error) {
       if (error?.response) {
@@ -147,6 +150,7 @@ const Signup = () => {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Navbar />
+      <Toaster/>
       <main className="container mx-auto px-4 lg:px-11 py-8 md:py-12 flex flex-col md:flex-row items-center justify-center">
         <div
           className="md:w-1/4 hidden md:block bg-cover bg-center h-full rounded-lg shadow-lg"
@@ -156,9 +160,11 @@ const Signup = () => {
             width: "50%", // Adjust this to fit your layout
           }}
         ></div>
-        <div className="md:w-3/4 md:pl-12 w-full max-w-md ml-3">
+        <div className="md:w-3/4 md:pl-12 w-full max-w-md ml-3 ">
           <h2 className="text-3xl font-semibold mb-6">Create your account</h2>
-
+          {error && (
+            <div className="mt-3 text-base text-center text-red-600">
+              {error}</div>)}
           <Formik
             initialValues={initialValues}
             validationSchema={validationSchema}

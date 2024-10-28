@@ -5,16 +5,17 @@ import Navbar from '@/components/ui/Navbar';
 import Footer from '../ui/Footer';
 import { useScrollAnimation } from '@/hooks/useScrollAnimate';
 import axiosInstance from '@/config/axiosConfig';
+import { useNavigate } from 'react-router-dom';
 
 export default function EvaraLandingPage() {
   const [bestsellers, setBestsellers] =useState([])
-
+  const navigate =useNavigate()
   useScrollAnimation();
 
   useEffect(()=>{
     async function fetchBestsellers() {
       try {
-        const response = await axiosInstance.get('/api/users/bestsellers')
+        const response = await axiosInstance.get('/api/users/products/bestsellers')
         console.log("Bestsellers fetched.",response?.data?.bestsellers);
         setBestsellers(response?.data?.bestsellers)
       } catch (error) {
@@ -23,6 +24,7 @@ export default function EvaraLandingPage() {
     }
     fetchBestsellers()
   },[])
+
 
 
   const routineSteps = [
@@ -84,6 +86,7 @@ export default function EvaraLandingPage() {
                       </h3>
                       <p className="text-white mb-4">₹ {product.price}</p>
                       <Button
+                        onClick={()=>navigate('/product',{state: {productId:product._id}})}
                         variant="secondary"
                         className="bg-white text-black hover:bg-gray-200 transition-colors duration-300"
                       >

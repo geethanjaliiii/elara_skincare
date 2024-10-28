@@ -13,4 +13,25 @@ const featuredProducts=async (req,res)=>{
         .json({ message: error || "Something went wrong" });
     }
   }
-  module.exports ={featuredProducts}
+
+
+  const viewProduct=async(req,res)=>{
+    const {id}=req.params
+try {
+  if(!id){
+    console.log("Invalid product Id");
+    return res.status(400).json({success:false ,message:"Invalid product id."})
+  }
+ const product= await Product.findById(id).populate("categoryId","name").populate("relatedProducts","name price discount images ")
+ if(!product){
+  return res.status(401).json({success:false,message:"Product not found",error})
+ }
+res.status(200).json({success:true, message:"product fetched",product})
+} catch (error) {
+  console.log("error in view products",error);
+  res.status(error.status ||500).json({error,message: error.message||"Internal server error"})
+}
+  }
+  module.exports ={featuredProducts,viewProduct}
+
+  

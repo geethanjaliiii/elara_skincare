@@ -13,6 +13,7 @@ import AddCategory from "./components/admin/AddCategory";
 import EditCategory from "./components/admin/EditCategory";
 import AddProduct from "./components/admin/AddProduct";
 import Products from "./components/admin/Products";
+import ProductPage from "./pages/user/ProductPage";
 
 export default function App() {
   return (
@@ -35,6 +36,8 @@ export default function App() {
           <Route path="sales" element={<div>Sales Content</div>} />
           <Route path="settings" element={<div>Settings Content</div>} />
         </Route>
+        {/* user */}
+        <Route path="/product" element={<ProductPage/>}/>
       </Routes>
       </Provider>
     </div>

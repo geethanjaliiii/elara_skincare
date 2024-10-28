@@ -27,7 +27,7 @@ const Navbar = () => {
   return (
     <header className="border-b">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-        <h1 className="text-2xl font-serif">Elara</h1>
+        <h1 className="text-2xl font-serif cursor-pointer" onClick={()=>navigate('/')}>Elara</h1>
         <nav className="hidden md:flex space-x-6">
           <Link to="/" className="text-sm font-medium hover:text-primary">HOME</Link>
           <Link to="/shop" className="text-sm font-medium hover:text-primary">SHOP</Link>

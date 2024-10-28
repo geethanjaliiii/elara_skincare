@@ -28,6 +28,7 @@ const Login = () => {
         // Handle login logic here with Formik values
         console.log('Login attempted with:', values);
         setFormData(values)
+        setError("")
         try {
            const response= await axiosInstance.post('/api/users/login',values)
            if(response?.data){
@@ -49,15 +50,16 @@ const Login = () => {
             if(error?.response?.status===400){
                     setError("Invalid credentials")
             }else if(error?.response.status===401){
-                setError("Invalid email or password")
+                setError("Invalid email or password.")
             }
             else if(error?.response.status===404){
                 setError("User doesn't exist.Please create a new account.")
             }else if(error?.response.status===500){
-                setError("You are blocked.")
+                setError("Account is blocked. Please contact support.")
             }else{
                 setError("Something went wrong! Please try again.")
             }
+            
         }
     };
 
@@ -112,13 +114,10 @@ const Login = () => {
                             </Form>
                         )}
                     </Formik>
+                    
+                    <div className="mt-4">
                     <GoogleAuth/>
-                    {/* <div className="mt-4">
-                        <Button variant="outline" className="w-full flex items-center justify-center">
-                            <FcGoogle className="mr-2 h-4 w-4" />
-                            Sign in with Google
-                        </Button>
-                    </div> */}
+                    </div>
                     <p className="mt-4 text-center text-sm text-muted-foreground">
                         Don't have an account?{' '}
                         <Link to="/signup" className="font-medium text-primary hover:underline">

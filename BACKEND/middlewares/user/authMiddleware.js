@@ -7,9 +7,10 @@ function authenticateToken(req,res,next){
     if(!token){
         console.log("no token");
         
-        return res.status(401).json({success:false, error:'Access denied, no token provided'})
+        return res.status(401).json({success:false, message:'Access denied, no token provided'})
     }
    
+   console.log("access tok",token);
    
     jwt.verify(token,secretKey,(err,user)=>{
         if(err){

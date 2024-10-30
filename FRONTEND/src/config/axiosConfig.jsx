@@ -1,11 +1,12 @@
 import axios from "axios";
 import store from '../store/store'
 import {logoutUser} from '../store/slices/userSlice'
+import { logoutAdmin } from "@/store/slices/adminSlice";
 import { Cookie } from "lucide-react";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
-const axiosInstance = axios.create({
+export const axiosInstance = axios.create({
   baseURL: apiUrl,
   withCredentials: true,
 });
@@ -41,9 +42,9 @@ axiosInstance.interceptors.response.use(
     console.log("error", error);
 
     const originalRequest = error.config;
-    if (originalRequest._retry) {
-      return Promise.reject(error);
-    }
+    // if (originalRequest._retry) {
+    //   return Promise.reject(error);
+    // }
     if (error.response) {
       // Check if the error status is 401 (Unauthorized) and the request hasn't been retried yet
       if (error.response.status === 401 && !originalRequest._retry) {
@@ -53,7 +54,7 @@ axiosInstance.interceptors.response.use(
         try {
           console.log("attempting to refresh token");
           console.log("refreshToken from cookie");
-          retry = true;
+         
           const refreshResponse = await axiosInstance.post(
             "/api/users/refresh-token"
           );
@@ -84,15 +85,64 @@ axiosInstance.interceptors.response.use(
           console.log("redirecting user to home page");
           localStorage.removeItem("accessToken");
           store.dispatch(logoutUser())
-          window.location.href = "/";
+          window.location.href = "/login";
           throw new Error("Session expired. Redirecting to login.");
         }
       }
     }
-
     // Reject the error if not handled
     return Promise.reject(error);
   }
 );
 
-export default axiosInstance;
+
+export const adminAxiosInstance =axios.create({
+  baseURL:apiUrl,
+  withCredentials: true
+})
+
+adminAxiosInstance.interceptors.request.use(
+  (config)=>{
+    const token =localStorage.getItem("adminAccessToken")
+    if(token){
+      config.headers['Authorization']=`Bearer ${token}`
+    }
+    return config;
+  },
+  (error)=>{
+    return Promise.reject(error)
+  }
+)
+
+adminAxiosInstance.interceptors.response.use((response)=>{
+  console.log("admin refresh response",response);
+  return response
+},
+async(error)=>{
+  const originalRequest=error.config;
+  if(error.response){
+    if(error.response.status===401 && !originalRequest._retry){
+      originalRequest._retry=true;
+      console.log("rerying req");
+      try {
+        const refreshResponse=await adminAxiosInstance.post('/api/admin/refresh-token')
+        const newAccessToken= refreshResponse.data.adminAccessToken
+        if(newAccessToken){
+          localStorage.setItem("adminAccessToken",newAccessToken)
+          console.log("new access token");
+
+          adminAxiosInstance.defaults.headers.common['Authorization']=`Bearer ${newAccessToken}`  
+          return adminAxiosInstance(originalRequest);      }
+      } catch (error) {
+        localStorage.removeItem("adminAccessToken")
+        store.dispatch(logoutAdmin())
+        console.log("session expired",error);
+        window.location.href = "/admin";
+       
+        
+          throw new Error("Session expired. Redirecting to login.");
+      }
+    }
+  }
+  return Promise.reject(error);
+})

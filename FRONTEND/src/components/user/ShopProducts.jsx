@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import ProductCard from "./shop/ProductCard";
 import ShopHeader from "./shop/ShopHeader";
-import axiosInstance from "@/config/axiosConfig";
+import {axiosInstance} from "@/config/axiosConfig";
 import FilterSidebar from "./shop/FilterSidebar";
 
 const skinTypes = [
@@ -25,62 +25,6 @@ const skinTypes = [
     "Sensitive",
     "All Skin Types",
   ];
-// const products = [
-//   {
-//     id: 1,
-//     name: "LANEIGE Water Bank Blue Hyaluronic Cream",
-//     category: "Face",
-//     price: 2000000,
-//     originalPrice: 2200000,
-//     rating: 4.6,
-//     reviews: 54,
-//     image: "/placeholder.svg",
-//     isNew: true,
-//   },
-//   {
-//     id: 2,
-//     name: "The Ordinary Niacinamide 10% + Zinc 1%",
-//     category: "Face",
-//     price: 280000,
-//     originalPrice: 300000,
-//     rating: 4.7,
-//     reviews: 88,
-//     image: "/placeholder.svg",
-//     isRecommended: true,
-//   },
-//   {
-//     id: 3,
-//     name: "Bondi Sands Pure Self Tan Foaming Water",
-//     category: "Body",
-//     price: 399000,
-//     originalPrice: 450000,
-//     rating: 4.5,
-//     reviews: 32,
-//     image: "/placeholder.svg",
-//   },
-//   {
-//     id: 4,
-//     name: "Laniege Radian-C Cream",
-//     category: "Face",
-//     price: 590000,
-//     originalPrice: 650000,
-//     rating: 4.8,
-//     reviews: 76,
-//     image: "/placeholder.svg",
-//     isRecommended: true,
-//   },
-//   {
-//     id: 5,
-//     name: "The Ordinary AHA 30% + BHA 2% Peeling Solution",
-//     category: "Face",
-//     price: 649000,
-//     originalPrice: 700000,
-//     rating: 4.9,
-//     reviews: 102,
-//     image: "/placeholder.svg",
-//     isNew: true,
-//   },
-// ];
 
 export default function ShopProducts() {
 

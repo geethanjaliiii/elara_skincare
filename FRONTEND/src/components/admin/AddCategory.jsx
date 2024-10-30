@@ -1,4 +1,4 @@
-import axiosInstance from '@/config/axiosConfig';
+import {adminAxiosInstance} from '@/config/axiosConfig';
 import React, { useState } from 'react';
 
 const AddCategory = () => {
@@ -53,7 +53,7 @@ const [error,setError]= useState("")
 
     if (validateForm()) {
         try {
-            const response= await axiosInstance.post('/api/admin/categories',{name:categoryName,description:categoryDescription})
+            const response= await adminAxiosInstance.post('/api/admin/categories',{name:categoryName,description:categoryDescription})
       // Add your logic for submitting the category data (e.g., API call)
       console.log("");
       

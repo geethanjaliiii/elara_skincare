@@ -1,5 +1,6 @@
 import React, { Fragment, useState, useEffect } from "react";
 import { Transition, Dialog } from "@headlessui/react";
+import { Toaster } from "react-hot-toast";
 const OTPEnterModal = (
   {isOpen,
     closeModal,
@@ -44,6 +45,7 @@ const OTPEnterModal = (
   };
   return (
     <Transition appear show={isOpen} as={Fragment}>
+      <Toaster/>
       <Dialog as="div" className="relative z-10" onClose={closeModal}>
         <Transition.Child
           as={Fragment}

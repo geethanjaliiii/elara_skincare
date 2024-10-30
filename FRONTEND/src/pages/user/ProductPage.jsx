@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import ViewProduct from "@/components/user/ViewProduct";
-import axiosInstance from "@/config/axiosConfig";
+import {axiosInstance} from "@/config/axiosConfig";
 import { useLocation } from "react-router-dom";
 import Navbar from "@/components/ui/Navbar";
 import Footer from "@/components/ui/Footer";
 import { Separator } from "@radix-ui/react-select";
 import ProductDetailsTabs from "../../components/user/ProductDetailsTab";
+import RelatedProducts from "@/components/user/product/RelatedProducts";
 const ProductPage = () => {
   const [product, setProduct] = useState({});
   const location = useLocation();
@@ -56,6 +57,7 @@ const ProductPage = () => {
         description={product.description}
         reviews={dummyReviews}
       />
+     {product.relatedProducts && (<RelatedProducts products={product.relatedProducts}/>)} 
       <Footer />
     </div>
   );

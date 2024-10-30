@@ -2,12 +2,16 @@
 import React, { useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import axiosInstance from '@/config/axiosConfig';
+import  { adminAxiosInstance } from '@/config/axiosConfig';
 import { useNavigate } from 'react-router-dom';
+import { setAdminDetails,logoutAdmin } from '@/store/slices/adminSlice';
+import { Toaster ,toast} from 'react-hot-toast';
+import { useDispatch } from 'react-redux';
 
 const AdminLogin = () => {
   const [formData, setFormData]=useState(null)
   const [error,setError]=useState("")
+  const dispath=useDispatch()
   const navigate =useNavigate()
   // Validation schema
   const validationSchema = Yup.object({
@@ -30,18 +34,29 @@ const AdminLogin = () => {
     //post req in try catch
     //set admin credentials in redux
     try {
-      const response = await axiosInstance.post('/api/admin',formData)
-      navigate('/admin/dashboard')
+      const response = await adminAxiosInstance.post('/api/admin',formData)
+      toast.success("Admin logged in successfully")
+      console.log(response.data);
+      
+      dispath(setAdminDetails(response.data.admin))
+      localStorage.setItem("adminAccessToken",response.data.adminAccessToken)
+      setTimeout(()=>{
+        navigate('/admin/dashboard')
+      },500)
+      
+     
       console.log("Admin logged in successfully",response.data);
       
     } catch (error) {
       console.log("error in admin login",error.message);
+      toast.error("Something went wrong.")
       setError("Something went wrong")
     }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-white">
+      <Toaster/>
       <div className="w-full max-w-md p-8 space-y-6">
         {/* Logo */}
         <div className="flex justify-center">

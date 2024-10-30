@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import axiosInstance from "@/config/axiosConfig";
+import  { adminAxiosInstance } from "@/config/axiosConfig";
 import ImageCropper from "../ui/ImageCropper";
 import { useNavigate } from "react-router-dom";
 
@@ -89,7 +89,7 @@ export default function AddProduct() {
   useEffect(() => {
     async function getCategory() {
       try {
-        const response = await axiosInstance.get("/api/admin/categories");
+        const response = await adminAxiosInstance.get("/api/admin/categories");
         setCategories(response?.data?.categories);
         
       } catch (error) {
@@ -97,6 +97,7 @@ export default function AddProduct() {
       }
     }
     getCategory();
+    
   }, []);
 
   //validate form before submission
@@ -174,8 +175,9 @@ export default function AddProduct() {
       formData.append(`images`, image.compressedImage);
     });
     try {
-      
-      const response = await axiosInstance.post(
+      setLoading(true)
+      {loading && toast.loading("Product is addding.Please wait.")}
+      const response = await adminAxiosInstance.post(
         "/api/admin/products",
         formData,
         {
@@ -184,9 +186,10 @@ export default function AddProduct() {
           },
         }
       );
-      setLoading(true)
+      
       console.log(response);
-      toast.loading("Product is addding.Please wait.")
+      setLoading(false)
+      
       toast.success("Product added successfully");
       //reset form state
       setProductData({name:"",description:"",ingredient:"",categoryId:"",price:"",discount:""});

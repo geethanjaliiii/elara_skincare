@@ -7,7 +7,7 @@ import { FcGoogle } from "react-icons/fc";
 import OTPEnterModal from "./OTPEnterModal";
 import Footer from "@/components/ui/Footer";
 import Navbar from "@/components/ui/Navbar";
-import axiosInstance from "@/config/axiosConfig";
+import {axiosInstance} from "@/config/axiosConfig";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { setUserDetails } from "@/store/slices/userSlice";
@@ -64,6 +64,7 @@ const Signup = () => {
       });
       if (response?.data?.success) {
         setIsOTPModelOpen(true);
+        toast.success("OTP sent successfullly. Please check your email.")
         setOtpMessage("OTP sent successfullly. Please check your email.");
         setOtpErrMessage("");
         setError("");
@@ -128,6 +129,7 @@ const Signup = () => {
       if (error?.response) {
         setError(error.response?.data?.message);
       }
+      toast.error("Something went wrong.")
       console.log("ERROR IN FORM SUBMISSION",error);
     }
   };
@@ -139,18 +141,21 @@ const Signup = () => {
         email: formData.email,
       });
       if (response?.data?.success) {
+        toast.success("OTP sent successfully.please check your email.")
         setOtpMessage("OTP sent successfully.please check your email.");
         setOtpErrMessage("");
       }
     } catch (error) {
+      toast.error("Otp resend failed.")
       console.log(error);
     }
   };
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+        <Toaster/>
       <Navbar />
-      <Toaster/>
+    
       <main className="container mx-auto px-4 lg:px-11 py-8 md:py-12 flex flex-col md:flex-row items-center justify-center">
         <div
           className="md:w-1/4 hidden md:block bg-cover bg-center h-full rounded-lg shadow-lg"

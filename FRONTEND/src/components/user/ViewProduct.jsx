@@ -5,7 +5,7 @@ import ProductInfo from "./product/ProductInfo";
 import AddToCart from "./product/AddToCart";
 import DeliveryInfo from "./product/DeliveryInfo";
 import ProductDetails from "./product/ProductDetails";
-
+import Breadcrumbs from "./product/Breadcrumbs";
 import SocialShare from "./product/SocialShare";
 const ViewProduct = ({ product }) => {
   const [sizes, setSizes] = useState([]);
@@ -46,6 +46,10 @@ const ViewProduct = ({ product }) => {
   ]
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
+      <Breadcrumbs 
+        category={product.categoryId || { id: "category-id", name: "Category Name" }} 
+        productName={product.name || "Product Name"} 
+      />
       <div className="grid md:grid-cols-2 gap-8 mb-8 ">
         <div>
           <ImageGallery images={product.images || []} />

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "../ui/button";
-import axiosInstance from "@/config/axiosConfig";
+import  { adminAxiosInstance } from "@/config/axiosConfig";
 import { toast, ToastContainer } from "react-toastify";
 
 const EditCategory = () => {
@@ -14,7 +14,7 @@ const EditCategory = () => {
   useEffect(() => {
     async function getCategory() {
       try {
-        const response = await axiosInstance.get(
+        const response = await adminAxiosInstance.get(
           `/api/admin/categories/${catId}`
         );
         if (response?.data?.category) {
@@ -25,7 +25,7 @@ const EditCategory = () => {
       }
     }
     getCategory();
-  }, []);
+  }, [catId]);
 
   function handleChange(e) {
     setCategoryData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -34,7 +34,7 @@ const EditCategory = () => {
 
   const handleUpdate = async () => {
     try {
-      const updatedCategory = await axiosInstance.put(
+      const updatedCategory = await adminAxiosInstance.put(
         `/api/admin/categories/${catId}`,
         categoryData
       );

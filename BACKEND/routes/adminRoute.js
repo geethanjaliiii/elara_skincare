@@ -1,23 +1,29 @@
 const express = require('express')
 const upload =require('../config/multerConfig')
 
-const {login,getCustomerDetails,editCustomerStatus} = require('../controllers/admin/adminController')
-const {addProduct,showProducts,listProduct}=require('../controllers/admin/productController')
+const {login,getCustomerDetails,editCustomerStatus,logout, refreshAccessToken} = require('../controllers/admin/adminController')
+const {addProduct,showProducts,listProduct, showProduct, editProduct}=require('../controllers/admin/productController')
 const{addCategory,showCategories,editCategory,listCategory,showCategory}=require('../controllers/admin/categoryController')
+const authenticateAdminToken = require('../middlewares/admin/adminAuthMiddleware')
 const adminRoute = express()
 
+//customers
 adminRoute.post('/',login)
-adminRoute.get('/customers',getCustomerDetails)
-adminRoute.patch('/customers/:userId',editCustomerStatus)
+adminRoute.get('/customers',authenticateAdminToken,getCustomerDetails)
+adminRoute.patch('/customers/:userId',authenticateAdminToken,editCustomerStatus)
+adminRoute.post('/logout',logout)
+adminRoute.post('/refresh-token',authenticateAdminToken,refreshAccessToken)
 //category
-adminRoute.post('/categories',addCategory)
-adminRoute.get('/categories',showCategories)
-adminRoute.put('/categories/:catId',editCategory)
-adminRoute.get('/categories/:catId',showCategory)
-adminRoute.patch('/categories/list/:categoryId',listCategory)
+adminRoute.post('/categories',authenticateAdminToken,addCategory)
+adminRoute.get('/categories',authenticateAdminToken,showCategories)
+adminRoute.put('/categories/:catId',authenticateAdminToken,editCategory)
+adminRoute.get('/categories/:catId',authenticateAdminToken,showCategory)
+adminRoute.patch('/categories/list/:categoryId',authenticateAdminToken,listCategory)
  
 //products
-adminRoute.post('/products',upload.array('images',4),addProduct)
-adminRoute.get('/products',showProducts)
-adminRoute.patch('/products/:id',listProduct)
+adminRoute.post('/products',authenticateAdminToken,upload.array('images',4),addProduct)
+adminRoute.get('/products',authenticateAdminToken,showProducts)
+adminRoute.patch('/products/:id',authenticateAdminToken,listProduct)
+adminRoute.get('/products/:_id',authenticateAdminToken,showProduct)
+adminRoute.put('/products/:_id',authenticateAdminToken,upload.array('images',4),editProduct)
 module.exports = adminRoute

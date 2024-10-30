@@ -6,6 +6,7 @@ const tokenKey = process.env.TOKEN_KEY;
 const adminTokenKey = process.env.ADMIN_TOKEN_KEY;
 const accessExpiration = process.env.ACCESS_TOKEN_EXPIRATION;
 const refreshTokenKey = process.env.REFRESH_TOKEN_KEY; // Use a separate secret key for refresh tokens
+const adminRefreshTokenKey=process.env.ADMIN_REFRESH_TOKEN_KEY
 const refreshExpiration = process.env.REFRESH_TOKEN_EXPIRATION;
 const adminAccessExpiration = process.env.ADMIN_ACCESS_TOKEN_EXPIRATION;
 const adminRefreshExpiration = process.env.ADMIN_REFRESH_TOKEN_EXPIRATION;
@@ -15,6 +16,7 @@ const generateAccessToken = (user) => {
         console.log("Generating access token for user");
         return jwt.sign({ user }, tokenKey, { expiresIn: accessExpiration });
     }
+    console.log("Generating access token for admin");
     return jwt.sign({ user }, adminTokenKey, { expiresIn: adminAccessExpiration });
 };
 
@@ -24,6 +26,7 @@ const generateRefreshToken = (user) => {
         return jwt.sign({ user }, refreshTokenKey, { expiresIn: refreshExpiration });
     }
     // Generate refresh token for admin
+    console.log("Generating refresh token for admin");
     return jwt.sign({ user }, adminTokenKey, { expiresIn: adminRefreshExpiration });
 };
 

@@ -53,7 +53,7 @@ export default function ProductCard({ _id, name, categoryId, price, sizes, revie
       </div>
       <CardContent className="p-4"       onClick={()=>navigate('/product',{state: {productId:_id}})}>
         <h3 className="font-semibold text-sm mb-1 truncate">{name}</h3>
-        <p className="text-xs text-gray-500 mb-2">{categoryId.name}</p>
+       <p className="text-xs text-gray-500 mb-2">{categoryId?.name?categoryId.name: ""}</p>
         <div className="flex items-center space-x-2 mb-2">
           <div className="flex">
             {[...Array(5)].map((_, i) => (
@@ -63,7 +63,7 @@ export default function ProductCard({ _id, name, categoryId, price, sizes, revie
               />
             ))}
           </div>
-          <span className="text-xs text-gray-500">({reviews.length})</span>
+          <span className="text-xs text-gray-500">({reviews?reviews.length:20})</span>
         </div>
         <div className="flex items-baseline space-x-2">
           <span className="font-semibold">₹{discountPrice}</span>

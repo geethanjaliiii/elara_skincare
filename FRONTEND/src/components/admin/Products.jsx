@@ -46,7 +46,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import axiosInstance from "@/config/axiosConfig";
+import  { adminAxiosInstance } from "@/config/axiosConfig";
 
 const skinTypes = [
   "Dry",
@@ -92,7 +92,7 @@ export default function Products() {
           queryParams.append("sort", sortOption);
         }
 
-        const response = await axiosInstance.get(
+        const response = await adminAxiosInstance.get(
           `api/admin/products?${queryParams.toString()}`
         );
         if (!response) {
@@ -113,7 +113,7 @@ export default function Products() {
   useEffect(() => {
     async function fetchCategory() {
       try {
-        const response = await axiosInstance.get("api/admin/categories");
+        const response = await adminAxiosInstance.get("api/admin/categories");
         console.log(response.data);
 
         if (!response) {
@@ -154,7 +154,7 @@ export default function Products() {
       )
     );
     try {
-      await axiosInstance.patch(`/api/admin/products/${_id}`);
+      await adminAxiosInstance.patch(`/api/admin/products/${_id}`);
       setList(!list);
     } catch (error) {
       console.log("error in listing products", error.message);
@@ -339,7 +339,7 @@ export default function Products() {
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Button size="icon" variant="ghost" onClick={()=>navigate('/')}>
+                              <Button size="icon" variant="ghost" onClick={()=>navigate('/admin/dashboard/products/edit',{state:{productId:product._id}})}>
                                 <Edit className="w-4 h-4" />
                               </Button>
                             </TooltipTrigger>

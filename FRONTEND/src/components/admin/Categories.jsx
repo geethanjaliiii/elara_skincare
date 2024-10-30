@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axiosInstance from "@/config/axiosConfig";
+import  { adminAxiosInstance } from "@/config/axiosConfig";
 import { useNavigate } from "react-router-dom";
 
 const Categories = () => {
@@ -13,7 +13,7 @@ const Categories = () => {
     // Fetch categories from the database/API
     const fetchCategories = async () => {
       try {
-        const categoryList = await axiosInstance.get("/api/admin/categories");
+        const categoryList = await adminAxiosInstance.get("/api/admin/categories");
         console.log(categoryList?.data);
         
         setCategories(categoryList?.data?.categories);
@@ -35,7 +35,7 @@ const Categories = () => {
 
   const handleStatusToggle = async (categoryId) => {
     // Toggle category status and refresh data
-    const updatedData = await axiosInstance.patch(`/api/admin/categories/list/${categoryId}`);
+    const updatedData = await adminAxiosInstance.patch(`/api/admin/categories/list/${categoryId}`);
     setEditStatus(!editStatus); // Toggle edit mode to trigger re-fetch
   };
 

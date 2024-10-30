@@ -8,7 +8,7 @@ import Footer from '@/components/ui/Footer';
 import Navbar from '@/components/ui/Navbar';
 import { Link, useNavigate } from 'react-router-dom';
 import { useEffect,useState } from 'react';
-import axiosInstance from '@/config/axiosConfig';
+import { axiosInstance } from '@/config/axiosConfig';
 import { useDispatch } from 'react-redux';
 import { setUserDetails } from '@/store/slices/userSlice';
 import toast, { Toaster } from 'react-hot-toast';

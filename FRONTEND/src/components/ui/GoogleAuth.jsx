@@ -1,9 +1,10 @@
 import React from "react";
 import { GoogleLogin } from "@react-oauth/google";
-import axiosInstance from "@/config/axiosConfig";
+import {axiosInstance} from "@/config/axiosConfig";
 import { useDispatch } from "react-redux";
 import { setUserDetails } from "@/store/slices/userSlice";
 import { useNavigate } from "react-router-dom";
+import toast, { Toaster } from "react-hot-toast";
 
 function GoogleAuth() {
   const navigate = useNavigate();
@@ -32,11 +33,15 @@ function GoogleAuth() {
       }
       console.log("Sign in with google success");
     } catch (error) {
+      if(error.status===403){
+        toast.error("Account is blocked")
+      }
       console.log("error in google signin",error);
     }
   }
   return (
     <div className="flex justify-center">
+      <Toaster/>
       <GoogleLogin onSuccess={handleSuccess} onError={handleError} />
     </div>
   );

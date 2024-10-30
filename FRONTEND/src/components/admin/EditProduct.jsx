@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Toaster, toast } from "react-hot-toast";
 import { Textarea } from "@/components/ui/textarea";
+
 import {
   Select,
   SelectContent,
@@ -12,9 +13,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import axiosInstance from "@/config/axiosConfig";
+import  { adminAxiosInstance } from "@/config/axiosConfig";
 import ImageCropper from "../ui/ImageCropper";
-import { useNavigate } from "react-router-dom";
+import { useNavigate ,useLocation} from "react-router-dom";
 
 export default function EditProduct() {
   const [productData, setProductData] = useState({name:"",description:"",ingredient:"",categoryId:"",price:"",discount:"",skinType:""});
@@ -24,12 +25,38 @@ export default function EditProduct() {
   const [sizes, setSizes] = useState([{ size: "", stock: "", price: "" }]);
   const [crop, setCrop] = useState(false);
   const [error, setError] = useState({});
-  const [loading,setLoading]=useState(false)
+  const [toDelete,setToDelete]=useState([])
   const navigate =useNavigate()
+  const [loading,setLoading]=useState(false)
+  const location = useLocation();
+  const { productId } = location.state;
+
+ useEffect(()=>{
+async function fetchProductDetails() {
+    try {
+     const response=  await adminAxiosInstance.get(`/api/admin/products/${productId}`)
+     const {images,...restProducts}=response.data.product
+     console.log("response",response.data.product);
+     
+     setProductData(restProducts)
+     setSizes(response.data.product.sizes)
+     setCroppedImages(images)
+  
+    //  setCroppedImages(images)
+     console.log("product data fetched",response.data.product);
+     
+    } catch (error) {
+        toast.error("Product not found.")
+        console.log("error in fetching products",error.message);
+        
+    }
+}
+fetchProductDetails()
+ },[productId])
 
   const handleProductChange = (e) => {
     const { name, value } = e.target;
-    setProductData({ ...productData, [name]: value });
+        setProductData({ ...productData, [name]: value });
   };
 
   const handleImageChange = (event) => {
@@ -58,6 +85,7 @@ export default function EditProduct() {
     }));
     setSelectedImages(imageUrls);
     setCrop(true);
+    
   };
 
   const handleCroppedImage = (croppedImageUrl, compressedImage) => {
@@ -68,8 +96,6 @@ export default function EditProduct() {
     setCrop(false);
   };
   
-
-
   const handleSizeChange = (index, field, value) => {
     const updatedSizes = sizes.map((size, i) =>
       i === index ? { ...size, [field]: value } : size
@@ -89,7 +115,7 @@ export default function EditProduct() {
   useEffect(() => {
     async function getCategory() {
       try {
-        const response = await axiosInstance.get("/api/admin/categories");
+        const response = await adminAxiosInstance.get("/api/admin/categories");
         setCategories(response?.data?.categories);
         
       } catch (error) {
@@ -99,6 +125,7 @@ export default function EditProduct() {
     getCategory();
   }, []);
 
+  const currentCategory=categories.find((category)=>category._id===productData.categoryId)
   //validate form before submission
   const validateForm = () => {
     const newError = {};
@@ -115,6 +142,9 @@ export default function EditProduct() {
     if (!productData.categoryId) {
       newError.category = "Please select a category.";
     }
+    // if(typeof(productData.categoryId)==Object){
+    //    newError.category="Please select a category"
+    // }
     if(!productData.price){
       newError.price="Product is required."
     }else if(productData.price <0){
@@ -159,24 +189,39 @@ export default function EditProduct() {
     formData.append("description", productData.description);
     formData.append("ingredient", productData.ingredient);
     formData.append("skinType", productData.skinType);
-    formData.append("categoryId", productData.categoryId);
+    formData.append("categoryId", productData.categoryId._id?productData.categoryId._id:productData.categoryId);
     formData.append("price",productData.price);
     formData.append("discount",productData.discount)
+   
     //append sizes
     sizes.forEach((size, index) => {
       formData.append(`sizes[${index}][size]`, size.size);
       formData.append(`sizes[${index}][price]`, size.price);
       formData.append(`sizes[${index}][stock]`, size.stock);
+      
+      
     });
 
-    //append cropped images
+    // append cropped images
     croppedImages.forEach((image, index) => {
-      formData.append(`images`, image.compressedImage);
+      if(image.compressedImage){
+        formData.append('images',image.compressedImage)
+      }else {
+        formData.append(`updatedUrls[${index}]`,image)
+      }
     });
+
+    toDelete.forEach((image,index)=>{
+      formData.append(`deletedImages[${index}]`,image)
+    })
+    
+    {loading && toast.loading("Product is addding.Please wait.")}
     try {
+      console.log("attempted edit with: ",formData);
       
-      const response = await axiosInstance.post(
-        "/api/admin/products",
+      setLoading(true)
+      const response = await adminAxiosInstance.put(
+        `/api/admin/products/${productId}`,
         formData,
         {
           headers: {
@@ -184,22 +229,33 @@ export default function EditProduct() {
           },
         }
       );
-      setLoading(true)
+     
       console.log(response);
-      toast.loading("Product is addding.Please wait.")
-      toast.success("Product added successfully");
+      setLoading(false)
+      toast.success("Product edited successfully");
+      navigate("/admin/dashboard/products")
       //reset form state
-      setProductData({name:"",description:"",ingredient:"",categoryId:"",price:"",discount:""});
-      setCroppedImages([]);
+      setLoading(false)
       setCrop(false);
-      setSizes([{ size: "", stock: "", price: "" }]);
-      setCategories([]);
-      setError({})
+      // setProductData({name:"",description:"",ingredient:"",categoryId:"",price:"",discount:""});
+      // setCroppedImages([]);
+      // setSizes([{ size: "", stock: "", price: "" }]);
+      // setCategories([]);
+      // setError({})
     } catch (error) {
+      setLoading(false)
       console.log("Error submitting products", error.message);
       toast.error("Failed to add product.Please try again");
     }
   };
+
+  //***************for debugging***************************/
+useEffect(()=>{
+  console.log("Updated croppedImages:", croppedImages);
+  console.log("updated todelete:", toDelete);
+  console.log("product",productData);
+  
+},[ croppedImages,toDelete,productData])
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
@@ -237,10 +293,10 @@ export default function EditProduct() {
         <div className="mt-6">
           <h5 className="text-sm font-semibold mb-4">Product images</h5>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {croppedImages.map((croppedData, index) => (
+            {croppedImages.map((imageData, index) => (
               <div key={index} className="relative">
                 <img
-                  src={croppedData.croppedImageUrl}
+                  src={imageData.croppedImageUrl?imageData.croppedImageUrl:imageData}
                   alt={`Cropped ${index + 1}`}
                   className="w-full h-40 object-cover rounded-lg"
                 />
@@ -248,10 +304,10 @@ export default function EditProduct() {
                   variant="destructive"
                   size="icon"
                   className="absolute top-2 right-2"
-                  onClick={() =>
-                    setCroppedImages((prev) =>
-                      prev.filter((_, i) => i !== index)
-                    )
+                  onClick={() =>{
+                      setCroppedImages((prev) => prev.filter((_, i) => i !== index)) 
+                     {!imageData.croppedImageUrl && setToDelete((prev)=>[...prev,imageData])}
+                  }
                   }
                 >
                   <X className="h-4 w-4" />
@@ -376,7 +432,7 @@ export default function EditProduct() {
             }
           >
             <SelectTrigger id="skin-type">
-              <SelectValue placeholder="Select skin type" />
+              <SelectValue placeholder={productData.skinType} />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="normal">Normal</SelectItem>
@@ -394,11 +450,11 @@ export default function EditProduct() {
 
         <div>
           <Label>Size, Price & Stock</Label>
-          {sizes.map((size, index) => (
+          {sizes && sizes.map((size, index) => (
             <div key={index} className="flex items-center space-x-4 mb-4">
               <Input
                 type="text"
-                placeholder="Size (e.g., 50ml)"
+                placeholder={size.size}
                 value={size.size}
                 onChange={(e) =>
                   handleSizeChange(index, "size", e.target.value)
@@ -444,13 +500,16 @@ export default function EditProduct() {
         <div>
           <Label htmlFor="category">Category</Label>
           <Select
-            name="category"
-            onValueChange={(value) =>
+            name="categoryId"
+            onValueChange={(value) =>{
               handleProductChange({ target: { name: "categoryId", value } })
+                 console.log("catId",productData.categoryId);
+                 console.log("product data",productData);
+                 }
             }
           >
             <SelectTrigger id="category">
-              <SelectValue placeholder="Select category" />
+              <SelectValue placeholder={productData.categoryId?productData.categoryId.name:"Select Category"} />
             </SelectTrigger>
             <SelectContent>
               {categories.map((category) => (
@@ -466,7 +525,7 @@ export default function EditProduct() {
         </div>
 
         <Button type="submit" className={loading ?"w-full cursor-not-allowed":"w-full cursor-pointer"}>
-          Add Product
+          Edit Product
         </Button>
       </form>
     </div>

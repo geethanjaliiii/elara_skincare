@@ -3,7 +3,7 @@ import ShopProducts from "@/components/user/ShopProducts";
 import Navbar from "@/components/ui/Navbar";
 import Footer from "@/components/ui/Footer";
 import ShopHeader from "@/components/user/shop/ShopHeader";
-import axiosInstance from "@/config/axiosConfig";
+import {axiosInstance} from "@/config/axiosConfig";
 const ShopPage = () => {
    
   return (

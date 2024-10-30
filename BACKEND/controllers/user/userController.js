@@ -221,7 +221,7 @@ const logout=async(req,res)=>{
     console.log(refreshToken);
     await RefreshToken.deleteOne({token:refreshToken})
     document.cookie = "userRefreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    res.cookie("userRefreshToken", "", { maxAge: 1 })
+    setCookie("userRefreshToken","",1,res)
     res.status(200).json({message:"Logged out successfully"})
   } catch (error) {
     console.log("error in logout",error);

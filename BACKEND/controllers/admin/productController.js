@@ -1,89 +1,7 @@
 const Product = require("../../models/productModel");
-const cloudinary = require("../../config/cloudinaryConfig");
-const Joi = require("joi");
-const { listCategory } = require("./categoryController");
-
-// Define your validation schema using Joi
-const productSchema = Joi.object({
-  name: Joi.string().required().messages({
-    "string.empty": "Name is required.",
-    "any.required": "Name is required.",
-  }),
-  description: Joi.string().required().messages({
-    "string.empty": "Description is required.",
-    "any.required": "Description is required.",
-  }),
-  ingredient: Joi.string().required().messages({
-    "string.empty": "Ingredient is required.",
-    "any.required": "Ingredient is required.",
-  }),
-  price: Joi.number().required().messages({
-    "number.base": "Price must be a number.",
-    "any.required": "Price is required.",
-  }),
-  discount: Joi.number().required().messages({
-    "number.base": "Discount must be a number.",
-    "any.required": "Discount is required.",
-  }),
-  skinType: Joi.string()
-    .valid(
-      "normal",
-      "dry",
-      "oily",
-      "combination",
-      "sensitive",
-      "All skin types"
-    )
-    .required()
-    .messages({
-      "any.only":
-        "Invalid skin type. Allowed values are normal, dry, oily, combination, sensitive.",
-      "any.required": "Skin type is required.",
-    }),
-  sizes: Joi.array()
-    .items(
-      Joi.object({
-        size: Joi.string().required().messages({
-          "string.empty": "Size is required.",
-        }),
-        price: Joi.number().required().messages({
-          "number.base": "Price must be a number.",
-          "any.required": "Price is required.",
-        }),
-        stock: Joi.number().required().messages({
-          "number.base": "Stock must be a number.",
-          "any.required": "Stock is required.",
-        }),
-      })
-    )
-    .required()
-    .messages({
-      "array.base": "Sizes must be an array.",
-      "any.required": "Sizes are required.",
-    }),
-  categoryId: Joi.string().required().messages({
-    "string.empty": "Category ID is required.",
-    "any.required": "Category ID is required.",
-  }),
-});
-
-// Cloudinary upload function
-const cloudinaryImageUploadMethod = async (fileBuffer) => {
-  return new Promise((resolve, reject) => {
-    cloudinary.uploader
-      .upload_stream(
-        { folder: "products" }, // Optional: Specify a folder in Cloudinary
-        (err, result) => {
-          if (err) {
-            reject("Upload image error");
-          } else {
-            resolve(result.secure_url); // Return secure URL of the uploaded image
-          }
-        }
-      )
-      .end(fileBuffer); // Pass the buffer from Multer
-  });
-};
+const { cloudinaryImageUploadMethod } =require("../../utils/cloudinary/coloudinaryUpload");
+const cloudinaryDeleteImages =require('../../utils/cloudinary/deleteImages')
+const productSchema =require('../../utils/validation/productValidation')
 
 // Add product function
 const addProduct = async (req, res) => {
@@ -103,7 +21,7 @@ const addProduct = async (req, res) => {
   const { error } = productSchema.validate(req.body);
   if (error) {
     const errorMessages = error.details.map((err) => err.message);
-    console.log("error in validation", error.message);
+    console.log("error in validation", errorMessages);
 
     return res
       .status(400)
@@ -158,8 +76,8 @@ const showProducts = async (req, res) => {
     const { categoryIds, skinTypes, minPrice, maxPrice, searchTerm, sort } =
       req.query;
 
-      console.log(req.query);
-      
+    console.log(req.query);
+
     //Initialize an empty filter object
     const filters = {};
 
@@ -174,36 +92,37 @@ const showProducts = async (req, res) => {
     }
 
     //filter by price
-    if(minPrice||maxPrice){
-      filters.price={};
-      if(minPrice) filters.price.$gte=parseFloat(minPrice)
-        if(maxPrice) filters.price.$lte =parseFloat(maxPrice)
+    if (minPrice || maxPrice) {
+      filters.price = {};
+      if (minPrice) filters.price.$gte = parseFloat(minPrice);
+      if (maxPrice) filters.price.$lte = parseFloat(maxPrice);
     }
 
     //filter by search term
-    if(searchTerm){
-      filters.$or=[
-        {name: {$regex: searchTerm, $options: 'i'}},
-        {'categoryId.name':{$regex: searchTerm,$options: 'i'}}
+    if (searchTerm) {
+      filters.$or = [
+        { name: { $regex: searchTerm, $options: "i" } },
+        { "categoryId.name": { $regex: searchTerm, $options: "i" } },
       ];
     }
-     
+
     //handle sorting
-    const sortOption={};
-    if(sort=== 'priceHighLow'){
-      sortOption.price=-1;  //Descending order
-    }else if(sort==='priceLowHigh'){
-      sortOption.price =1 //ascending order
+    const sortOption = {};
+    if (sort === "priceHighLow") {
+      sortOption.price = -1; //Descending order
+    } else if (sort === "priceLowHigh") {
+      sortOption.price = 1; //ascending order
     }
 
     //fetch products
-    const products = await Product.find(filters).sort(sortOption)
+    const products = await Product.find(filters)
+      .sort(sortOption)
       .populate("categoryId", "name")
       .populate("relatedProducts", "name price");
 
-    res.status(200).json({success:true, message: "Product fetched", products });
-
-    
+    res
+      .status(200)
+      .json({ success: true, message: "Product fetched", products });
   } catch (error) {
     res.status(400).json({ success: false, message: "Data fetching failed." });
     console.log("error in fetching", error.message);
@@ -233,6 +152,97 @@ const listProduct = async (req, res) => {
       .json({ message: error || "Something went wrong" });
   }
 };
+const showProduct = async (req, res) => {
+  const { _id } = req.params;
+  try {
+    const product = await Product.findById(_id).populate("categoryId", "name");
+    res
+      .status(200)
+      .json({ success: true, message: "Product details fetched", product });
+  } catch (error) {
+    console.log("error in edit product");
+    res
+      .status(error.status)
+      .json({ message: "fetching failed for editing", error });
+  }
+};
 
 
-module.exports = { addProduct, showProducts, listProduct };
+//edit product
+const editProduct = async (req, res) => {
+  const { _id } = req.params;
+  const { name, categoryId, updatedUrls,deletedImages } = req.body;
+
+//validate body
+
+
+  const { error } = productSchema.validate(req.body);
+  if (error) {
+    const errorMessages = error.details.map((err) => err.message);
+    console.log("error in validation", errorMessages);
+    return res
+      .status(400)
+      .json({ error: "Validation error", details: errorMessages });
+  }
+ 
+  const files = req.files;
+  const updatedProduct = req.body;
+
+  try {
+    const productExist = await Product.findOne({ _id });
+    if (!productExist) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+    console.log("exist", productExist);
+
+    //delete previous images
+    if(deletedImages){
+      try {
+        const deleteResults =await cloudinaryDeleteImages(deletedImages)
+        console.log("del", deleteResults);
+        
+      } catch (error) {
+        console.log("Images err deleted",error);
+      }
+    }
+    //handle image upload 
+    const imageUrls = [];
+    for (file of files) {
+      const imageUrl = await cloudinaryImageUploadMethod(file.buffer);
+      imageUrls.push(imageUrl);
+    }
+
+    const relatedProducts = await Product.find({ categoryId }, "_id");
+    const relatedProductsIds =relatedProducts.length > 0
+        ? relatedProducts.map((product) => product._id)
+        : [];
+
+    updatedProduct.relatedProducts = relatedProductsIds;
+
+    updatedProduct.images =[...(updatedUrls||[]),...imageUrls]
+
+   
+
+    const editedProduct = await Product.findByIdAndUpdate(_id, updatedProduct, {
+      new: true,
+    });
+    res
+      .status(200)
+      .json({ mesaage: "Product edited successfully", product: editedProduct });
+
+  } catch (error) {
+    console.error("Error adding product:", error.message); // Log error for debugging
+    res.status(500).json({
+      message: "Something went wrong while adding the product.",
+      error: error.mesaage,
+    });
+  }
+};
+
+module.exports = {
+  addProduct,
+  showProducts,
+  listProduct,
+  showProduct,
+  editProduct,
+};

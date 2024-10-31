@@ -4,15 +4,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FcGoogle } from 'react-icons/fc';
-import Footer from '@/components/ui/Footer';
-import Navbar from '@/components/ui/Navbar';
+import Footer from '@/components/shared/Footer';
+import Navbar from '@/components/shared/Navbar';
 import { Link, useNavigate } from 'react-router-dom';
 import { useEffect,useState } from 'react';
 import { axiosInstance } from '@/config/axiosConfig';
 import { useDispatch } from 'react-redux';
 import { setUserDetails } from '@/store/slices/userSlice';
 import toast, { Toaster } from 'react-hot-toast';
-import GoogleAuth from '@/components/ui/GoogleAuth';
+import GoogleAuth from '@/components/user/auth/GoogleAuth';
 const Login = () => {
     const [formData, setFormData] =useState(null)
     const[error,setError]=useState('')

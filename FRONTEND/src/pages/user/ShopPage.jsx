@@ -1,9 +1,8 @@
 import React, { useEffect } from "react";
 import ShopProducts from "@/components/user/ShopProducts";
-import Navbar from "@/components/ui/Navbar";
-import Footer from "@/components/ui/Footer";
-import ShopHeader from "@/components/user/shop/ShopHeader";
-import {axiosInstance} from "@/config/axiosConfig";
+import Navbar from "@/components/shared/Navbar";
+import Footer from "@/components/shared/Footer";
+
 const ShopPage = () => {
    
   return (

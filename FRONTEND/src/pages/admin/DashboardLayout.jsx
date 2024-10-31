@@ -1,8 +1,8 @@
 // components/DashboardLayout.tsx
 import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import Sidebar from '@/components/ui/AdminSidebar';
-import Header from '@/components/ui/AdminHeader';
+import Sidebar from '@/components/admin/layout/AdminSidebar';
+import Header from '@/components/admin/layout/AdminHeader';
 
 const DashboardLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);

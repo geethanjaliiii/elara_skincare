@@ -7,6 +7,8 @@ const jwt=require("jsonwebtoken")
 //utils
 const {generateAccessToken, generateRefreshToken}=require("../../utils/jwt/generateToken");
 const setCookie = require("../../utils/jwt/setCookie");
+
+
 const login = async (req, res) => {
   const { email, password } = req.body;
   try {

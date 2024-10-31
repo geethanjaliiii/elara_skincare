@@ -1,8 +1,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import Navbar from '@/components/ui/Navbar';
-import Footer from '../ui/Footer';
+import Navbar from '@/components/shared/Navbar';
+import Footer from '../shared/Footer';
 import { useScrollAnimation } from '@/hooks/useScrollAnimate';
 import {axiosInstance} from '@/config/axiosConfig';
 import { useNavigate } from 'react-router-dom';

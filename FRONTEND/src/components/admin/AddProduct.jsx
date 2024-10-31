@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import  { adminAxiosInstance } from "@/config/axiosConfig";
-import ImageCropper from "../ui/ImageCropper";
+import ImageCropper from "../shared/ImageCropper";
 import { useNavigate } from "react-router-dom";
 
 export default function AddProduct() {

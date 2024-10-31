@@ -101,6 +101,7 @@ const ImageGallery = ({ images }) => {
               src={img}
               alt={`Thumbnail ${index + 1}`}
               className="w-20 h-20 object-cover rounded-lg transition-opacity duration-300 hover:opacity-80"
+              loading="lazy" 
             />
             {index === currentIndex && (
               <div className="absolute inset-0 border-2 border-black rounded-lg pointer-events-none"></div>

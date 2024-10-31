@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { adminAxiosInstance } from "@/config/axiosConfig";
-import ImageCropper from "../ui/ImageCropper";
+import ImageCropper from "../shared/ImageCropper";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const EditProduct = () => {

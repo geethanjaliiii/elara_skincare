@@ -26,7 +26,7 @@ export default function ProductCard({ _id, name, categoryId, price, sizes, revie
           transition={{ duration: 0.3 }}
           onClick={()=>navigate('/product',{state: {productId:_id}})}
         >
-          {images &&<img src={images[0]} alt={name} className="w-full h-48 object-cover" />}
+          {images &&<img src={images[0]} alt={name} className="w-full h-48 object-cover" loading="lazy" />}
         </motion.div>
         <motion.div
          onClick={()=>navigate('/product',{state: {productId:_id}})}

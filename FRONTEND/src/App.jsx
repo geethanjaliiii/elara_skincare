@@ -19,7 +19,10 @@ import IsAdminLogin from "./store/protect/isAdminLogin";
 import IsAdminLogout from "./store/protect/IsAdminLogout";
 import IsUserLogout from "./store/protect/IsUserLogout";
 import IsUserLogin from "./store/protect/IsUserLogin";
-// import EditProducts from "./components/admin/EditProducts";
+import ProfileForm from "./components/user/profile/ProfileForm";
+import ProfilePage from "./pages/user/ProfilePage";
+import { AddressCard } from "./components/user/profile/address/AddressCard";
+
 export default function App() {
   return (
     <div>
@@ -34,6 +37,8 @@ export default function App() {
               </IsUserLogout>
             }
           />
+          <Route path="/profile" element={<ProfilePage/>}/>
+          
           <Route
             path="/signup"
             element={

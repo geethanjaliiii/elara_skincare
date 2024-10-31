@@ -4,7 +4,7 @@ import React, { useRef, useState } from 'react';
 import Cropper from 'react-cropper';
 import 'cropperjs/dist/cropper.css';
 import imageCompression from 'browser-image-compression';
-import { Button } from './button';
+import { Button } from '../ui/button';
 
 const ImageCropper = ({ imageSrc, onImageCropped }) => {
   const cropperRef = useRef(null);

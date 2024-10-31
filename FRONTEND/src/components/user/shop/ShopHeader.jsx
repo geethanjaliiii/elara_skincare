@@ -20,6 +20,7 @@ export default function ShopHeader() {
           src="/images/banner/shop.jpg"
           alt="Skincare products with leaves and soft lighting"
           className="w-full h-full object-cover "
+          loading="lazy" 
         />
         <div className="absolute inset-0 bg-black bg-opacity-30 flex flex-col items-center justify-center text-white">
           <h1 className="text-4xl md:text-5xl font-bold mb-2">Shop</h1>

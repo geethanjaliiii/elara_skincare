@@ -1,52 +1,93 @@
 // AddressBook.jsx
 
-import React, { useState } from "react";
-import {AddressCard} from "./AddressCard";
-import {AddressForm }from "./AddressForm";
+import React, { useEffect, useState } from "react";
+import { AddressCard } from "./AddressCard";
+import { AddressForm } from "./AddressForm";
 import { Button } from "@/components/ui/button";
 import { axiosInstance } from "@/config/axiosConfig";
 import toast, { Toaster } from "react-hot-toast";
 
-function AddressBook({userId}) {
+function AddressBook({ userId }) {
   const [addresses, setAddresses] = useState([]);
   const [isAdding, setIsAdding] = useState(false);
   const [editingAddress, setEditingAddress] = useState(null);
+  useEffect(() => {
+    async function fetchAddresses() {
+      try {
+        const response =await axiosInstance.get(`/api/users/addresses/${userId}`)
+        setAddresses(response.data.addresses)
+      } catch (error) {
+        console.log("addresses not fetched",error);
+      }
+    }
+    fetchAddresses();
+  }, [ userId]);
 
+  //add new address
   const handleAddAddress = async (values) => {
     try {
-      const response = await axiosInstance.post(`/api/users/address`,{...values,userId})
-      const newAddress =response.data.address
-      setAddresses((prev)=>[...prev,newAddress]);
-      toast.success("Address added successfully.")
+      const response = await axiosInstance.post(`/api/users/address`, {
+        ...values,
+        user: userId,
+      });
+      const newAddress = response.data.address;
+      setAddresses((prev) => [...prev, newAddress]);
+      toast.success("Address added successfully.");
       setIsAdding(false);
     } catch (error) {
-        console.log("New address not added",error);
-        toast.error("Address not added.Please try again.")
+      console.log("New address not added", error);
+      toast.error("Address not added.Please try again.");
     }
-   
   };
 
-  const handleEditAddress = (values) => {
-    setAddresses((prev) => prev.map((addr) => (addr._id === values._id ? values : addr)));
-    setEditingAddress(null);
+  //edit address
+  const handleEditAddress = async(values) => {
+    const addrId=values._id
+    const { _id, createdAt, updatedAt,__v, ...filteredValues } = values;
+    try {
+      const response =  await axiosInstance.put(`/api/users/${addrId}/addresses`,filteredValues)
+      const updatedAddress=response.data.updatedAddress
+      setAddresses((prev)=>prev.map((addr)=>(addr._id===updatedAddress._id?updatedAddress: values)))
+      setEditingAddress(null)
+      toast.success("Address updated.")
+    } catch (error) {
+        console.log("error updating address",error);
+        toast.error("Address not updated.")
+    }
   };
 
-  const handleDeleteAddress = (id) => {
-    setAddresses((prev) => prev.filter((addr) => addr._id !== id));
+  const handleDeleteAddress = async(id) => {
+    try {
+      await axiosInstance.delete(`/api/users/${userId}/addresses/${id}`)
+        setAddresses((prev) => prev.filter((addr) => addr._id !== id));
+        toast.success("Address deleted successfully.")
+    } catch (error) {
+        console.log("Address not deleted");
+        toast.error('Address deletion failed')
+    }
+    
   };
 
   const handleSetDefault = (id) => {
-    setAddresses((prev) => prev.map((addr) => ({ ...addr, isDefault: addr._id === id })));
+    setAddresses((prev) =>
+      prev.map((addr) => ({ ...addr, isDefault: addr._id === id }))
+    );
   };
 
   return (
     <div className="space-y-6">
-        <Toaster/>
-     {!isAdding && <Button onClick={() => setIsAdding(true)}>Add a new address</Button>} 
-      {isAdding && (
-        <AddressForm initialValues={{}} onSubmit={handleAddAddress} onCancel={() => setIsAdding(false)} />
+      <Toaster />
+      {!editingAddress && !isAdding && (
+        <Button onClick={() => setIsAdding(true)}>Add a new address</Button>
       )}
-      {addresses.map((address) => (
+      {isAdding && (
+        <AddressForm
+          initialValues={{}}
+          onSubmit={handleAddAddress}
+          onCancel={() => setIsAdding(false)}
+        />
+      )}
+      {!editingAddress && addresses.map((address) => (
         <AddressCard
           key={address._id}
           address={address}

@@ -1,5 +1,5 @@
 const User = require("../../models/userModel");
-const { message } = require("../../utils/validation/productValidation");
+
 
 const showProfile = async (req, res) => {
   const { id } = req.params;

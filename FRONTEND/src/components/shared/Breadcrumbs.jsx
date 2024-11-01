@@ -4,7 +4,7 @@ import { ChevronRight, Home } from "lucide-react"
 export default function Breadcrumbs({ items }) {
   return (
     <div className="flex items-center space-x-2 text-sm text-muted-foreground py-4">
-      <Link href="/" className="flex items-center hover:text-primary">
+      <Link to="/" className="flex items-center hover:text-primary">
         <Home className="mr-1 h-4 w-4" />
         Home
       </Link>

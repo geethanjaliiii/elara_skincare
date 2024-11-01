@@ -4,7 +4,7 @@ const {featuredProducts,viewProduct,fetchProducts} =require('../controllers/user
 const {showCategories} =require("../controllers/user/categoryController")
 const {showProfile,editProfile}=require('../controllers/user/userController')
 const authenticateToken =require('../middlewares/user/authMiddleware')
-const {addAddress}=require('../controllers/user/addressController')
+const {addAddress,showAddresses, editAddress, deleteAddress}=require('../controllers/user/addressController')
 const userRoute = express()
 
 //authentication
@@ -26,4 +26,7 @@ userRoute.get('/profile/:id',authenticateToken,showProfile)
 userRoute.put('/profile/:id',authenticateToken,editProfile)
 //address
 userRoute.post('/address',authenticateToken,addAddress)
+userRoute.get('/addresses/:id',authenticateToken,showAddresses)
+userRoute.put('/:addressId/addresses',authenticateToken,editAddress)
+userRoute.delete('/:userId/addresses/:addressId',authenticateToken,deleteAddress)
 module.exports = userRoute

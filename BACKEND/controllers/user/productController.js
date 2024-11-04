@@ -36,8 +36,24 @@ res.status(200).json({success:true, message:"product fetched",product})
 
  const fetchProducts=async(req,res)=>{
   try {
-    const products=await Product.find({}).populate("categoryId", "name")
-    res.status(200).json({success:true, message:"Products fetched",products})
+    const {categoryIds}=req.query
+    const filter={isListed:true}
+    if(categoryIds){
+     const categoryIdArray=categoryIds.split(',')
+     filter.categoryId={$in:categoryIdArray}
+    }
+    const products=await Product.find(filter).populate("categoryId", "name")
+    const priceRange=await Product.aggregate([ {
+      $group:{
+        _id:null,
+        maxPrice:{$max:'$price'},
+        minPrice:{$min:'$price'}
+      }
+    },{$project:{maxPrice:1,minPrice:1,_id:0}}])
+    console.log("RANGE",priceRange[0]);
+    
+    const {maxPrice,minPrice}=priceRange[0]||{maxPrice:0, minPrice:0}
+    res.status(200).json({success:true, message:"Products fetched",products,priceRange:[minPrice,maxPrice]})
   } catch (error) {
     console.log("Error fetching products",error.message);
     res.status(error.status).json({success:false,error:error.message})

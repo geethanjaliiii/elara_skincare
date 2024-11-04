@@ -86,6 +86,13 @@ const productSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now },
 });
 
+// productSchema.methods.calculateTotalStock=function(){
+//    //sum up total stock for each size
+//   this.totalStock = this.sizes.reduce((sum, size) => sum + size.stock, 0);
+  
+// }
+
+
 productSchema.pre("save", function (next) {
   //sum up total stock for each size
   this.totalStock = this.sizes.reduce((sum, size) => sum + size.stock, 0);

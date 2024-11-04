@@ -221,11 +221,9 @@ const editProduct = async (req, res) => {
 
     updatedProduct.images =[...(updatedUrls||[]),...imageUrls]
 
-   
+    Object.assign(productExist, updatedProduct);
 
-    const editedProduct = await Product.findByIdAndUpdate(_id, updatedProduct, {
-      new: true,
-    });
+    const editedProduct = await productExist.save()
     res
       .status(200)
       .json({ mesaage: "Product edited successfully", product: editedProduct });
@@ -246,3 +244,73 @@ module.exports = {
   showProduct,
   editProduct,
 };
+
+// const editProduct = async (req, res) => {
+//   const { _id } = req.params;
+//   const { name, categoryId, updatedUrls,deletedImages } = req.body;
+
+// //validate body
+
+
+//   const { error } = productSchema.validate(req.body);
+//   if (error) {
+//     const errorMessages = error.details.map((err) => err.message);
+//     console.log("error in validation", errorMessages);
+//     return res
+//       .status(400)
+//       .json({ error: "Validation error", details: errorMessages });
+//   }
+ 
+//   const files = req.files;
+//   const updatedProduct = req.body;
+
+//   try {
+//     const productExist = await Product.findOne({ _id });
+//     if (!productExist) {
+//       return res.status(404).json({ error: "Product not found" });
+//     }
+//     console.log("exist", productExist);
+
+//     //delete previous images
+//     if(deletedImages){
+//       try {
+//         const deleteResults =await cloudinaryDeleteImages(deletedImages)
+//         console.log("del", deleteResults);
+        
+//       } catch (error) {
+//         console.log("Images err deleted",error);
+//       }
+//     }
+//     //handle image upload 
+//     const imageUrls = [];
+//     for (file of files) {
+//       const imageUrl = await cloudinaryImageUploadMethod(file.buffer);
+//       imageUrls.push(imageUrl);
+//     }
+
+//     const relatedProducts = await Product.find({ categoryId }, "_id");
+//     const relatedProductsIds =relatedProducts.length > 0
+//         ? relatedProducts.map((product) => product._id)
+//         : [];
+
+//     updatedProduct.relatedProducts = relatedProductsIds;
+
+//     updatedProduct.images =[...(updatedUrls||[]),...imageUrls]
+
+   
+
+//     const editedProduct = await Product.findByIdAndUpdate(_id, updatedProduct, {
+//       new: true,
+//     });
+//     res
+//       .status(200)
+//       .json({ mesaage: "Product edited successfully", product: editedProduct });
+
+//   } catch (error) {
+//     console.error("Error adding product:", error.message); // Log error for debugging
+//     res.status(500).json({
+//       message: "Something went wrong while adding the product.",
+//       error: error.mesaage,
+//     });
+//   }
+// };

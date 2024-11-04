@@ -125,7 +125,6 @@ fetchProductDetails()
     getCategory();
   }, []);
 
-  const currentCategory=categories.find((category)=>category._id===productData.categoryId)
   //validate form before submission
   const validateForm = () => {
     const newError = {};
@@ -158,7 +157,7 @@ fetchProductDetails()
     if(!productData.skinType){
       newError.skinType ="Skin tyoe is required."
     }
-    if (sizes.length === 0 || sizes.some(size => !size.size || !size.price || !size.stock)) {
+    if (sizes.length === 0 || sizes.some(size => !size.size || !size.price<0 || !size.stock<0)) {
       newError.sizes = "Please add at least one size variant with valid size, price, and stock.";
     }
   
@@ -465,6 +464,7 @@ useEffect(()=>{
                 type="number"
                 placeholder="Price"
                 value={size.price}
+                min='0'
                 onChange={(e) =>
                   handleSizeChange(index, "price", e.target.value)
                 }
@@ -473,6 +473,7 @@ useEffect(()=>{
               <Input
                 type="number"
                 placeholder="Stock"
+                min='0'
                 value={size.stock}
                 onChange={(e) =>
                   handleSizeChange(index, "stock", e.target.value)

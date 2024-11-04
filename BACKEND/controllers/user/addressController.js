@@ -34,9 +34,9 @@ const addAddress = async (req, res) => {
 };
 
 const showAddresses = async (req, res) => {
-  const { id } = req.params;
+  const { userId } = req.params;
   try {
-    const addresses = await Address.find({ user: id });
+    const addresses = await Address.find({ user: userId });
     if (!addresses) {
       return res
         .status(404)

@@ -1,9 +1,9 @@
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
 export default function ProductDetails(product) {
-  const { name, categoryId, ingredient, skinType } = product;
+  const {  categoryId, ingredient, skinType } = product;
   return (
     <div className="w-full max-w-md p-3">
       <Separator />

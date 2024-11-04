@@ -6,10 +6,18 @@ import AddToCart from "./product/AddToCart";
 import DeliveryInfo from "./product/DeliveryInfo";
 import ProductDetails from "./product/ProductDetails";
 import Breadcrumbs from "./product/Breadcrumbs";
-import SocialShare from "./product/SocialShare";
+import { axiosInstance } from "@/config/axiosConfig";
+import { useSelector } from "react-redux";
+import toast, { Toaster } from "react-hot-toast";
+
+
 const ViewProduct = ({ product }) => {
   const [sizes, setSizes] = useState([]);
   const [selectedSize, setSelectedSize] = useState({});
+  const [addCart, setAddCart] = useState(false);
+  const userId = useSelector((state) => state?.user?.userInfo?._id);
+  const [cartItem, setCartItem] = useState({});
+
 
   useEffect(() => {
     if (product.sizes && product.sizes.length > 0) {
@@ -21,42 +29,46 @@ const ViewProduct = ({ product }) => {
   const handleSizeSelect = (size) => {
     setSelectedSize(size);
   };
-
-  const dummyReviews = [
-    {
-      id: "1",
-      title: "Great Product!",
-      rating: 5,
-      comment: "I absolutely love this product. It works wonders for my skin.",
-      author: "Jane Doe"
-    },
-    {
-      id: "2",
-      title: "Not bad",
-      rating: 3,
-      comment: "It's okay, but I expected more from this brand.",
-      author: "John Smith"
-    },
-    {
-      id: "3",
-      rating: 4,
-      comment: "Quite good, but the scent is a bit strong for me.",
-      author: "Alice Johnson"
+  async function handleCart() {
+    try {
+      //add image too
+      cartItem.productId = product._id;
+      cartItem.size = selectedSize.size;
+      cartItem.quantity = 1;
+      cartItem.priceAtAddition = selectedSize.price;
+      cartItem.latestPrice=selectedSize.price
+      cartItem.discount = product.discount;
+      console.log("product adding");
+      
+      const response = await axiosInstance.post(
+        `/api/users/${userId}/cart`,
+        cartItem
+      );
+      console.log(response);
+      setAddCart(response.data.isAdded);
+      toast.success("Product added to cart");
+    } catch (error) {
+      console.log("Product not added");
+      toast.error("Something went wrong.Please try again.");
     }
-  ]
+  }
+
+  
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
-      <Breadcrumbs 
-        category={product.categoryId || { id: "category-id", name: "Category Name" }} 
-        productName={product.name || "Product Name"} 
+      <Toaster />
+      <Breadcrumbs
+        category={
+          product.categoryId || { id: "category-id", name: "Category Name" }
+        }
+        productName={product.name || "Product Name"}
       />
       <div className="grid md:grid-cols-2 gap-8 mb-8 ">
         <div>
           <ImageGallery images={product.images || []} />
           <div className="hidden md:block">
-          <DeliveryInfo />
+            <DeliveryInfo />
           </div>
-         
         </div>
 
         <div className="space-y-2">
@@ -110,12 +122,16 @@ const ViewProduct = ({ product }) => {
                 ))}
             </div>
           </div>
-          <AddToCart totalStock={product.totalStock} />
+          <AddToCart
+            totalStock={product.totalStock}
+            handleCart={handleCart}
+            onAdded={addCart}
+          />
           <ProductDetails {...product} />
           <div className="block md:hidden">
-          <DeliveryInfo />
+            <DeliveryInfo />
           </div>
-         
+
           <div className="flex items-center space-x-2  ">
             <ShieldCheck className="h-5 w-5 " />
             <span className="text-sm font-bold">100 % Original product</span>
@@ -123,7 +139,6 @@ const ViewProduct = ({ product }) => {
           {/* <SocialShare /> */}
         </div>
       </div>
-
     </div>
   );
 };

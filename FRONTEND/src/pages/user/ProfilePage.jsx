@@ -6,6 +6,8 @@ import { axiosInstance } from '@/config/axiosConfig'
 import { useSelector } from 'react-redux'
 import toast,{ Toaster } from 'react-hot-toast'
 import AddressBook from '@/components/user/profile/address/AddressBook'
+import Navbar from '@/components/shared/Navbar'
+import Footer from '@/components/shared/Footer'
 
 const ProfilePage = () => {
     const [activeItem ,setActiveItem]=useState('My Profile')
@@ -33,6 +35,7 @@ const ProfilePage = () => {
   return (
     <div className="min-h-screen bg-gray-50">
         <Toaster/>
+        <Navbar/>
         <div className="container mx-auto px-4">
         <Breadcrumbs items={breadcrumbItems} />
         <div className="grid gap-8 md:grid-cols-[300px_1fr] lg:grid-cols-[300px_1fr]">
@@ -48,6 +51,7 @@ const ProfilePage = () => {
                </main>
         </div>
         </div>
+        <Footer/>
     </div>
   )
 }

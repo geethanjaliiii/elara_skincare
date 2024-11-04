@@ -1,4 +1,4 @@
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUpDown, ChevronDown, Search, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,61 +14,73 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import ProductCard from "./shop/ProductCard";
 import ShopHeader from "./shop/ShopHeader";
-import {axiosInstance} from "@/config/axiosConfig";
+import { axiosInstance } from "@/config/axiosConfig";
 import FilterSidebar from "./shop/FilterSidebar";
 
-const skinTypes = [
-    "Dry",
-    "Oily",
-    "Combination",
-    "Normal",
-    "Sensitive",
-    "All Skin Types",
-  ];
+const skinTypesFilters = [
+  "Dry",
+  "Oily",
+  "Combination",
+  "Normal",
+  "Sensitive",
+  "All Skin Types",
+];
 
 export default function ShopProducts() {
-
   const [selectedCategory, setSelectedCategory] = useState("All Products");
 
-  const [categories,setCategories] =useState([])
+  const [categories, setCategories] = useState([]);
   const [sortOrder, setSortOrder] = useState("lowToHigh");
-  const [priceRange, setPriceRange] = useState([0, 2500000]);
+  const [priceRange, setPriceRange] = useState([0, 25000]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showFilters, setShowFilters] = useState(false);
-  const [products,setProducts]=useState([])
-  const [skinType, setSkinType]=useState([])
-   function handleSkinTypeChange(){}
-  useEffect(()=>{
-async function fetchProducts() {
-  try {
-    const response=await  axiosInstance.get('/api/users/products')
-    const categoriesResponse=await axiosInstance.get('/api/users/categories')
+  const [products, setProducts] = useState([]);
+  const [skinTypeFilters, setSkinTypeFilters] = useState([]);
+  const[categoryFilters,setCategoryFilters]=useState([])
 
-    setProducts(response.data.products)
-    setCategories(categoriesResponse.data.categories)
-  } catch (error) {
-      console.log("Error fetching products",error.message);
-  }
+ const handleSkinTypeChange=(type)=>{
+  
+ }
+const handleCategoryChange=(catId)=>{
+  setCategoryFilters((prev)=>prev.includes(catId)?prev.filter((id)=>id!=catId):[...prev,catId])
 }
-fetchProducts()
-  },[])
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        const queryParams =new URLSearchParams()
+          if(categoryFilters.length>0){
+             queryParams.append('categoryIds',categoryFilters.join(','))
+          }
+        const [response, categoriesResponse] = await Promise.all([
+          axiosInstance.get(`/api/users/products?${queryParams.toString()}`),
+          axiosInstance.get("/api/users/categories"),
+        ]);
+        setProducts(response.data.products);
+        setCategories(categoriesResponse.data.categories);
+       setPriceRange(response.data.priceRange)
+      } catch (error) {
+        console.log("Error fetching products", error.message);
+      }
+    }
+    fetchProducts();
+  }, [categoryFilters]);
 
-  const filteredProducts = products
-    .filter(
-      (product) =>
-        selectedCategory === "All Products" ||
-        product.category === selectedCategory
-    )
-    .filter(
-      (product) =>
-        product.price >= priceRange[0] && product.price <= priceRange[1]
-    )
-    .filter((product) =>
-      product.name.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .sort((a, b) =>
-      sortOrder === "lowToHigh" ? a.price - b.price : b.price - a.price
-    );
+  // const filteredProducts = products
+  //   .filter(
+  //     (product) =>
+  //       selectedCategory === "All Products" ||
+  //       product.category === selectedCategory
+  //   )
+  //   .filter(
+  //     (product) =>
+  //       product.price >= priceRange[0] && product.price <= priceRange[1]
+  //   )
+  //   .filter((product) =>
+  //     product.name.toLowerCase().includes(searchTerm.toLowerCase())
+  //   )
+  //   .sort((a, b) =>
+  //     sortOrder === "lowToHigh" ? a.price - b.price : b.price - a.price
+  //   );
 
   return (
     <>
@@ -95,7 +107,6 @@ fetchProducts()
                 showFilters ? "block" : "hidden"
               } md:block`}
             >
-               
               <div>
                 <h2 className="text-lg font-semibold mb-2">Categories</h2>
                 {categories.map((category) => (
@@ -105,34 +116,39 @@ fetchProducts()
                   >
                     <Checkbox
                       id={`category-${category._id}`}
-                      checked={selectedCategory === category}
-                      onCheckedChange={() => setSelectedCategory(category)}
+                      checked={categoryFilters.includes(category._id)}
+                      onCheckedChange={()=>handleCategoryChange(category._id)}
                     />
-                    <Label htmlFor={`category-${category.name}`}>{category.name}</Label>
+                    <Label htmlFor={`category-${category.name}`}>
+                      {category.name}
+                    </Label>
                   </div>
                 ))}
               </div>
               <div className="mb-4">
-        <h3 className="font-semibold mb-2">Skin Type</h3>
-        {skinTypes.map((type,index) => (
-          <div key={index} className="flex items-center mb-2">
-            <Checkbox
-              id={`skinType-${type}`}
-              checked={skinType.includes(type) }
-              onCheckedChange={() => handleSkinTypeChange(type)}
-            />
-            <label htmlFor={`skinType-${type}`} className="ml-2 text-sm">
-              {type}
-            </label>
-          </div>
-        ))}
-      </div>
+                <h3 className="font-semibold mb-2">Skin Type</h3>
+                {skinTypesFilters.map((type, index) => (
+                  <div key={index} className="flex items-center mb-2">
+                    <Checkbox
+                      id={`skinType-${type}`}
+                      checked={!skinTypesFilters.includes(type)}
+                      onCheckedChange={() => handleSkinTypeChange(type)}
+                    />
+                    <label
+                      htmlFor={`skinType-${type}`}
+                      className="ml-2 text-sm"
+                    >
+                      {type}
+                    </label>
+                  </div>
+                ))}
+              </div>
               <div>
                 <h2 className="text-lg font-semibold mb-2">Price Range</h2>
                 <Slider
                   min={0}
-                  max={2500000}
-                  step={10000}
+                  max={priceRange[1]}
+                  step={10}
                   value={priceRange}
                   onValueChange={setPriceRange}
                 />
@@ -171,7 +187,7 @@ fetchProducts()
                       exit={{ opacity: 0, y: -20 }}
                       transition={{ duration: 0.3 }}
                     >
-                      <ProductCard {...product} key={product._id}/>
+                      <ProductCard {...product} key={product._id} />
                     </motion.div>
                   ))}
                 </AnimatePresence>

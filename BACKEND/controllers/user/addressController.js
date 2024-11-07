@@ -21,7 +21,21 @@ const addAddress = async (req, res) => {
         .json({ message: "Validation error", details: errorMessages });
     }
 
-    const address = await Address.create(req.body);
+    const newAddress = await Address.create(req.body);
+    const address = {
+      _id:newAddress._id,
+      user:newAddress.user,
+      fullname: newAddress.fullname,
+      phone: newAddress.phone,
+      email: newAddress.email,
+      addressLine: newAddress.addressLine,
+      city: newAddress.city,
+      state: newAddress.state,
+      landmark: newAddress.landmark,
+      pincode: newAddress.pincode,
+      addressType: newAddress.addressType,
+      isDefault: newAddress.isDefault,
+    };
     return res
       .status(200)
       .json({ success: true, message: "Address added", address });
@@ -36,7 +50,8 @@ const addAddress = async (req, res) => {
 const showAddresses = async (req, res) => {
   const { userId } = req.params;
   try {
-    const addresses = await Address.find({ user: userId });
+    const addresses = await Address.find({ user: userId }).select("-createdAt -updatedAt -__v")
+
     if (!addresses) {
       return res
         .status(404)
@@ -77,8 +92,10 @@ const editAddress = async (req, res) => {
     const data = req.body;
     const updatedAddress = await Address.findByIdAndUpdate(addressId, data, {
       new: true,
-    });
-    res
+    }).select("-createdAt -updatedAt -__v")
+    
+    //send response
+      res
       .status(200)
       .json({ success: true, message: "Address updated", updatedAddress });
   } catch (error) {
@@ -92,7 +109,9 @@ const editAddress = async (req, res) => {
 const deleteAddress =async(req,res)=>{
   const {userId, addressId}=req.params
   try {
-    const address=await Address.findOneAndDelete({_id:addressId , user:userId})
+    const address=await Address.findOneAndDelete({_id:addressId , user:userId}).select("-createdAt -updatedAt -__v")
+    
+
     if(!address){
       return res.status(404).json({success:false ,message:"Address not found"})
     }

@@ -18,6 +18,7 @@ function AddressBook({ userId }) {
         setAddresses(response.data.addresses)
       } catch (error) {
         console.log("addresses not fetched",error);
+        setAddresses([])
       }
     }
     fetchAddresses();
@@ -43,11 +44,11 @@ function AddressBook({ userId }) {
   //edit address
   const handleEditAddress = async(values) => {
     const addrId=values._id
-    const { _id, createdAt, updatedAt,__v, ...filteredValues } = values;
+    const { _id, ...filteredValues } = values;
     try {
       const response =  await axiosInstance.put(`/api/users/${addrId}/addresses`,filteredValues)
       const updatedAddress=response.data.updatedAddress
-      setAddresses((prev)=>prev.map((addr)=>(addr._id===updatedAddress._id?updatedAddress: values)))
+      setAddresses((prev)=>prev.map((addr)=>(addr._id===updatedAddress._id?updatedAddress: addr)))
       setEditingAddress(null)
       toast.success("Address updated.")
     } catch (error) {
@@ -78,7 +79,7 @@ function AddressBook({ userId }) {
     <div className="space-y-6">
       <Toaster />
       {!editingAddress && !isAdding && (
-        <Button onClick={() => setIsAdding(true)}>Add a new address</Button>
+        <Button onClick={() => {setIsAdding(true);setEditingAddress(null)}}>Add a new address</Button>
       )}
       {isAdding && (
         <AddressForm
@@ -91,7 +92,7 @@ function AddressBook({ userId }) {
         <AddressCard
           key={address._id}
           address={address}
-          onEdit={() => setEditingAddress(address)}
+          onEdit={() => {setEditingAddress(address);setIsAdding(false)}}
           onDelete={handleDeleteAddress}
           onSetDefault={handleSetDefault}
         />

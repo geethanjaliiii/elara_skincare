@@ -14,7 +14,10 @@ const CartItem = ({ cartItems, updateQuantity, removeItem }) => {
    console.log(selectedSize);
    
    const newQty=Math.max(1,item.quantity+change)
-   if(newQty<=selectedSize.stock && newQty<=item.maxQtyPerUser){
+   if(change==-1){
+    updateQuantity(id,newQty)
+   }
+   else if(newQty<=selectedSize.stock && newQty<=item.maxQtyPerUser){
     updateQuantity(id,newQty)
    }else{
     toast.error('Stock limit exceeded')
@@ -22,6 +25,21 @@ const CartItem = ({ cartItems, updateQuantity, removeItem }) => {
    
   }
 
+  // const handleQtyChange=(id,newQty)=>{
+  //   const item=cartItems.find((item)=>item._id===id)
+  //   console.log("item",item);
+    
+  //   const selectedSize=item.productId.sizes.find((size)=>size.size===item.size)
+  //   console.log(selectedSize);
+    
+    
+  //   if(newQty<=selectedSize.stock && newQty<=item.maxQtyPerUser){
+  //    updateQuantity(id,newQty)
+  //   }else{
+  //    toast.error('Stock limit exceeded')
+  //   }
+    
+  //  }
   //fetch items
 
   return (
@@ -69,6 +87,7 @@ const CartItem = ({ cartItems, updateQuantity, removeItem }) => {
                           size="icon"
                           className="h-8 w-8"
                           onClick={() =>handleQtyChange(item._id, -1)}
+                          disabled={item.quantity===1}
                         >
                           <MinusCircle className="h-4 w-4" />
                           <span className="sr-only">Decrease quantity</span>
@@ -78,7 +97,8 @@ const CartItem = ({ cartItems, updateQuantity, removeItem }) => {
                           variant="outline"
                           size="icon"
                           className="h-8 w-8"
-                          onClick={() => handleQtyChange(item._id, 1)}
+                          onClick={() => handleQtyChange(item._id,1)}
+                          disabled={item.quantity>=5 || item.quantity>=selectedSize.stock}
                         >
                           <PlusCircle className="h-4 w-4" />
                           <span className="sr-only">Increase quantity</span>

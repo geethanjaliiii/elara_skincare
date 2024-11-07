@@ -1,5 +1,6 @@
 const { isEthereumAddress } = require("validator");
 const Cart = require("../../models/cartModel");
+const recalculateCartTotals=require('../../utils/services/recalculateCartTotals')
 
 function checkStock(cart){
   for(let item of cart.items){
@@ -44,6 +45,9 @@ const addToCart = async (req, res) => {
       console.log("product dont exist in cart");
       cartExist.items.push(product);
     }
+    //recalculating total amounts
+     recalculateCartTotals(cartExist)
+
     await cartExist.save();
     res.status(200).json({
       success: true,
@@ -67,11 +71,15 @@ const showCart = async (req, res) => {
         .json({ success: false, message: "Cart not found" });
     }
 
+    //clearing unlisted products from cart
     cart.items=cart.items.filter((item)=>item.productId.isListed)
+
     //check stock(cart)
     checkStock(cart)
+
+    //recalculating total amount of listed products
+    recalculateCartTotals(cart)
     await cart.save()
-      console.log(cart);
     
     res.status(200).json({ success: true, message: "Cart fetched", cart });
   } catch (error) {
@@ -130,6 +138,9 @@ const updateCart = async (req, res) => {
     }else{
       item.inStock=true
     }
+    //recalculating amount with new values
+    recalculateCartTotals(cart)
+
     await cart.save();
     res.status(200).json({ success: true, message: "Quantity updated", cart });
   } catch (error) {
@@ -140,6 +151,7 @@ const updateCart = async (req, res) => {
       .json({ message: "Internal server error", error: error.message });
   }
 };
+
 const removeItem =async(req,res)=>{
   const {userId, itemId}=req.params
   try {
@@ -151,7 +163,9 @@ const removeItem =async(req,res)=>{
     return res.status(404).json({success:false,message:'cart not found'})
    }
   const updatedCart= await Cart.findOneAndUpdate({userId},{$pull:{items:{_id:itemId}}},{new:true}).populate('items.productId')
-  console.log("updated cart",updatedCart);
+  //recalculatetotals
+  recalculateCartTotals(updatedCart)
+  
   await updatedCart.save()
   res.status(200).json({success:true,message:"Cart item removed",cart:updatedCart})
   } catch (error) {

@@ -4,21 +4,45 @@ import { Separator } from "@/components/ui/separator"
 import { Button } from '@/components/ui/button'
 import { ShieldCheck } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { useCart } from '@/context/CartContext'
+import toast, { Toaster } from 'react-hot-toast'
 
-const PriceDetails = ({cart,step}) => {
-  const navigate=useNavigate()
+
+
+const PriceDetails = ({cart,step,handlePlaceOrder}) => {
+  
+const navigate=useNavigate()
+const{checkStock,allStockOut}=useCart()
+
   const handleClick=()=>{
     if(step=='bag'){
-        navigate('/checkout/address')
+        if(checkStock()){
+          
+          navigate('/checkout/address')
+        }else{
+         toast.error("Stock limit exceeded!")
+        }
+        
     }
     else if(step=='address'){
-      navigate('/checkout/payment')
+      if(checkStock()){
+        navigate('/checkout/payment')
+      }else{
+        toast.error("Stock limit exceeded!")
+      }
+    }else if(step='payment'){
+      if(checkStock()){
+        handlePlaceOrder()
+      }else{
+        toast.error("Stock limit exceeded!")
+      }
     }
   }
   return (
     <div className="lg:sticky lg:top-6 lg:h-fit">
           {cart &&
           <Card>
+            <Toaster/>
           <CardContent className="p-6">
             <h2 className="mb-4 text-lg font-semibold">PRICE DETAILS</h2>
             <Separator className="mb-4" />
@@ -33,7 +57,7 @@ const PriceDetails = ({cart,step}) => {
               </div>
               <div className="flex justify-between">
                 <span>Delivery Charges</span>
-                <span className="text-green-600">{cart.deleveryCharge?cart.deleveryCharge:'Free'}</span>
+                <span className="text-green-600">{cart.deliveryCharge?cart.deliveryCharge:'Free'}</span>
               </div>
               <div className="flex justify-between">
                 <span>Platform Fee</span>
@@ -49,7 +73,7 @@ const PriceDetails = ({cart,step}) => {
                 order
               </div>
             </div>
-            {step &&  <Button className="mt-6 w-full" size="lg" onClick={handleClick}>
+            { step &&  <Button className="mt-6 w-full" size="lg" onClick={handleClick} disabled={allStockOut()}>
             {step==='address'?'CONTINUE':'PLACE ORDER'}
             </Button> }
           

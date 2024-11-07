@@ -6,6 +6,7 @@ const {showProfile,editProfile}=require('../controllers/user/userController')
 const authenticateToken =require('../middlewares/user/authMiddleware')
 const {addAddress,showAddresses, editAddress, deleteAddress}=require('../controllers/user/addressController')
 const { addToCart, showCart, updateCart, removeItem } = require('../controllers/user/cartController')
+const { placeOrder, getOrderDetails ,getAllOrders} = require('../controllers/user/orderController')
 const userRoute = express()
 
 //authentication
@@ -35,4 +36,11 @@ userRoute.post('/:userId/cart',authenticateToken,addToCart)
 userRoute.get('/:userId/cart',authenticateToken,showCart)
 userRoute.patch('/:userId/cart/:itemId',authenticateToken,updateCart)
 userRoute.delete('/:userId/cart/:itemId',authenticateToken,removeItem)
+
+//order
+userRoute.post('/orders',authenticateToken,placeOrder)
+userRoute.get('/orders/:orderId',authenticateToken,getOrderDetails)
+userRoute.get('/:userId/orders',authenticateToken,getAllOrders)
+
+// userRoute.put('/orders/:orderId')
 module.exports = userRoute

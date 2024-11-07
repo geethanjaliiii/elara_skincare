@@ -1,10 +1,8 @@
-const { Schema } = require("mongoose");
-const { type } = require("../utils/validation/addressValidation");
-const { required } = require("joi");
+const mongoose= require('mongoose')
 
-const orderSchema =new Schema({
+const orderSchema =new mongoose.Schema({
     orderNumber:{type:String ,unique:true ,required:true},
-    userId:{type:Schema.Types.ObjectId,ref:'User',required:true},
+    userId:{type:mongoose.Schema.Types.ObjectId,ref:'User',required:true},
     status:{
         type:String,
         enum:['Pending','Confirmed', 'Shipped', 'Delivered', 'Canceled'],
@@ -12,7 +10,7 @@ const orderSchema =new Schema({
     },
     items:[
         {
-            productId:{type:Schema.Types.ObjectId, ref:'Product',required:true},
+            productId:{type:mongoose.Schema.Types.ObjectId, ref:'Product',required:true},
             name:{type:String, required:true},
             size:{type:String},
             quantity:{type:Number,required:true},
@@ -26,7 +24,7 @@ const orderSchema =new Schema({
     tax:{type:Number,default:0},//platform fee
     totalAmount:{type:Number, required:true},
     shippingAddress:{//creating a snapshot of shipping address
-        funnName:{type:String, required:true},
+        fullName:{type:String, required:true},
         phone:{type:String,required:true},
         email:{type:String,required:true},
         addressLine:{type:String,required:true},
@@ -37,7 +35,7 @@ const orderSchema =new Schema({
     },
     paymentMethod:{
         type:String,
-        enum:['Cash on Delevery','Credit Card', 'Debit Card', 'PayPal', 'Net Banking', 'UPI'],
+        enum:['Cash on Delivery','Credit Card', 'PayPal','Wallet', 'Net Banking', 'UPI'],
         required:true
     },
     paymentStatus:{
@@ -47,9 +45,11 @@ const orderSchema =new Schema({
     },
     transactionId:{type:String},
     orderDate:{type:Date, default:Date.now},
+    expectedDeliveryDate:{type:Date},
     updatedAt:{type:Date,default:Date.now},
     activityLog:[
         {status:{type:String},
         changedAt:{type:Date,default:Date.now}}
     ]
 })
+module.exports =mongoose.model('Order',orderSchema)

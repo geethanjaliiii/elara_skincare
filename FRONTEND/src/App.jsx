@@ -23,6 +23,7 @@ import ProfilePage from "./pages/user/ProfilePage";
 
 import CartPage from "./pages/user/cartPage";
 import CheckoutPage from "./pages/user/CheckoutPage";
+import OrderSuccess from "./pages/user/OrderSuccess";
 
 
 export default function App() {
@@ -65,6 +66,7 @@ export default function App() {
               <Route path="/profile" element={<ProfilePage/>}/>
               <Route path="/cart" element={<CartPage/>} />   
               <Route path="/checkout/*" element={<CheckoutPage/>}/>
+              <Route path="/checkout/success/:orderId" element={<OrderSuccess/>}/>
           {/* admin */}
           <Route
             path="/admin"

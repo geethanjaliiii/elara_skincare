@@ -5,8 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { BadgePercent, Banknote, CreditCard, Calendar, Wallet, Building2 } from "lucide-react";
 
-export default function PaymentSection() {
-  const [selectedPayment, setSelectedPayment] = useState("");
+export default function PaymentSection({selectedPayment,setSelectedPayment}) {
+ 
 
   return (
     <Card>
@@ -16,13 +16,12 @@ export default function PaymentSection() {
       <CardContent>
         <OfferBanner />
         <RadioGroup value={selectedPayment} onValueChange={setSelectedPayment} className="space-y-2">
-          <PaymentOption value="cod" icon={Banknote} label="Cash On Delivery (Cash/UPI)" />
-          <PaymentOption value="upi" icon={CreditCard} label="UPI (Pay via any App)" />
-          <PaymentOption value="card" icon={CreditCard} label="Credit/Debit Card" offers="4 Offers" />
-          <PaymentOption value="later" icon={Calendar} label="Pay Later" />
-          <PaymentOption value="wallet" icon={Wallet} label="Wallets" offers="2 Offers" />
-          <PaymentOption value="emi" icon={Building2} label="EMI" />
-          <PaymentOption value="netbanking" icon={Building2} label="Net Banking" />
+          <PaymentOption value="Cash on Delivery" icon={Banknote} label="Cash On Delivery (Cash/UPI)" />
+          <PaymentOption value="Credit Card" icon={CreditCard} label="Credit/Debit Card" offers="4 Offers" />
+          <PaymentOption value="PayPal" icon={Building2} label="PayPal" />
+          <PaymentOption value="Wallet" icon={Wallet} label="Wallets" offers="2 Offers" />
+          <PaymentOption value="Net Banking" icon={Building2} label="Net Banking" />
+          <PaymentOption value="UPI" icon={CreditCard} label="UPI (Pay via any App)" />
         </RadioGroup>
       </CardContent>
     </Card>

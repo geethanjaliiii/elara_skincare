@@ -8,6 +8,7 @@ import toast,{ Toaster } from 'react-hot-toast'
 import AddressBook from '@/components/user/profile/address/AddressBook'
 import Navbar from '@/components/shared/Navbar'
 import Footer from '@/components/shared/Footer'
+import Ordrers from '@/components/user/profile/orders/Orders'
 
 const ProfilePage = () => {
     const [activeItem ,setActiveItem]=useState('My Profile')
@@ -48,6 +49,7 @@ const ProfilePage = () => {
                <main >
                 {activeItem=='My Profile' && <ProfileForm user={user}/>}
                 {activeItem=='Address Book' && <AddressBook userId={user._id}/>}
+                {activeItem=='My Orders' &&  <Ordrers/>}
                </main>
         </div>
         </div>

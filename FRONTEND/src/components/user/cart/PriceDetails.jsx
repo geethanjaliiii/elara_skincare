@@ -49,11 +49,11 @@ const{checkStock,allStockOut}=useCart()
             <div className="space-y-3">
               <div className="flex justify-between">
                 { cart && <span>Price ({cart.totalItems} items)</span>}
-                <span>₹{cart.totalMRP}</span>
+                <span>₹{(cart.totalMRP).toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-green-600">
                 <span>Discount</span>
-                <span>- ₹{cart.totalDiscount}</span>
+                <span>- ₹{cart.totalDiscount.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span>Delivery Charges</span>
@@ -66,10 +66,10 @@ const{checkStock,allStockOut}=useCart()
               <Separator />
               <div className="flex justify-between font-semibold">
                 <span>Total Amount</span>
-                <span>₹{cart.totalAmount}</span>
+                <span>₹{cart.totalAmount.toFixed(2)}</span>
               </div>
               <div className="text-sm text-green-600">
-                You will save ₹{cart.totalMRP-cart.totalDiscount} on this
+                You will save ₹{(cart.totalMRP-cart.totalDiscount).toFixed(2)} on this
                 order
               </div>
             </div>

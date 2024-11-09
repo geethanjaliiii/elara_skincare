@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { DeleteWarningModal } from "@/components/shared/DeleteWarningModal";
-import { adminAxiosInstance, axiosInstance } from "@/config/axiosConfig";
+import { adminAxiosInstance } from "@/config/axiosConfig";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 // import { cancelOrder } from "@/services/orderService";
@@ -31,6 +31,7 @@ export function OrderItem({ order }) {
   // State to manage status for each item individually
   const [isModalOpen, setIsmodalOpen] = useState(false);
   const queryClient = useQueryClient();
+
   const [itemToCancel, setItemToCancel] = useState(null);
   const [statusMap, setStatusMap] = useState(
     order.items.reduce((acc, item) => {
@@ -47,21 +48,44 @@ export function OrderItem({ order }) {
       setItemToCancel(itemId);
       console.log("open modal");
     } else {
-      setStatusMap((prev) => ({
-        ...prev,
-        [itemId]: newStatus,
-      }));
+   console.log("iem",itemId);
+   
+   changeStatusMutation.mutate({orderId:order._id,itemId,status:newStatus})
     }
-
-    // Optionally, make an API call here to save the status change in the database
+   
   };
-
+  //api function call
+  const changeStatus=async(orderId,itemId,newStatus)=>{
+    const response=await adminAxiosInstance.patch(`/api/admin/orders/${orderId}/items/${itemId}`,{status:newStatus})
+    return response.data.item;
+  }
+  //api call to cancel order item
   const cancelOrder = async (itemId) => {
     const response = await adminAxiosInstance.patch(
       `/api/admin/orders/${order._id}/cancel/${itemId}`
     );
     return response.data;
   };
+
+  const changeStatusMutation=useMutation({
+    mutationFn:({orderId,itemId,status})=>changeStatus(orderId,itemId,status),
+    onSuccess:(data)=>{
+      toast.success("Status updated");
+      setStatusMap((prev) => ({
+        ...prev,
+        [data._id]: data?.status,
+      }));
+      queryClient.invalidateQueries(["orders"])
+      queryClient.invalidateQueries(["userOrders", order.userId])
+      queryClient.invalidateQueries(["orderDetails", order.orderNumber])
+    },
+    onError:(error)=>{
+      const errorMessage=error?.response?.data?.error||"Status updating failed."
+      console.log("Error in status update",error);
+      toast.error(errorMessage)
+    }
+  })
+
 
   const cancelOrderMutation = useMutation({
     mutationFn: cancelOrder,
@@ -131,7 +155,7 @@ export function OrderItem({ order }) {
                   </SelectTrigger>
                   <SelectContent>
                     {Object.keys(statusColors).map((status) => (
-                      <SelectItem value={status} key={status}>
+                      <SelectItem value={status} key={status} >
                         <Badge className={`${statusColors[status]} text-white`}>
                           {status}
                         </Badge>

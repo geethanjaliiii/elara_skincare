@@ -23,12 +23,12 @@ const ProductInfo = ({ name, price, rating, reviews, discount ,bestSeller,totalS
       {discount>=30 && (<p className="text-green-500 text-sm font-semibold">Special Price</p>)}
       <div className="flex items-center gap-2">
 
-      <span className="text-2xl font-bold  text-black">₹{discountPrice}</span>
-      <span className="text-lg line-through text-gray-500">₹{price}</span>
+      <span className="text-2xl font-bold  text-black">₹{discountPrice.toFixed(2)}</span>
+      <span className="text-lg line-through text-gray-500">₹{price.toFixed(2)}</span>
       <span className="text-lg font-semibold text-green-600">{discount} % OFF</span>
 
       </div>
-      <p className="text-gray-600 text-sm">You will save ₹{saving}</p>
+      <p className="text-gray-600 text-sm">You will save ₹{saving.toFixed(2)}</p>
       <p className="text-black">( MRP Inclusive of Taxes )</p>
     </div>
   );

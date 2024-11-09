@@ -112,11 +112,11 @@ const CartItem = ({ cartItems, updateQuantity, removeItem }) => {
                       
                       <div className="text-right">
                         <div className="text-lg font-semibold">
-                          ₹{discountedPrice}
+                          ₹{discountedPrice.toFixed(2)}
                         </div>
                         {currentPrice > discountedPrice && (
                           <div className="text-sm text-muted-foreground line-through">
-                            ₹{currentPrice.toLocaleString()}
+                            ₹{currentPrice.toFixed(2)}
                           </div>
                         )}
                        

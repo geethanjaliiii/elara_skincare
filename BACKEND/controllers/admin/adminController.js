@@ -11,6 +11,8 @@ const setCookie = require("../../utils/jwt/setCookie");
 
 const login = async (req, res) => {
   const { email, password } = req.body;
+  console.log(req.body);
+  
   try {
     //check user
     //check password

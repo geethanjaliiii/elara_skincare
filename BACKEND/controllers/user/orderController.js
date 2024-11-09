@@ -122,8 +122,15 @@ const getAllOrders =async(req,res)=>{
     if(!userId){
       return res.status(400).json({success:false, message:"Invalid credentials"})
     }
+   const orders= await Order.find({userId})
+   if(!orders){
+    return res.status(404).json({success:false,message: 'Orders not found'})
+   }
+   res.status(200).json({success:true, message:"Orders fetched successfully",orders})
   } catch (error) {
+    console.log("error fetching orders",error);
     
+    res.status(500).json({success:false,message:error.message||"Internal server error"})
   }
 }
-module.exports = { placeOrder, getOrderDetails };
+module.exports = { placeOrder, getOrderDetails,getAllOrders };

@@ -47,7 +47,7 @@ axiosInstance.interceptors.response.use(
     // }
     if (error.response) {
       // Check if the error status is 401 (Unauthorized) and the request hasn't been retried yet
-      if (error.response.status === 401 && !originalRequest._retry) {
+      if (error.response.status === 401 && error.response.data.error==='Invalid token' && !originalRequest._retry) {
         originalRequest._retry = true; // Prevents infinite loops
         console.log("retrying request");
 
@@ -121,7 +121,7 @@ adminAxiosInstance.interceptors.response.use((response)=>{
 async(error)=>{
   const originalRequest=error.config;
   if(error.response){
-    if(error.response.status===401 && !originalRequest._retry){
+    if(error.response.status===401 && error.response.data.error==='Invalid access token' && !originalRequest._retry){
       originalRequest._retry=true;
       console.log("rerying req");
       try {

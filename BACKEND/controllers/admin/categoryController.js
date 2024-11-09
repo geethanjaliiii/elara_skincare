@@ -14,7 +14,7 @@ const addCategory = async (req, res) => {
         .json({
           success: false,
           message: "validation error",
-          errors: error.details.map((detail) => details.message),
+          errors: error.details.map((details) => details.message),
         });
     }
     const categoryExist = await Category.findOne({

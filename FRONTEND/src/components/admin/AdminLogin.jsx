@@ -9,7 +9,6 @@ import { Toaster ,toast} from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
 
 const AdminLogin = () => {
-  const [formData, setFormData]=useState(null)
   const [error,setError]=useState("")
   const dispath=useDispatch()
   const navigate =useNavigate()
@@ -28,13 +27,16 @@ const AdminLogin = () => {
   // Form submission handler
   const onSubmit = async(values) => {
     // Handle form submission
-    setFormData(values)
+
+    
+   
+    
     setError("")
     console.log('Form submitting', values);
     //post req in try catch
     //set admin credentials in redux
     try {
-      const response = await adminAxiosInstance.post('/api/admin',formData)
+      const response = await adminAxiosInstance.post('/api/admin',values)
       toast.success("Admin logged in successfully")
       console.log(response.data);
       

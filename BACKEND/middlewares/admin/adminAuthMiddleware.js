@@ -6,7 +6,6 @@ function authenticateAdminToken(req,res,next){
     if(!token){
         console.log("no admin token");
         return res.status(401).json({success:false ,message:'Access denied, no token provided'})
-
     }
     jwt.verify(token, secretKey,(err,user)=>{
         if(err){

@@ -24,6 +24,10 @@ import ProfilePage from "./pages/user/ProfilePage";
 import CartPage from "./pages/user/cartPage";
 import CheckoutPage from "./pages/user/CheckoutPage";
 import OrderSuccess from "./pages/user/OrderSuccess";
+import OrderDetails from "./components/user/profile/orders/OrderDetails";
+import Orders from "./components/user/profile/orders/Orders";
+import AdminOrders from "./components/admin/orders/Orders";
+import OrderDetailsPage from "./pages/user/OrderDetailsPage";
 
 
 export default function App() {
@@ -66,7 +70,9 @@ export default function App() {
               <Route path="/profile" element={<ProfilePage/>}/>
               <Route path="/cart" element={<CartPage/>} />   
               <Route path="/checkout/*" element={<CheckoutPage/>}/>
+              <Route path='/orders' element ={<Orders/>}/>
               <Route path="/checkout/success/:orderId" element={<OrderSuccess/>}/>
+              <Route path='/orders/:orderId' element={<OrderDetailsPage/>}/>
           {/* admin */}
           <Route
             path="/admin"
@@ -92,6 +98,7 @@ export default function App() {
             <Route path="categories" element={<Categories />} />
             <Route path="categories/add" element={<AddCategory />} />
             <Route path="categories/edit" element={<EditCategory />} />
+            <Route path="orders" element={<AdminOrders/>}/>
             <Route path="sales" element={<div>Sales Content</div>} />
             <Route path="settings" element={<div>Settings Content</div>} />
           </Route>

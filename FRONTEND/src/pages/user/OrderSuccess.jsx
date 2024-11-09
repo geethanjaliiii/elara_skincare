@@ -12,7 +12,7 @@ import { formatDeliveryDate,formatOrderDate } from "@/utils/dateFormatting"
 export default function OrderSuccess() {
   const navigate=useNavigate()
   const {orderId}=useParams()
-  console.log("id",orderId);
+  
  
   const {data,error,isLoading}=useQuery({
     queryKey:['orderDetails',orderId],
@@ -113,7 +113,7 @@ export default function OrderSuccess() {
             {/* Action Buttons */}
             <div className="mt-6 grid grid-cols-2 gap-4">
               <Button variant="outline" asChild>
-                <Link to="/orders">View Order</Link>
+                <Link to={`/orders/${orderId}`}>View Order</Link>
               </Button>
               <Button asChild>
                 <Link to="/shop">Continue Shopping</Link>

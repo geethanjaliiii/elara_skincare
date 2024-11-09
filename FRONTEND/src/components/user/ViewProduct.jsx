@@ -38,7 +38,7 @@ const ViewProduct = ({ product }) => {
       cartItem.priceAtAddition = selectedSize.price;
       cartItem.latestPrice=selectedSize.price
       cartItem.discount = product.discount;
-      console.log("product adding");
+      console.log("product adding,USERiD==>",userId);
       
       const response = await axiosInstance.post(
         `/api/users/${userId}/cart`,

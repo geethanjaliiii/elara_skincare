@@ -1,4 +1,4 @@
-import { axiosInstance } from "@/config/axiosConfig"
+import { adminAxiosInstance, axiosInstance } from "@/config/axiosConfig"
 
 
 //place new order
@@ -18,5 +18,9 @@ export const getOrderDetails=async(orderId)=>{
 
 export const getAllOrders=async(userId)=>{
     const response=await axiosInstance.get(`/api/users/${userId}/orders`)
+    return response.data.orders
+}
+export const getOrders=async()=>{
+    const response=await adminAxiosInstance.get('/api/admin/orders')
     return response.data.orders
 }

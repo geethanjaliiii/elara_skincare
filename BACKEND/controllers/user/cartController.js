@@ -20,6 +20,11 @@ const addToCart = async (req, res) => {
   try {
     const product = req.body;
     console.log("product", product);
+    console.log("useriD",userId);
+    
+    if(!userId){
+      return res.status(400).json({error:"Invalid user id"})
+    }
     //check if cart for user exist
     const cartExist = await Cart.findOne({ userId });
     if (!cartExist) {

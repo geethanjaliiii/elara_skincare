@@ -18,7 +18,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     { name: 'Products', path: '/admin/dashboard/products', icon: <FiShoppingCart /> },
     { name: 'Customers', path: '/admin/dashboard/customers', icon: <FaUsers /> },
     { name: 'Sales', path: '/analytics', icon: <FaChartLine /> },
-    { name: 'Order List', path: '/orders', icon: <FaClipboardList /> },
+    { name: 'Order List', path: '/admin/dashboard/orders', icon: <FaClipboardList /> },
     { name: 'Coupons', path: '/coupons', icon: <FaTags /> },
     { name: 'Banner', path: '/banner', icon: <FaImage /> },
     { name: 'Categories', path: '/admin/dashboard/categories', icon: <FaThList /> }, // New Category option

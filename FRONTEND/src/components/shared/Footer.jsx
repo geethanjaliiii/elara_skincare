@@ -2,7 +2,7 @@ import { Input } from "@/components/ui/input";
 
 const Footer = () => {
   return (
-    <footer className="bg-stone-100 mt-12">
+    <footer className="bg-stone-100 ">
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
           <div>

@@ -15,12 +15,12 @@ export default function ProductCard({ _id, name, categoryId, price, sizes, revie
 
   return (
     <Card 
-      className="overflow-hidden relative"
+      className="overflow-hidden relative  "
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
 
     >
-      <div className="relative" >
+      <div className="relative " >
         <motion.div
           animate={{ scale: isHovered ? 1.05 : 1 }}
           transition={{ duration: 0.3 }}
@@ -33,7 +33,7 @@ export default function ProductCard({ _id, name, categoryId, price, sizes, revie
           initial={{ opacity: 0 }}
           animate={{ opacity: isHovered ? 1 : 0 }}
           transition={{ duration: 0.3 }}
-          className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+          className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center "
         >
           <Button variant="secondary" className="text-sm">
             Add to Cart

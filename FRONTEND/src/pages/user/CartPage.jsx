@@ -20,53 +20,13 @@ export default function CartPage() {
  useEffect(()=>{
   fetchCart()
  },[])
-  // const [cart, setCart] = useState({});
-  // const [cartItems, setCartItems] = useState([]);
   
-  // const navigate = useNavigate();
-  // const userId = useSelector((state) => state?.user.userInfo._id);
-  // useEffect(() => {
-  //   async function fetchCart() {
-  //     try {
-  //       const response = await axiosInstance.get(`/api/users/${userId}/cart`);
-  //       const { items, ...cartInfo } = response.data.cart;
-  //       console.log("response", response.data);
-  //       console.log("items", items);
-  //       setCart(response.data.cart);
-  //       setCartItems(items);
-  //     } catch (error) {
-  //       console.log("cart not found", error);
-  //     }
-  //   }
-  //   fetchCart();
-  // }, [userId]);
-
-
-  // const updateQuantity = async (itemId, newQty) => {
-  //   try {
-  //   const response=  await axiosInstance.patch(`/api/users/${userId}/cart/${itemId}`,{quantity:newQty});
-  //  console.log("product",response.data);
-  //  setCart(response.data.cart)
-  //  setCartItems(response.data.cart.items)
-  //   } catch (error) {
-  //     console.log("error updating quantity",error);
-  //   }
-  // };
-
-  // const removeItem = async(itemId) => {
-  //   try {
-  //   const response=  await axiosInstance.delete(`/api/users/${userId}/cart/${itemId}`)
-  //   setCart(response.data.cart)
-  //   setCartItems(response.data.cart.items)
-  //   } catch (error) {
-  //     console.log("Item not removed",error);
-  //   }
-  // };
   
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
-      <div className="container mx-auto p-4 lg:p-6 flex-grow">
+      
+      <div className="container mx-auto p-4 lg:p-6 flex-grow mt-16">
         {cartItems && cartItems.length>0 ?(
           <div className="grid gap-6 lg:grid-cols-3">
             <div className="lg:col-span-2">

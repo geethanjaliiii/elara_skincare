@@ -86,12 +86,6 @@ const productSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now },
 });
 
-// productSchema.methods.calculateTotalStock=function(){
-//    //sum up total stock for each size
-//   this.totalStock = this.sizes.reduce((sum, size) => sum + size.stock, 0);
-  
-// }
-
 
 productSchema.pre("save", function (next) {
   //sum up total stock for each size
@@ -104,13 +98,4 @@ productSchema.pre("save", function (next) {
   next();
 });
 
-// productSchema.pre("save",function(next){
-//   if(this.sizes && this.sizes.length>0){
-//     const lowestPrice=Math.min(...this.sizes.map(size=>size.price))//calculating lowest price
-//     this.displayPrice =lowestPrice
-//   }else{
-//     this.displayPrice=0
-//   }
-//   next()
-// })
 module.exports = mongoose.model("Product", productSchema);

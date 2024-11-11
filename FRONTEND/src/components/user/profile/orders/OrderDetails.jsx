@@ -1,20 +1,42 @@
 import { useState } from "react";
-import { Star, Package, Truck, Home, X, HelpCircle, ChevronRight, ShoppingCart } from "lucide-react";
+import {  Package, Truck, Home, X, HelpCircle, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useParams } from "react-router-dom";
-import { getOrderDetails } from "@/services/orderService";
-import { useQuery } from "@tanstack/react-query";
+import { cancelOrder, getOrderDetails } from "@/services/orderService";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import RatingDialog from "@/components/shared/RatingDialouge";
 import OrderTracker from "./OrderTracker";
 import { Link } from "react-router-dom";
-import { FaJediOrder } from "react-icons/fa";
+import { axiosInstance } from "@/config/axiosConfig";
+import toast, { Toaster } from "react-hot-toast";
+
 
 export default function OrderDetails() {
   const { orderId } = useParams();
   const [appliedCoupon, setAppliedCoupon] = useState("DISCOUNT10");
 
- 
+  const queryClient=useQueryClient()
+
+  const cancelOrderMutaion=useMutation({
+    mutationFn:({orderId,itemId})=>{
+      console.log("cancelling");
+      
+      cancelOrder(orderId,itemId)},
+    onSuccess:(data)=>{
+      toast.success("orderCancelled");
+      console.log('data',data);
+      
+      queryClient.invalidateQueries(['orders'])
+      queryClient.invalidateQueries(['userOrders'],data?.userId)
+      queryClient.invalidateQueries(['userDetails'],data.orderNumber)
+    },
+    onError:(error)=>{
+      const errorMessage=error?.response?.data?.error||"Order cancellation failed"
+      toast.error(errorMessage)
+      console.log("error cancelllling",error);
+    }
+  })
 
   const { data, error, isLoading } = useQuery({
     queryKey: ["orderDetails", orderId],
@@ -26,11 +48,18 @@ export default function OrderDetails() {
   console.log("error", error);
 
   const handleCancel = (itemId) => {
-    setOrderItems((items) => items.filter((item) => item.id !== itemId));
+    if(itemId){
+      cancelOrderMutaion.mutate({orderId:orderId,itemId})
+    }
+    else{
+      console.log("no itemId");
+      
+    }
   };
 
   return (
     <div className="container mx-auto p-6 space-y-6">
+      <Toaster/>
       <nav className="mb-8 flex items-center space-x-2 text-sm text-muted-foreground">
           <Link to="/" className="flex items-center hover:text-primary">
             <Home className="mr-2 h-4 w-4" />
@@ -132,11 +161,12 @@ export default function OrderDetails() {
                         <div className="flex gap-2 justify-between">
                         {<RatingDialog />}
                         {/* {item.status === "delivered" && <RatingDialog />} */}
-                          {item.status !== "delivered" && (
+                          {item.status !== "delivered" && item.status!='Cancelled'&& (
                             <Button
                               variant="destructive"
                               size="xs"
                               className="text-xs py-1 px-2"
+                              disabled={cancelOrderMutaion.isLoading}
                               onClick={() => handleCancel(item._id)}
                             >
                               Cancel

@@ -79,11 +79,10 @@ const placeOrder = async (req, res) => {
       }
     );
     if (cart) {
-        //SAVE CART WITH NEW VALUES
-    recalculateCartTotals(cart);
-    await cart.save()
+      //SAVE CART WITH NEW VALUES
+      recalculateCartTotals(cart);
+      await cart.save();
     }
-    
 
     res.status(201).json({
       success: true,
@@ -116,21 +115,79 @@ const getOrderDetails = async (req, res) => {
   }
 };
 
-const getAllOrders =async(req,res)=>{
-  const {userId}=req.params
+const getAllOrders = async (req, res) => {
+  const { userId } = req.params;
   try {
-    if(!userId){
-      return res.status(400).json({success:false, message:"Invalid credentials"})
+    if (!userId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid credentials" });
     }
-   const orders= await Order.find({userId})
-   if(!orders){
-    return res.status(404).json({success:false,message: 'Orders not found'})
-   }
-   res.status(200).json({success:true, message:"Orders fetched successfully",orders})
+    const orders = await Order.find({ userId });
+    if (!orders) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Orders not found" });
+    }
+    res
+      .status(200)
+      .json({ success: true, message: "Orders fetched successfully", orders });
   } catch (error) {
-    console.log("error fetching orders",error);
-    
-    res.status(500).json({success:false,message:error.message||"Internal server error"})
+    console.log("error fetching orders", error);
+
+    res
+      .status(500)
+      .json({
+        success: false,
+        message: error.message || "Internal server error",
+      });
   }
-}
-module.exports = { placeOrder, getOrderDetails,getAllOrders };
+};
+
+const cancelOrder = async (req, res) => {
+  const { orderId, itemId } = req.params;
+  console.log(orderId, itemId);
+
+  try {
+    const order = await Order.findOne({ orderNumber: orderId });
+    if (!order) {
+      return res.status(404).json({ succees: false, error: "Order not found" });
+    }
+    const item = order.items.find((item) => item._id.equals(itemId));
+    if (!item) {
+      return res.status(404).json({ error: "Item not found" });
+    }
+    if(item.status==='Cancelled'){
+      return res.status(400).json({error:"item already cancelled"})
+    }
+    const updatedOrder = await Order.findOneAndUpdate(
+      { orderNumber: orderId },
+      {
+        $set: { "items.$[elem].status": "Cancelled" },
+        $push: {
+          activityLog: {
+            status: `Cancelled item:${item.name}`,
+          },
+        },
+      },
+      { arrayFilters: [{ "elem._id": itemId }],
+       new: true  },
+      
+    );
+
+    //increase stock
+    const product=await Product.findOneAndUpdate({_id:item.productId},{$inc:{'sizes.$[elem].stock':item.quantity}},{arrayFilters:[{'elem.size':item.size}]})
+    console.log("up order",updatedOrder);
+    await product.save()
+    res
+      .status(200)
+      .json({ success: true, message: "Order cancelled", order: updatedOrder });
+  } catch (error) {
+    console.log("order cancelation failed", error.message);
+
+    res
+      .status(500 || error.status)
+      .json({ error: "Order cancellation failed", error });
+  }
+};
+module.exports = { placeOrder, getOrderDetails, getAllOrders, cancelOrder };

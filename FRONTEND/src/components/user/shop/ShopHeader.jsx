@@ -5,8 +5,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 export default function ShopHeader() {
   return (
-    <div className="w-full  ">
-         <nav className="text-sm md:text-base sm:hidden block overflow-x-hidden">
+    <div className="w-full mt-12 ">
+         <nav className="text-sm md:text-base sm:hidden block overflow-x-hidden ">
             <ol className="flex items-center">
               <li>
                 <a href="/" className="hover:underline">Home</a>

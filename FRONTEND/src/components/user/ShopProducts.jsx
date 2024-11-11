@@ -39,7 +39,7 @@ export default function ShopProducts() {
   const[categoryFilters,setCategoryFilters]=useState([])
 
  const handleSkinTypeChange=(type)=>{
-  
+  setSkinTypeFilters((prev)=>prev.includes(type)?prev.filter((skinType)=>skinType!=type):[...prev,type])
  }
 const handleCategoryChange=(catId)=>{
   setCategoryFilters((prev)=>prev.includes(catId)?prev.filter((id)=>id!=catId):[...prev,catId])
@@ -50,6 +50,12 @@ const handleCategoryChange=(catId)=>{
         const queryParams =new URLSearchParams()
           if(categoryFilters.length>0){
              queryParams.append('categoryIds',categoryFilters.join(','))
+          }
+          if(skinTypeFilters.length>0){
+            queryParams.append("skinTypes",skinTypeFilters.join(','))
+          }
+          if(sortOrder){
+            queryParams.append('sortOrder',sortOrder)
           }
         const [response, categoriesResponse] = await Promise.all([
           axiosInstance.get(`/api/users/products?${queryParams.toString()}`),
@@ -86,7 +92,8 @@ const handleCategoryChange=(catId)=>{
     <>
       <ShopHeader />
       <div className="min-h-screen bg-slate-50 bg-cover bg-center  mt-0">
-        <main className="container mx-auto px-4 pb-8 pt-1">
+        {/* <main className="container mx-auto px-4 pb-8 pt-1"> */}
+        <main className="container mx-auto px-4 pb-8 pt-4 sm:pt-6 lg:pt-2">
           <p className="text-sm text-gray-600 mb-4 sm:mb-0 p-2">
             {searchTerm
               ? `Showing ${filteredProducts.length} results for ${searchTerm}`
@@ -96,7 +103,7 @@ const handleCategoryChange=(catId)=>{
             {/* Mobile Filter Button */}
             <Button
               variant="outline"
-              className="md:hidden mb-4"
+              className="md:hidden mb-4 "
               onClick={() => setShowFilters(!showFilters)}
             >
               <Filter className="mr-2 h-5 w-5" /> Filters
@@ -160,7 +167,7 @@ const handleCategoryChange=(catId)=>{
             </aside>
             {/* Product Grid */}
             <div className="flex-1">
-              <div className="flex flex-col sm:flex-row justify-between items-center mb-4 space-y-4 sm:space-y-0">
+              <div className="flex flex-col sm:flex-row justify-between items-center mb-4 space-y-4 sm:space-y-0 ">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" className="w-full sm:w-auto">
@@ -168,16 +175,31 @@ const handleCategoryChange=(catId)=>{
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => setSortOrder("popularity")}>
+                      Popularity
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setSortOrder("lowToHigh")}>
                       Price: Low to High
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setSortOrder("highToLow")}>
                       Price: High to Low
                     </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSortOrder("featured")}>
+                     Featured
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSortOrder("newArrivals")}>
+                     New Arrivals
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSortOrder("inc")}>
+                    aA-zZ
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSortOrder("dec")}>
+                    zZ-aA
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3  gap-4">
                 <AnimatePresence>
                   {products.map((product) => (
                     <motion.div

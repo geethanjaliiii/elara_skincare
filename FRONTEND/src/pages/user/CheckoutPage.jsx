@@ -15,7 +15,7 @@ export default function CheckoutPage() {
   return (
     <>
     <Navbar/>
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 mt-16">
       <div className="mb-8 border-b pb-4">
         <div className="flex items-center justify-between max-w-2xl mx-auto">
           <NavigationStep icon={ShoppingBag} label="BAG" onClick={() => navigate("/cart")} />

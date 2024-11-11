@@ -37,7 +37,7 @@ export default function EvaraLandingPage() {
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
-      <main className="flex-1">
+      <main className="flex-1 mt-16">
         {/* Hero Section */}
         <section className="relative h-[600px] overflow-hidden ">
           <img
@@ -55,6 +55,7 @@ export default function EvaraLandingPage() {
               </p>
               <Button
                 className="bg-white text-black hover:bg-gray-200 transition-colors duration-300 text-lg py-2 px-6"
+                onClick={()=>navigate('/shop')}
               >
                 Discover ELARA
               </Button>
@@ -63,7 +64,7 @@ export default function EvaraLandingPage() {
         </section>
 
         {/* Bestsellers Section */}
-        <section className="w-full py-12 md:py-24 lg:py-32">
+        <section className="w-full py-12 md:py-24 lg:py-14 pb-4">
           <div className="container px-4 md:px-6 mx-auto">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-center mb-12">
               Our Bestsellers
@@ -86,7 +87,7 @@ export default function EvaraLandingPage() {
                       </h3>
                       <p className="text-white mb-4">₹ {product.price}</p>
                       <Button
-                        onClick={()=>navigate('/product',{state: {productId:product._id}})}
+                        onClick={()=>navigate('/shop',{state: {productId:product._id}})}
                         variant="secondary"
                         className="bg-white text-black hover:bg-gray-200 transition-colors duration-300"
                       >
@@ -101,8 +102,8 @@ export default function EvaraLandingPage() {
         </section>
 
         {/* Four Step Routine Section with Scroll Animation */}
-        <section className="w-full py-12 md:py-24 lg:py-32 bg-[#f5ede4]">
-      <div className="container px-4 md:px-6 mx-auto">
+        <section className="w-full py-12 md:py-24 lg:py-24 bg-[#f5ede4]">
+      <div className="container  px-4 md:px-6 mx-auto">
         <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-center mb-12">
           Elara's Four Step Routine
         </h2>

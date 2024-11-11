@@ -8,10 +8,13 @@ const ShopPage = () => {
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
-      <ShopProducts />
+      
+        <ShopProducts />
+      
       <Footer />
     </div>
   );
 };
 
 export default ShopPage;
+

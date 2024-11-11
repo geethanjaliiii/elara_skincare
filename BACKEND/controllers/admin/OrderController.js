@@ -70,10 +70,13 @@ const cancelOrder = async (req, res) => {
       return res.status(500).json({ error: "Failed to cancel order" });
     }
     //6.restock
-    await Product.updateOne(
+    const product=await Product.updateOne(
       { _id: item.productId },
-      { $inc: { stock: item.quantity } }
+      { $inc: { 'sizes.$[elem].stock': item.quantity }},
+      {arrayFilters:[{'elem.size':item.size}],
+    new:true}
     );
+    await product.save()
     //check if all items are cancelled,update order status
     // const updatedOrder=await Order.findById(orderId)
 

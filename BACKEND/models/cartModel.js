@@ -84,20 +84,6 @@ const CartSchema = new mongoose.Schema({
 {
     timestamps:true
 })
-// CartSchema.pre('save',function(next){
-//     const availableItems=this.items.filter((item)=>item.inStock===true)
-//     //calculate total items
-//     this.totalItems=availableItems.length
-
-//     //calculate total mrp
-//     this.totalMRP=availableItems.reduce((acc,item)=>acc+item.latestPrice*item.quantity,0)
-//     this.totalDiscount=availableItems.reduce((acc,item)=>acc+item.discount*item.latestPrice*item.quantity/100,0)
-
-//     //
-//     const discountedPrice=this.totalMRP-this.totalDiscount
-//     this.totalAmount=discountedPrice-this.couponDiscount+this.deliveryCharge+this.platformFee
-//     next()
-// })
 
 module.exports =mongoose.model('Cart',CartSchema)
 

@@ -40,7 +40,7 @@ const{checkStock,allStockOut}=useCart()
   }
   return (
     <div className="lg:sticky lg:top-6 lg:h-fit">
-          {cart &&
+          {cart && cart.items.length>0 &&
           <Card>
             <Toaster/>
           <CardContent className="p-6">
@@ -49,7 +49,7 @@ const{checkStock,allStockOut}=useCart()
             <div className="space-y-3">
               <div className="flex justify-between">
                 { cart && <span>Price ({cart.totalItems} items)</span>}
-                <span>₹{(cart.totalMRP).toFixed(2)}</span>
+                <span>₹{cart.totalMRP}</span>
               </div>
               <div className="flex justify-between text-green-600">
                 <span>Discount</span>

@@ -27,6 +27,9 @@ const statusColors = {
   Delivered: "bg-green-600",
   Cancelled: "bg-red-600",
 };
+//array of all status
+const statusOrder = Object.keys(statusColors);
+
 export function OrderItem({ order }) {
   // State to manage status for each item individually
   const [isModalOpen, setIsmodalOpen] = useState(false);
@@ -48,17 +51,21 @@ export function OrderItem({ order }) {
       setItemToCancel(itemId);
       console.log("open modal");
     } else {
-   console.log("iem",itemId);
-   
-   changeStatusMutation.mutate({orderId:order._id,itemId,status:newStatus})
+      changeStatusMutation.mutate({
+        orderId: order._id,
+        itemId,
+        status: newStatus,
+      });
     }
-   
   };
   //api function call
-  const changeStatus=async(orderId,itemId,newStatus)=>{
-    const response=await adminAxiosInstance.patch(`/api/admin/orders/${orderId}/items/${itemId}`,{status:newStatus})
+  const changeStatus = async (orderId, itemId, newStatus) => {
+    const response = await adminAxiosInstance.patch(
+      `/api/admin/orders/${orderId}/items/${itemId}`,
+      { status: newStatus }
+    );
     return response.data.item;
-  }
+  };
   //api call to cancel order item
   const cancelOrder = async (itemId) => {
     const response = await adminAxiosInstance.patch(
@@ -67,25 +74,26 @@ export function OrderItem({ order }) {
     return response.data;
   };
 
-  const changeStatusMutation=useMutation({
-    mutationFn:({orderId,itemId,status})=>changeStatus(orderId,itemId,status),
-    onSuccess:(data)=>{
+  const changeStatusMutation = useMutation({
+    mutationFn: ({ orderId, itemId, status }) =>
+      changeStatus(orderId, itemId, status),
+    onSuccess: (data) => {
       toast.success("Status updated");
       setStatusMap((prev) => ({
         ...prev,
         [data._id]: data?.status,
       }));
-      queryClient.invalidateQueries(["orders"])
-      queryClient.invalidateQueries(["userOrders", order.userId])
-      queryClient.invalidateQueries(["orderDetails", order.orderNumber])
+      queryClient.invalidateQueries(["orders"]);
+      queryClient.invalidateQueries(["userOrders", order.userId]);
+      queryClient.invalidateQueries(["orderDetails", order.orderNumber]);
     },
-    onError:(error)=>{
-      const errorMessage=error?.response?.data?.error||"Status updating failed."
-      console.log("Error in status update",error);
-      toast.error(errorMessage)
-    }
-  })
-
+    onError: (error) => {
+      const errorMessage =
+        error?.response?.data?.error || "Status updating failed.";
+      console.log("Error in status update", error);
+      toast.error(errorMessage);
+    },
+  });
 
   const cancelOrderMutation = useMutation({
     mutationFn: cancelOrder,
@@ -136,9 +144,9 @@ export function OrderItem({ order }) {
               <div key={item._id} className="mb-2">
                 <Select
                   value={statusMap[item._id]}
+                  disabled={changeStatusMutation.isLoading||cancelOrderMutation.isLoading}//prevent overlapping of api calls
                   onValueChange={(newStatus) => {
                     console.log("selected item", item.name);
-
                     handleStatusChange(item._id, newStatus);
                   }}
                 >
@@ -155,7 +163,10 @@ export function OrderItem({ order }) {
                   </SelectTrigger>
                   <SelectContent>
                     {Object.keys(statusColors).map((status) => (
-                      <SelectItem value={status} key={status} >
+                      <SelectItem 
+                      value={status}
+                       key={status}
+                       disabled={statusOrder.indexOf(status)<statusOrder.indexOf(statusMap[item._id])}>
                         <Badge className={`${statusColors[status]} text-white`}>
                           {status}
                         </Badge>
@@ -167,40 +178,6 @@ export function OrderItem({ order }) {
             </div>
           ))}
         </TableCell>
-        {/* <TableCell>
-        {order.items.map((item) => (
-          <div key={item._id} className="mb-2">
-            <Select
-              value={item.status}
-              onValueChange={(newStatus) =>
-                handleStatusChange(item._id, newStatus)
-              }
-            >
-              <SelectTrigger className="w-[150px] ">
-                <SelectValue>
-                  <Badge
-                    className={`${
-                      statusColors[statusMap[item._id]]
-                    } text-white`}
-                  >
-                    {statusMap[item._id]}
-                  </Badge>
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {Object.keys(statusColors).map((status) => (
-                  <SelectItem value={status} key={status}>
-                    <Badge className={`${statusColors[status]} text-white`}>
-                      {status}
-                    </Badge>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {isModalOpen && <DeleteWarningModal isOpen={isModalOpen} onClose={()=>setIsmodalOpen(false)} onConfirm={()=>handleCancelOrder(item._id)} statement={"cancel the order. This action can't be undone."}/>}
-          </div>
-        ))}
-      </TableCell> */}
         <TableCell>
           <Badge
             className={`${paymentStatusColors[order.paymentStatus]} text-white`}
@@ -209,7 +186,7 @@ export function OrderItem({ order }) {
           </Badge>
         </TableCell>
         <TableCell className="text-right">
-          ₹{order.totalAmount.toFixed(2)}
+          ₹{order.totalAmount}
         </TableCell>
         <TableCell>
           <OrderActionsDropdown />

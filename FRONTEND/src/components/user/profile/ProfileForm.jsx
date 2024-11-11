@@ -7,11 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { User, Phone, Mail } from "lucide-react";
+import { User, Phone, Mail, Lock } from "lucide-react";
 import { axiosInstance } from '@/config/axiosConfig';
 import { useDispatch } from 'react-redux';
 import { setUserDetails } from '@/store/slices/userSlice';
 import toast, { Toaster } from 'react-hot-toast';
+import { Link } from 'react-router-dom';
+import ChangePasswordModal from './ChangePasswordModal';
 
 const validationSchema = Yup.object({
   name: Yup.string().required("Full name is required"),
@@ -23,6 +25,8 @@ const validationSchema = Yup.object({
 
 const ProfileForm = ({ user }) => {
   const [isEditing, setIsEditing] = useState(false);
+  const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
+
   const dispatch = useDispatch();
 
   
@@ -31,6 +35,7 @@ const ProfileForm = ({ user }) => {
     setIsEditing(false);
   }, [user]);
 
+ 
   const handleSubmit = async (values) => {
     try {
       const response = await axiosInstance.put(`/api/users/profile/${user._id}`, values); // Pass values directly
@@ -113,7 +118,6 @@ const ProfileForm = ({ user }) => {
                     </div>
                     <ErrorMessage name="email" component="p" className="text-red-500 text-sm" />
                   </div>
-
                   <Button
                     className="w-full bg-[#8B4513] hover:bg-[#6F3709]"
                     type="button" // Set type to button to prevent implicit submit
@@ -127,12 +131,24 @@ const ProfileForm = ({ user }) => {
                   >
                     {isEditing ? 'Save' : 'Edit'}
                   </Button>
+                  <Button
+                    className="w-full bg-[#8B4513] hover:bg-[#6F3709]"
+                    type="button"
+                    onClick={() => setIsChangePasswordModalOpen(true)}
+                  >
+                    <Lock className="mr-2 h-4 w-4" /> Change Password
+                  </Button>
                 </Form>
               )}
             </Formik>
           </div>
         </CardContent>
       </Card>
+      <ChangePasswordModal
+        isOpen={isChangePasswordModalOpen}
+        onClose={() => setIsChangePasswordModalOpen(false)}
+        userId={user._id}
+      />
     </div>
   );
 };

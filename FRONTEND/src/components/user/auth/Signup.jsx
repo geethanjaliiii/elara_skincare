@@ -62,7 +62,8 @@ const Signup = () => {
         email: formData.email,
       });
       console.log("otp verified",response);
-      toast.success("OTP verified.")
+      toast.success(
+        "OTP verified.")
       console.log(response?.data);
       if (response?.data?.invalid) {
         setOtpErrMessage(response.data.message);

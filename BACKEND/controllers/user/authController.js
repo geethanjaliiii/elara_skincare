@@ -14,6 +14,7 @@ const hashPassword = require("../../utils/hashPassword");
 const { generateAccessToken, generateRefreshToken,} = require("../../utils/jwt/generateToken");
 const generateOTP = require("../../utils/otp/generateOTP");
 const sendVerificationEmail = require("../../utils/nodemailer/sendVerificationEmail");
+const sendResetPasswordMail = require("../../utils/nodemailer/forgetPasswordMail");
 
 //create instance of OAuth
 const client =new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
@@ -116,7 +117,7 @@ const signup = async (req, res) => {
       success: true,
       message: "User Registered Successfully",
       newUser: {
-        id: newUser._id,
+        _id: newUser._id,
         name: newUser.name,
         email: newUser.email,
         phone: newUser.phone,
@@ -155,6 +156,7 @@ const sendOTP = async (req, res) => {
     res.json({ success: true, message: "OTP sent successfully" });
   } catch (error) {
     console.log(error);
+    res.status(error.status||500).json({success:false,message:"Internal server error."})
   }
 };
 
@@ -276,6 +278,130 @@ const googleAuth=async(req,res)=>{
     res.status(500).json({success:false, message: "Google authentication failed!"})
   }
 }
+
+const forgetPassword=async(req,res)=>{
+  const {email}=req.body
+  if(!validator.isEmail(email)){
+    return res.status(400).json({message:"Invalid email address."})
+  }
+  try {
+    if(!email){
+      return res.status(400).json({success:false,error:"Invalid credentials"})
+    }
+    //find user exist
+   const user= await User.findOne({email})
+   if(!user){
+    return res.status(404).json({success:false, message:'User doesnot exist'})
+   }
+   const otp=generateOTP();
+  //generate otp
+  await OTP.create({
+    email,
+    otp
+   })
+  
+    //send mail with to email
+    sendResetPasswordMail(email,otp)
+    res.status(201).json({ success: true, message: "OTP sent successfully" });
+
+  } catch (error) {
+    res.status(error.status||500).json({message:"Internal server error."})
+  }
+}
+
+const verifyResetOtp=async(req,res)=>{
+  
+  const {email,otp}=req.body;
+  console.log("verifying otp",otp);
+  
+  try {
+    //check otp with email and otp and newest otp
+   const otpData= await OTP.findOne({  email}).sort({createdAt:-1}).limit(1)
+   console.log("otpdata",otpData);
+   
+   if(otp!=otpData.otp || !otpData?.otp.length){
+    const errorMessage=!otpData?.otp.length?"OTP Expired.":"OTP is not valid."
+  return res.status(400).json({message:errorMessage})
+  }
+  res.status(200).json({success:true,message:"OTP Verfied successfully"})
+  } catch (error) {
+    const errorMessage=error.message||"OTP Verification failed."
+    res.status(error.status||500).json({success:false,message:errorMessage})
+  }
+}
+
+const resetPassword=async(req,res)=>{
+  const{email,password}=req.body;
+  if(!email.trim()||!password.trim()||password.length<6){
+    return res.status(400).json({success:false,message:"Invalid credentials"})
+  }
+  try {
+   const user=await User.findOne({email})
+   if(!user){
+    return res.status(404).json({message:"User doesnt exist."})
+   }
+   const securePassword=await hashPassword(password)
+   user.password=securePassword;
+   await user.save()
+   res.status(200).json({success:true,message:'Password updated successfully'})
+  } catch (error) {
+    console.log("error resdetting password",error);
+    res.status(error.status||500).json({success:false,message:"Password resetting failed."})
+  }
+}
+
+const verifyPassword=async(req,res)=>{
+  console.log("verifiying password");
+  const{userId}=req.params
+  const{currentPassword}=req.body;
+try {
+  if(!userId || !currentPassword){
+    return res.status(400).json({success:false, message:"Invalid credentials"})
+  }
+ const user= await User.findById(userId)
+ if(!user){
+  return res.status(404).json({success:false, message:"User not found."})
+ }
+ const isPasswordCorrect=await bcrypt.compare(currentPassword,user.password)
+ if(!isPasswordCorrect){
+  return res.status(400).json({success:false, message:"Incorrect Password"})
+ }
+ console.log("verified successfully");
+ 
+res.status(200).json({success:true, message:"Password verified."})
+} catch (error) {
+  console.log("error verifying password",error);
+  res.status(error.status||500).json({success:false, message:'Password verification failed.'})
+}
+}
+
+const changePassword=async(req,res)=>{
+  console.log("changing");
+  
+  const {userId}=req.params
+  const {currentPassword,newPassword}=req.body;
+  
+  
+  if(!newPassword.trim()||newPassword.length<6||!userId){
+    return res.status(400).json({success:false,message:"Invalid credentials"})
+  }
+if(currentPassword===newPassword){
+  return res.status(400).json({success:false, message:"Provide a new password."})
+}
+  try {
+    const user=await User.findById(userId)
+    if(!user){
+      return res.status(404).json({success:false, message:"User not found"})
+    }
+    const securePassword= await hashPassword(newPassword)
+    await User.findOneAndUpdate({_id:userId},{$set:{password:securePassword}})
+    
+    res.status(200).json({success:true,message:"Password updated"})
+  } catch (error) {
+    console.log("Error CHANGING PASSWORD",error);
+    res.status(error.status||500).json({success:true, message:"Failed to update password"})
+  }
+}
 module.exports = {
   signup,
   sendOTP,
@@ -283,5 +409,10 @@ module.exports = {
   login,
   refreshUserToken,
   logout,
-  googleAuth
+  googleAuth,
+  forgetPassword,
+  verifyResetOtp,
+  resetPassword,
+  verifyPassword,
+  changePassword
 };

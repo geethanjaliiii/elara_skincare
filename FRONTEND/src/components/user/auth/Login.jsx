@@ -3,7 +3,6 @@ import * as Yup from 'yup';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { FcGoogle } from 'react-icons/fc';
 import Footer from '@/components/shared/Footer';
 import Navbar from '@/components/shared/Navbar';
 import { Link, useNavigate } from 'react-router-dom';
@@ -95,16 +94,22 @@ const Login = () => {
                                         type="email"
                                         id="email"
                                         name="email"
+                                        placeholder="Enter your email"
                                     />
                                     <ErrorMessage name="email" component="div" className="text-red-500 text-sm" />
                                 </div>
                                 <div className="space-y-2">
+                                    <div className='flex items-center justify-between'>
                                     <Label htmlFor="password">Password</Label>
+                                    <Link  className='text-sm hover:text-blue-900' to='/forget-password'>forget password?</Link>
+                                    </div>
+                                    
                                     <Field
                                         as={Input}
                                         type="password"
                                         id="password"
                                         name="password"
+                                        placeholder="Enter password"
                                     />
                                     <ErrorMessage name="password" component="div" className="text-red-500 text-sm" />
                                 </div>

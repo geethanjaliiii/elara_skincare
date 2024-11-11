@@ -1,12 +1,12 @@
 const express = require('express')
-const {sendOTP,signup, verifyOTP, login,refreshUserToken,googleAuth} = require('../controllers/user/authController')
+const {sendOTP,signup, verifyOTP, login,refreshUserToken,googleAuth,forgetPassword, verifyResetOtp, resetPassword, verifyPassword, changePassword} = require('../controllers/user/authController')
 const {featuredProducts,viewProduct,fetchProducts} =require('../controllers/user/productController')
 const {showCategories} =require("../controllers/user/categoryController")
 const {showProfile,editProfile}=require('../controllers/user/userController')
 const authenticateToken =require('../middlewares/user/authMiddleware')
 const {addAddress,showAddresses, editAddress, deleteAddress}=require('../controllers/user/addressController')
 const { addToCart, showCart, updateCart, removeItem } = require('../controllers/user/cartController')
-const { placeOrder, getOrderDetails ,getAllOrders} = require('../controllers/user/orderController')
+const { placeOrder, getOrderDetails ,getAllOrders,cancelOrder} = require('../controllers/user/orderController')
 const userRoute = express()
 
 //authentication
@@ -16,6 +16,14 @@ userRoute.post('/signup',signup)
 userRoute.post('/verify-otp',verifyOTP)
 userRoute.post('/login',login)
 userRoute.post('/google-auth',googleAuth)
+//forget passwords
+userRoute.post('/forget-password',forgetPassword)
+userRoute.post('/resend-otp',forgetPassword)
+userRoute.post('/reset/verify-otp',verifyResetOtp)
+userRoute.post('/reset-password',resetPassword)
+//change password
+userRoute.post('/verify-password/:userId',authenticateToken,verifyPassword)
+userRoute.post('/change-password/:userId',authenticateToken,changePassword)
 //products
 userRoute.get('/products/bestsellers',featuredProducts)
 userRoute.get('/products',authenticateToken,fetchProducts)
@@ -41,6 +49,6 @@ userRoute.delete('/:userId/cart/:itemId',authenticateToken,removeItem)
 userRoute.post('/orders',authenticateToken,placeOrder)
 userRoute.get('/orders/:orderId',authenticateToken,getOrderDetails)
 userRoute.get('/:userId/orders',authenticateToken,getAllOrders)
-
+userRoute.patch('/orders/:orderId/items/:itemId',authenticateToken,cancelOrder)
 // userRoute.put('/orders/:orderId')
 module.exports = userRoute

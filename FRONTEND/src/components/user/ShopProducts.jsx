@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUpDown, ChevronDown, Search, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,93 +10,106 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+const NoProducts = React.lazy(() => import("../user/shop/NoProducts"));
 import ProductCard from "./shop/ProductCard";
 import ShopHeader from "./shop/ShopHeader";
 import { axiosInstance } from "@/config/axiosConfig";
-import FilterSidebar from "./shop/FilterSidebar";
+import { useSearchParams } from "react-router-dom";
 
-const skinTypesFilters = [
-  "Dry",
-  "Oily",
-  "Combination",
-  "Normal",
-  "Sensitive",
+const skinTypes = [
+  "dry",
+  "oily",
+  "combination",
+  "normal",
+  "sensitive",
   "All Skin Types",
 ];
 
 export default function ShopProducts() {
-  const [selectedCategory, setSelectedCategory] = useState("All Products");
-
+  const [searchParams, setSearchParams] = useSearchParams();
   const [categories, setCategories] = useState([]);
-  const [sortOrder, setSortOrder] = useState("lowToHigh");
-  const [priceRange, setPriceRange] = useState([0, 25000]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [sortOrder, setSortOrder] = useState("popularity");
+  const [priceRange, setPriceRange] = useState([100, 25000]);
   const [showFilters, setShowFilters] = useState(false);
   const [products, setProducts] = useState([]);
   const [skinTypeFilters, setSkinTypeFilters] = useState([]);
-  const[categoryFilters,setCategoryFilters]=useState([])
+  const [categoryFilters, setCategoryFilters] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [page, setPage] = useState(parseInt(searchParams.get("page")) || 1);
 
- const handleSkinTypeChange=(type)=>{
-  setSkinTypeFilters((prev)=>prev.includes(type)?prev.filter((skinType)=>skinType!=type):[...prev,type])
- }
-const handleCategoryChange=(catId)=>{
-  setCategoryFilters((prev)=>prev.includes(catId)?prev.filter((id)=>id!=catId):[...prev,catId])
-}
+  const searchTerm = searchParams.get("term") || "";
+  const handleSkinTypeChange = (type) => {
+    console.log("skintypes", skinTypeFilters);
+
+    setSkinTypeFilters((prev) =>
+      prev.includes(type)
+        ? prev.filter((skinType) => skinType != type)
+        : [...prev, type]
+    );
+  };
+  const handleCategoryChange = (catId) => {
+    setCategoryFilters((prev) =>
+      prev.includes(catId) ? prev.filter((id) => id != catId) : [...prev, catId]
+    );
+  };
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const queryParams =new URLSearchParams()
-          if(categoryFilters.length>0){
-             queryParams.append('categoryIds',categoryFilters.join(','))
-          }
-          if(skinTypeFilters.length>0){
-            queryParams.append("skinTypes",skinTypeFilters.join(','))
-          }
-          if(sortOrder){
-            queryParams.append('sortOrder',sortOrder)
-          }
+        const queryParams = new URLSearchParams();
+        queryParams.append("page", page);
+        if (categoryFilters.length > 0) {
+          queryParams.append("categoryIds", categoryFilters.join(","));
+        }
+        if (skinTypeFilters.length > 0) {
+          queryParams.append("skinTypes", skinTypeFilters.join(","));
+        }
+        if (sortOrder != "popularity") {
+          queryParams.append("sort", sortOrder);
+        }
+        if (searchTerm) {
+          queryParams.append("term", searchTerm);
+        }
+        if (priceRange[0] > 100 || priceRange[1] < 10000) {
+          queryParams.append("maxPrice", priceRange[1]);
+          queryParams.append("minPrice", priceRange[0]);
+        }
+        console.log("query", queryParams);
+
         const [response, categoriesResponse] = await Promise.all([
           axiosInstance.get(`/api/users/products?${queryParams.toString()}`),
           axiosInstance.get("/api/users/categories"),
         ]);
         setProducts(response.data.products);
         setCategories(categoriesResponse.data.categories);
-       setPriceRange(response.data.priceRange)
+        setTotalPages(response.data.totalPages);
+        //  setPriceRange(response.data.priceRange)
       } catch (error) {
         console.log("Error fetching products", error.message);
       }
     }
     fetchProducts();
-  }, [categoryFilters]);
+  }, [categoryFilters, skinTypeFilters, sortOrder, searchTerm, page]);
 
-  // const filteredProducts = products
-  //   .filter(
-  //     (product) =>
-  //       selectedCategory === "All Products" ||
-  //       product.category === selectedCategory
-  //   )
-  //   .filter(
-  //     (product) =>
-  //       product.price >= priceRange[0] && product.price <= priceRange[1]
-  //   )
-  //   .filter((product) =>
-  //     product.name.toLowerCase().includes(searchTerm.toLowerCase())
-  //   )
-  //   .sort((a, b) =>
-  //     sortOrder === "lowToHigh" ? a.price - b.price : b.price - a.price
-  //   );
-
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+    //breaking the query param url to objects
+    //spreading searcparams
+    //and updating page
+    setSearchParams({
+      ...Object.fromEntries(searchParams.entries()),
+      page: newPage,
+    });
+  };
   return (
-    <>
-      <ShopHeader />
+    <>{products.length>0 ? (<>
+    <ShopHeader />
       <div className="min-h-screen bg-slate-50 bg-cover bg-center  mt-0">
         {/* <main className="container mx-auto px-4 pb-8 pt-1"> */}
         <main className="container mx-auto px-4 pb-8 pt-4 sm:pt-6 lg:pt-2">
           <p className="text-sm text-gray-600 mb-4 sm:mb-0 p-2">
             {searchTerm
-              ? `Showing ${filteredProducts.length} results for ${searchTerm}`
+              ? `Showing ${products.length} results for ${searchTerm}`
               : `Showing ${products.length} Results`}
           </p>
           <div className="flex flex-col md:flex-row gap-8">
@@ -124,7 +137,7 @@ const handleCategoryChange=(catId)=>{
                     <Checkbox
                       id={`category-${category._id}`}
                       checked={categoryFilters.includes(category._id)}
-                      onCheckedChange={()=>handleCategoryChange(category._id)}
+                      onCheckedChange={() => handleCategoryChange(category._id)}
                     />
                     <Label htmlFor={`category-${category.name}`}>
                       {category.name}
@@ -134,11 +147,11 @@ const handleCategoryChange=(catId)=>{
               </div>
               <div className="mb-4">
                 <h3 className="font-semibold mb-2">Skin Type</h3>
-                {skinTypesFilters.map((type, index) => (
+                {skinTypes.map((type, index) => (
                   <div key={index} className="flex items-center mb-2">
                     <Checkbox
                       id={`skinType-${type}`}
-                      checked={!skinTypesFilters.includes(type)}
+                      checked={skinTypeFilters.includes(type)}
                       onCheckedChange={() => handleSkinTypeChange(type)}
                     />
                     <label
@@ -153,8 +166,8 @@ const handleCategoryChange=(catId)=>{
               <div>
                 <h2 className="text-lg font-semibold mb-2">Price Range</h2>
                 <Slider
-                  min={0}
-                  max={priceRange[1]}
+                  min={100}
+                  max={10000}
                   step={10}
                   value={priceRange}
                   onValueChange={setPriceRange}
@@ -175,7 +188,9 @@ const handleCategoryChange=(catId)=>{
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
-                  <DropdownMenuItem onClick={() => setSortOrder("popularity")}>
+                    <DropdownMenuItem
+                      onClick={() => setSortOrder("popularity")}
+                    >
                       Popularity
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setSortOrder("lowToHigh")}>
@@ -185,16 +200,18 @@ const handleCategoryChange=(catId)=>{
                       Price: High to Low
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setSortOrder("featured")}>
-                     Featured
+                      Featured
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setSortOrder("newArrivals")}>
-                     New Arrivals
+                    <DropdownMenuItem
+                      onClick={() => setSortOrder("newArrivals")}
+                    >
+                      New Arrivals
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setSortOrder("inc")}>
-                    aA-zZ
+                      aA-zZ
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setSortOrder("dec")}>
-                    zZ-aA
+                      zZ-aA
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -209,149 +226,37 @@ const handleCategoryChange=(catId)=>{
                       exit={{ opacity: 0, y: -20 }}
                       transition={{ duration: 0.3 }}
                     >
-                      <ProductCard {...product} key={product._id} />
+                      <ProductCard {...product} />
                     </motion.div>
                   ))}
                 </AnimatePresence>
+              </div>
+
+              {/* Pagination Controls */}
+              <div className="flex justify-center items-center mt-8 space-x-4">
+                <Button
+                  disabled={page === 1}
+                  onClick={() => handlePageChange(page - 1)}
+                >
+                  Previous
+                </Button>
+                <span>
+                  Page {page} of {totalPages}
+                </span>
+                <Button
+                  disabled={page === totalPages}
+                  onClick={() => handlePageChange(page + 1)}
+                >
+                  Next
+                </Button>
               </div>
             </div>
           </div>
         </main>
       </div>
+    </>):<Suspense>
+      <NoProducts/></Suspense>}
+      
     </>
   );
 }
-
-// import { useState } from 'react'
-// import { motion, AnimatePresence } from 'framer-motion'
-// import { ArrowUpDown, ChevronDown, Search } from "lucide-react"
-// import { Button } from "@/components/ui/button"
-// import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-// import { Slider } from "@/components/ui/slider"
-// import { Checkbox } from "@/components/ui/checkbox"
-// import { Input } from "@/components/ui/input"
-// import { Label } from "@/components/ui/label"
-// import ProductCard from '../../components/user/shop/ProductCard'
-
-// const categories = [
-//   "All Products",
-//   "Face",
-//   "Body",
-//   "Hand & Foot",
-//   "Hair",
-//   "Makeup",
-// ]
-
-// const products = [
-//   { id: 1, name: "LANEIGE Water Bank Blue Hyaluronic Cream", category: "Face", price: 2000000, originalPrice: 2200000, rating: 4.6, reviews: 54, image: "/placeholder.svg", isNew: true },
-//   { id: 2, name: "The Ordinary Niacinamide 10% + Zinc 1%", category: "Face", price: 280000, originalPrice: 300000, rating: 4.7, reviews: 88, image: "/placeholder.svg", isRecommended: true },
-//   { id: 3, name: "Bondi Sands Pure Self Tan Foaming Water", category: "Body", price: 399000, originalPrice: 450000, rating: 4.5, reviews: 32, image: "/placeholder.svg" },
-//   { id: 4, name: "Laniege Radian-C Cream", category: "Face", price: 590000, originalPrice: 650000, rating: 4.8, reviews: 76, image: "/placeholder.svg", isRecommended: true },
-//   { id: 5, name: "The Ordinary AHA 30% + BHA 2% Peeling Solution", category: "Face", price: 649000, originalPrice: 700000, rating: 4.9, reviews: 102, image: "/placeholder.svg", isNew: true },
-// ]
-
-// export default function ShopPage() {
-//   const [selectedCategory, setSelectedCategory] = useState("All Products")
-//   const [sortOrder, setSortOrder] = useState("lowToHigh")
-//   const [priceRange, setPriceRange] = useState([0, 2500000])
-//   const [searchTerm, setSearchTerm] = useState("")
-
-//   const filteredProducts = products
-//     .filter(product => selectedCategory === "All Products" || product.category === selectedCategory)
-//     .filter(product => product.price >= priceRange[0] && product.price <= priceRange[1])
-//     .filter(product => product.name.toLowerCase().includes(searchTerm.toLowerCase()))
-//     .sort((a, b) => sortOrder === "lowToHigh" ? a.price - b.price : b.price - a.price)
-
-//   return (
-//     <div className="min-h-screen bg-[url('/placeholder.svg')] bg-cover bg-center">
-//       <header className="bg-white shadow-sm">
-//         <div className="container mx-auto px-4 py-4">
-//           <div className="flex justify-between items-center">
-//             <h1 className="text-3xl font-bold text-gray-800">shep</h1>
-//             <nav>
-//               <ul className="flex space-x-4">
-//                 <li><a href="#" className="text-gray-600 hover:text-gray-800">Shop</a></li>
-//                 <li><a href="#" className="text-gray-600 hover:text-gray-800">About</a></li>
-//                 <li><a href="#" className="text-gray-600 hover:text-gray-800">Contact</a></li>
-//                 <li><a href="#" className="text-gray-600 hover:text-gray-800">Account</a></li>
-//               </ul>
-//             </nav>
-//           </div>
-//         </div>
-//       </header>
-//       <main className="container mx-auto px-4 py-8">
-//         <div className="flex flex-col md:flex-row gap-8">
-//           <aside className="w-full md:w-64 space-y-6 bg-white p-4 rounded-lg shadow">
-//             <div>
-//               <h2 className="text-lg font-semibold mb-2">Categories</h2>
-//               {categories.map((category) => (
-//                 <div key={category} className="flex items-center space-x-2 mb-2">
-//                   <Checkbox
-//                     id={`category-${category}`}
-//                     checked={selectedCategory === category}
-//                     onCheckedChange={() => setSelectedCategory(category)}
-//                   />
-//                   <Label htmlFor={`category-${category}`}>{category}</Label>
-//                 </div>
-//               ))}
-//             </div>
-//             <div>
-//               <h2 className="text-lg font-semibold mb-2">Price Range</h2>
-//               <Slider
-//                 min={0}
-//                 max={2500000}
-//                 step={10000}
-//                 value={priceRange}
-//                 onValueChange={setPriceRange}
-//               />
-//               <div className="flex justify-between mt-2">
-//                 <span>Rp {priceRange[0].toLocaleString()}</span>
-//                 <span>Rp {priceRange[1].toLocaleString()}</span>
-//               </div>
-//             </div>
-//           </aside>
-//           <div className="flex-1">
-//             <div className="flex justify-between items-center mb-4">
-//               <div className="relative">
-//                 <Input
-//                   type="text"
-//                   placeholder="Search products..."
-//                   value={searchTerm}
-//                   onChange={(e) => setSearchTerm(e.target.value)}
-//                   className="pl-10"
-//                 />
-//                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-//               </div>
-//               <DropdownMenu>
-//                 <DropdownMenuTrigger asChild>
-//                   <Button variant="outline">
-//                     Sort by <ChevronDown className="ml-2 h-4 w-4" />
-//                   </Button>
-//                 </DropdownMenuTrigger>
-//                 <DropdownMenuContent>
-//                   <DropdownMenuItem onClick={() => setSortOrder("lowToHigh")}>Price: Low to High</DropdownMenuItem>
-//                   <DropdownMenuItem onClick={() => setSortOrder("highToLow")}>Price: High to Low</DropdownMenuItem>
-//                 </DropdownMenuContent>
-//               </DropdownMenu>
-//             </div>
-//             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-//               <AnimatePresence>
-//                 {filteredProducts.map((product) => (
-//                   <motion.div
-//                     key={product.id}
-//                     initial={{ opacity: 0, y: 20 }}
-//                     animate={{ opacity: 1, y: 0 }}
-//                     exit={{ opacity: 0, y: -20 }}
-//                     transition={{ duration: 0.3 }}
-//                   >
-//                     <ProductCard {...product} />
-//                   </motion.div>
-//                 ))}
-//               </AnimatePresence>
-//             </div>
-//           </div>
-//         </div>
-//       </main>
-//     </div>
-//   )
-// }

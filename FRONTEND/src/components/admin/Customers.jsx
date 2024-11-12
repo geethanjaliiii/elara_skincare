@@ -77,9 +77,9 @@ const Customers = () => {
           </thead>
           <tbody>
             {users.length > 0 ? (
-              users.map((user) => (
+              users.map((user,index) => (
                 <tr key={user._id}>
-                  <td className="py-2 px-4 border-b">{user._id}</td>
+                  <td className="py-2 px-4 border-b">{index+1}</td>
                   <td className="py-2 px-4 border-b">{user.name}</td>
                   <td className="py-2 px-4 border-b">{user.email}</td>
                   <td className="py-2 px-4 border-b">{user.phone}</td>

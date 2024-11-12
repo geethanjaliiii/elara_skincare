@@ -30,10 +30,12 @@ import OrderDetailsPage from "./pages/user/OrderDetailsPage";
 import ErrorPage from "./pages/404page";
 import ForgetPasswordPage from "./pages/user/auth/ForgetPasswordPage";
 import ChangePassword from "./components/user/profile/ChangePasswordModal";
+import Navbar from "./components/shared/Navbar";
 
 export default function App() {
   return (
     <div>
+    
       <Routes>
         {/* user */}
         <Route
@@ -140,7 +142,7 @@ export default function App() {
             </IsAdminLogout>
           }
         />
-        <Route path="/hii" element={<ErrorPage />} />
+        <Route path="*" element={<ErrorPage />} />
         <Route
           path="/admin/dashboard"
           element={

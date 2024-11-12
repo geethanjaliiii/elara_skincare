@@ -1,5 +1,7 @@
 'use client'
 
+import Footer from "@/components/shared/Footer"
+import Navbar from "@/components/shared/Navbar"
 import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
 import { Cog, Home, ShoppingBag } from "lucide-react"
@@ -7,6 +9,8 @@ import { Link } from "react-router-dom"
 
 export default function ErrorPage() {
   return (
+    <>
+    <Navbar/>
     <div className="min-h-screen bg-gradient-to-br from-cream-200 to-cream-100 flex items-center justify-center p-4 relative overflow-hidden">
       {/* Animated Cogs */}
       <motion.div
@@ -93,5 +97,8 @@ export default function ErrorPage() {
         </div>
       </div>
     </div>
+    <Footer/>
+    </>
+    
   )
 }

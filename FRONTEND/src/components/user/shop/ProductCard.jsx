@@ -36,7 +36,7 @@ export default function ProductCard({ _id, name, categoryId, price, sizes, revie
           className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center "
         >
           <Button variant="secondary" className="text-sm">
-            Add to Cart
+            View Product
           </Button>
         </motion.div>
         <button

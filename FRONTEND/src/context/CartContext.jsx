@@ -15,9 +15,11 @@ export function CartProvider({ children }) {
     fetchCart();
   }, [userId]);
 
+
   function checkStock() {
-    console.log("checking");
     
+    console.log("checking");
+    if(!cart.items || cart.items.length<0) return false
     for (let item of cart.items) {
       const selectedSize = item.productId.sizes.find(
         (size) => size.size === item.size
@@ -27,6 +29,7 @@ export function CartProvider({ children }) {
         
         return false;
       }
+   
     }
     console.log("quantity not exceeded");
     

@@ -80,9 +80,9 @@ const Categories = () => {
           </thead>
           <tbody>
             {categories.length > 0 ? (
-              categories.map((category) => (
+              categories.map((category,index) => (
                 <tr key={category._id} className="border-b border-gray-700">
-                  <td className="py-2 px-4">{category._id}</td>
+                  <td className="py-2 px-4">{index+1}</td>
                   <td className="py-2 px-4">{category.name}</td>
                   <td className="py-2 px-4">{category.description}</td>
                   <td className="py-2 px-4">

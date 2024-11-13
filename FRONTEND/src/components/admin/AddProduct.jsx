@@ -176,7 +176,8 @@ export default function AddProduct() {
     });
     try {
       setLoading(true)
-      {loading && toast.loading("Product is addding.Please wait.")}
+      window.alert("Product is adding.Please wait.")
+      // {loading && toast.loading("Product is addding.Please wait.")}
       const response = await adminAxiosInstance.post(
         "/api/admin/products",
         formData,
@@ -191,6 +192,7 @@ export default function AddProduct() {
       setLoading(false)
       
       toast.success("Product added successfully");
+      navigate('/admin/dashboard/products')
       //reset form state
       setProductData({name:"",description:"",ingredient:"",categoryId:"",price:"",discount:""});
       setCroppedImages([]);
@@ -199,8 +201,9 @@ export default function AddProduct() {
       setCategories([]);
       setError({})
     } catch (error) {
+      const errorMessage=error?.response?.data?.message ||"Failed to add product.Please try again" 
       console.log("Error submitting products", error.message);
-      toast.error("Failed to add product.Please try again");
+      toast.error(errorMessage);
     }
   };
 

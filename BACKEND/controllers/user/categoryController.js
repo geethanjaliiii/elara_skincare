@@ -2,13 +2,13 @@ const Category =require('../../models/categoryModel')
 
 const showCategories = async (req, res) => {
     try {
-      const categoriesAvailable = await Category.find({});
-      if (!categoriesAvailable) {
+      const categories = await Category.find({isListed:true});
+      if (!categories) {
         return res
           .status(404)
           .json({ success: false, message: "No categories available." });
       }
-    let categories =categoriesAvailable.filter((category)=> category.isListed===true)
+    
       
       res
         .status(200)

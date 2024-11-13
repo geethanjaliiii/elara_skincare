@@ -29,6 +29,10 @@ const addProduct = async (req, res) => {
   }
 
   try {
+    const productExist=await Product.findOne({name:{$regex: name ,$options: 'i'}})
+    if(productExist){
+      return res.status(400).json({message:"Product already exist"})
+    }
     const files = req.files; // Files uploaded via Multer
     const imageUrls = [];
 
@@ -195,6 +199,10 @@ const editProduct = async (req, res) => {
     }
     console.log("exist", productExist);
 
+    const productWithSameName= await Product.findOne({_id:{$ne:_id},name:name})
+    if(productWithSameName){
+      return res.status(400).json({message:"Product with same name already exist."})
+    }
     //delete previous images
     if(deletedImages){
       try {

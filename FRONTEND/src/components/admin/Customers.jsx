@@ -1,53 +1,75 @@
 import  { adminAxiosInstance } from "@/config/axiosConfig";
 import React, { useEffect, useState } from "react";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { logoutUser } from "@/store/slices/userSlice";
+import { useSearchParams } from "react-router-dom";
+import { Button } from "../ui/button";
+import { DeleteWarningModal } from "../shared/DeleteWarningModal";
 const Customers = () => {
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [editMode, setEditMode] = useState(false);
+  const[searchParams,setSearchParams]=useSearchParams()
+  const[page,setPage]=useState(parseInt(searchParams.get('page'))||1)
+  const[totalPages,setTotalPages]=useState(0)
+  const[limit,setLimit]=useState(6)
+  const[term,setTerm]=useState("")
   const dispatch =useDispatch()
+  const[isModalOpen,setIsModalOpen]=useState(false)
+ const[userToBlock,setUserToBlock]=useState(null)
+
   useEffect(() => {
     // Fetch users from the database/API
     const fetchUsers = async () => {
       try {
-        const UserList = await adminAxiosInstance.get("/api/admin/customers");
+        const UserList = await adminAxiosInstance.get("/api/admin/customers",
+          {params:{page, limit,term}}
+        );
         console.log(UserList?.data?.users);
         setUsers(UserList?.data?.users);
+        setTotalPages(UserList.data.totalPages)
       } catch (error) {
         console.error("Error fetching users:", error);
       }
     };
     fetchUsers();
-  }, [searchTerm, editMode]);
+  }, [term,editMode,page]);
 
-  // Handle search operation
-  function handleSearch() {
-    const regex = new RegExp(searchTerm, "i");
-    const searchResult = users.filter(
-      (user) => regex.test(user.name) || regex.test(user.email)
-    );
-    setUsers(searchResult);
+ const handleSearch =()=>{
+  if(searchTerm){
+    setTerm(searchTerm)
   }
-
-  const handleStatusToggle = async (userId) => {
-    // Toggle user status and refresh data
-    try {
-      const updatedData = await adminAxiosInstance.patch(`/api/admin/customers/${userId}`);
-    console.log(updatedData?.data?.user);
-    dispatch(logoutUser())
-    setEditMode(!editMode);
-    console.log(`Toggle status for user with ID: ${userId}`);
-    } catch (error) {
-      console.log("User block failed");
-     
-    }
-    
+ }
+  const handlePageChange=(newPage)=>{
+       setPage(newPage)
+       setSearchParams({...Object.fromEntries(searchParams.entries()),page:newPage})
+  }
+  const handleStatusToggle =(userId) => {
+    setIsModalOpen(true)
+    setUserToBlock(userId)
   };
 
+  const confirmBlock=async()=>{
+    // Toggle user status and refresh data
+    try {
+      const updatedData = await adminAxiosInstance.patch(`/api/admin/customers/${userToBlock}`);
+    console.log(updatedData?.data?.user);
+    toast.success("User status changed.")
+    dispatch(logoutUser())
+    setEditMode(!editMode);
+    setIsModalOpen(false)
+    setUserToBlock(null)
+    console.log(`Toggle status for user with ID: ${userToBlock}`);
+    } catch (error) {
+      console.log("User block failed");
+      setIsModalOpen(false)
+      setUserToBlock(null)
+    }
+  }
   return (
     <div className="p-4 md:p-6">
+      <Toaster/>
       <h1 className="text-2xl font-bold mb-4">Users</h1>
       <div className="flex flex-col md:flex-row items-start md:items-center gap-4 mb-6">
         <input
@@ -58,7 +80,7 @@ const Customers = () => {
           className="px-4 py-2 border rounded-lg w-full md:w-1/2"
         />
         <button
-          onClick={handleSearch}
+         onClick={handleSearch}
           className="bg-blue-700 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition w-full md:w-auto"
         >
           Search
@@ -76,10 +98,11 @@ const Customers = () => {
             </tr>
           </thead>
           <tbody>
-            {users.length > 0 ? (
+            {users && users.length > 0 ? (
               users.map((user,index) => (
+                <>
                 <tr key={user._id}>
-                  <td className="py-2 px-4 border-b">{index+1}</td>
+                  <td className="py-2 px-4 border-b">{(page-1)*limit+index+1}</td>
                   <td className="py-2 px-4 border-b">{user.name}</td>
                   <td className="py-2 px-4 border-b">{user.email}</td>
                   <td className="py-2 px-4 border-b">{user.phone}</td>
@@ -96,6 +119,8 @@ const Customers = () => {
                     </button>
                   </td>
                 </tr>
+           
+            </>
               ))
             ) : (
               <tr>
@@ -107,6 +132,25 @@ const Customers = () => {
           </tbody>
         </table>
       </div>
+                  {/* Pagination Controls */}
+          {  users.length>0 && <div className="flex justify-center items-center mt-8 space-x-4">
+              <Button
+                disabled={page === 1}
+                onClick={() => handlePageChange(page - 1)}
+              >
+                Previous
+              </Button>
+              <span>
+                Page {page} of {totalPages}
+              </span>
+              <Button
+                disabled={page === totalPages}
+                onClick={() => handlePageChange(page + 1)}
+              >
+                Next
+              </Button>
+            </div>}
+            <DeleteWarningModal isOpen={isModalOpen} onClose={()=>{setIsModalOpen(false); setUserToBlock(null)}} onConfirm={confirmBlock} statement={'change status of the user?'}/>
     </div>
   );
 };

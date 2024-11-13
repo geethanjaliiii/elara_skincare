@@ -1,6 +1,7 @@
 const { isEthereumAddress } = require("validator");
 const Cart = require("../../models/cartModel");
-const recalculateCartTotals=require('../../utils/services/recalculateCartTotals')
+const recalculateCartTotals=require('../../utils/services/recalculateCartTotals');
+const { message } = require("../../utils/validation/addressValidation");
 
 function checkStock(cart){
   for(let item of cart.items){
@@ -120,7 +121,9 @@ const updateCart = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Item not found in cart" });
     }
-
+    if(!item.productId.isListed){
+      return res.status(404).json({message:"Product is currently unavailable"})
+    }
     //validate stock quantity
     const selectedSize = item.productId.sizes.find(
       (size) => size.size === item.size

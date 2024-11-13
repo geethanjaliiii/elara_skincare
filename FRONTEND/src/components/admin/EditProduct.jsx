@@ -214,7 +214,7 @@ fetchProductDetails()
       formData.append(`deletedImages[${index}]`,image)
     })
     
-    {loading && toast.loading("Product is addding.Please wait.")}
+    
     try {
       console.log("attempted edit with: ",formData);
       
@@ -243,8 +243,9 @@ fetchProductDetails()
       // setError({})
     } catch (error) {
       setLoading(false)
+      const errorMessage=error?.response?.data?.message ||"Failed to add product.Please try again"
       console.log("Error submitting products", error.message);
-      toast.error("Failed to add product.Please try again");
+      toast.error(errorMessage);
     }
   };
 

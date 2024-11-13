@@ -18,7 +18,7 @@ export default function CheckoutPage() {
     <div className="container mx-auto p-4 mt-16">
       <div className="mb-8 border-b pb-4">
         <div className="flex items-center justify-between max-w-2xl mx-auto">
-          <NavigationStep icon={ShoppingBag} label="BAG" onClick={() => navigate("/cart")} />
+          <NavigationStep icon={ShoppingBag} label="BAG" onClick={() => navigate("/cart")} isActive={true}/>
           <NavigationStep icon={MapPin} label="ADDRESS" onClick={() => {navigate("/checkout/address")}} isActive={!payActive} />
           <NavigationStep icon={CreditCard} label="PAYMENT" onClick={() => {
             setPayActive(true)
@@ -40,7 +40,7 @@ export default function CheckoutPage() {
 
 function NavigationStep({ icon: Icon, label, onClick ,isActive}) {
   return (
-    <div className={`flex items-center gap-2 cursor-pointer ${isActive ? "text-primary font-medium" : "text-muted-foreground cursor-not-allowed"}`}
+    <div className={`flex items-center gap-2  ${isActive ? "text-primary font-medium cursor-pointer" : "text-muted-foreground cursor-not-allowed"}`}
      onClick={isActive?onClick:undefined}>
       <Icon className={`h-5 w-5 ${isActive ? "text-primary" : "text-muted-foreground"}`} />
       <span className={`text-sm  ${isActive ? "text-primary" : "text-muted-foreground"}`}>{label}</span>

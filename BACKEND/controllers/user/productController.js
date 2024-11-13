@@ -2,7 +2,7 @@ const Product = require("../../models/productModel");
 
 const featuredProducts = async (req, res) => {
   try {
-    const bestsellers = await Product.find({ isFeatured: true });
+    const bestsellers = await Product.find({ isFeatured: true,isListed:true });
     res
       .status(200)
       .json({ success: true, message: "Bestsellers fetched.", bestsellers });
@@ -61,6 +61,8 @@ const fetchProducts = async (req, res) => {
     }
     if (skinTypes) {
       const skinTypeArray = skinTypes.split(",");
+      console.log("skintypearray",skinTypeArray);
+      
       filter.skinType = { $in: skinTypeArray };
     }
     //search term
@@ -70,6 +72,10 @@ const fetchProducts = async (req, res) => {
         //   {'categoryId.name': {$regex: term,$options: 'i'}
         // }
       ];
+    }
+    //pricerange
+    if(minPrice>100 || maxPrice<3500){
+      filter.$and=[{price:{$gt:minPrice}},{price:{$lt:maxPrice}}]
     }
     //sort
     if (sort === "lowToHigh") {

@@ -13,6 +13,7 @@ import { setUserDetails } from "@/store/slices/userSlice";
 import { Link } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import validationSchema from "@/utils/validation/userValidations";
+import GoogleAuth from "./GoogleAuth";
 
 const Signup = () => {
   const initialValues = {
@@ -241,13 +242,7 @@ const Signup = () => {
          otpMessage={otpMessage}
          otpErrMessage={otpErrMessage}/>
           <div className="mt-4">
-            <Button
-              variant="outline"
-              className="w-full flex items-center justify-center"
-            >
-              <FcGoogle className="mr-2 h-4 w-4" />
-              Sign up with Google
-            </Button>
+            <GoogleAuth/>
           </div>
           <p className="mt-4 text-center text-sm text-muted-foreground">
             Already have an account?{" "}

@@ -4,8 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { axiosInstance } from '@/config/axiosConfig';
-import toast from 'react-hot-toast';
-
+import toast, { Toaster } from 'react-hot-toast';
+import validatePassword from '@/utils/validation/passwordValidation';
 
 
 export default function ChangePasswordModal({ isOpen, onClose, userId }) {
@@ -21,11 +21,16 @@ export default function ChangePasswordModal({ isOpen, onClose, userId }) {
         await axiosInstance.post(`/api/users/verify-password/${userId}`, { currentPassword });
         setStep('change');
       } catch (error) {
+       
         console.log("error verifying",error);
         
         toast.error("Current password is incorrect. Please try again.");
       }
     } else {
+      if(!validatePassword(newPassword)){
+        toast.error("Please enter a valid password")
+      return
+      }
       if (newPassword !== confirmPassword) {
         toast.error("New passwords don't match");
         return;
@@ -47,9 +52,16 @@ export default function ChangePasswordModal({ isOpen, onClose, userId }) {
       }
     }
   };
-
+const handleClose=()=>{
+  setConfirmPassword("")
+  setCurrentPassword("")
+  setNewPassword("")
+  setStep('verify')
+  onClose();
+}
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <Toaster/>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Change Password</DialogTitle>
@@ -91,7 +103,14 @@ export default function ChangePasswordModal({ isOpen, onClose, userId }) {
             </>
           )}
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={()=>{
+              setConfirmPassword("")
+              setCurrentPassword("")
+              setNewPassword("")
+              setStep('verify')
+              onClose();
+
+            }}>Cancel</Button>
             <Button type="submit" className="bg-[#8B4513] hover:bg-[#6F3709]">
               {step === 'verify' ? 'Verify' : 'Change Password'}
             </Button>

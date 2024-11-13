@@ -1,7 +1,7 @@
 const express = require('express')
 const upload =require('../config/multerConfig')
-
-const {login,getCustomerDetails,editCustomerStatus,logout, refreshAccessToken} = require('../controllers/admin/adminController')
+const {getCustomerDetails,editCustomerStatus,}=require('../controllers/admin/userController')
+const {login, logout, refreshAccessToken} = require('../controllers/admin/adminController')
 const {addProduct,showProducts,listProduct, showProduct, editProduct}=require('../controllers/admin/productController')
 const{addCategory,showCategories,editCategory,listCategory,showCategory}=require('../controllers/admin/categoryController')
 const authenticateAdminToken = require('../middlewares/admin/adminAuthMiddleware')

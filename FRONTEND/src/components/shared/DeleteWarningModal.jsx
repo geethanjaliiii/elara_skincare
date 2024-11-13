@@ -17,7 +17,7 @@ export function DeleteWarningModal({ isOpen, onClose, onConfirm, statement }) {
           </p>
           <div className="flex justify-center gap-4">
             <Button variant="destructive" onClick={onConfirm}>
-              Yes, Delete
+              Yes
             </Button>
             <Button variant="outline" onClick={onClose}>
               Cancel

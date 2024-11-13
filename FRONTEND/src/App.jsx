@@ -30,7 +30,7 @@ import OrderDetailsPage from "./pages/user/OrderDetailsPage";
 import ErrorPage from "./pages/404page";
 import ForgetPasswordPage from "./pages/user/auth/ForgetPasswordPage";
 import ChangePassword from "./components/user/profile/ChangePasswordModal";
-import Navbar from "./components/shared/Navbar";
+
 
 export default function App() {
   return (
@@ -78,60 +78,72 @@ export default function App() {
         <Route
           path="/profile"
           element={
-            <AddressProvider>
+            <IsUserLogin>
+              <AddressProvider>
               <CartProvider>
                 <ProfilePage />
               </CartProvider>
             </AddressProvider>
+            </IsUserLogin>
           }
         />
         <Route
           path="/cart"
           element={
-            <AddressProvider>
+       <IsUserLogin>
+             <AddressProvider>
               <CartProvider>
                 <CartPage />
               </CartProvider>
             </AddressProvider>
+       </IsUserLogin>
           }
         />
        
         <Route
           path="/checkout/*"
           element={
-            <AddressProvider>
+          <IsUserLogin>
+              <AddressProvider>
               <CartProvider>
                 <CheckoutPage />
               </CartProvider>
             </AddressProvider>
+          </IsUserLogin>
           }
         />
         <Route
           path="/orders"
           element={
-            <AddressProvider>
+            <IsUserLogin>
+              <AddressProvider>
               <CartProvider>
                 <Orders />
               </CartProvider>
             </AddressProvider>
+            </IsUserLogin>
           }
         />
         <Route
           path="/checkout/success/:orderId"
           element={
-            <AddressProvider>
+           <IsUserLogin>
+             <AddressProvider>
               <CartProvider>
                 <OrderSuccess />
               </CartProvider>
             </AddressProvider>
+           </IsUserLogin>
           }
         />
         <Route path="/orders/:orderId" element={
-            <AddressProvider>
+        <IsUserLogin>
+              <AddressProvider>
             <CartProvider>
             <OrderDetailsPage />
             </CartProvider>
-          </AddressProvider>} />
+          </AddressProvider>
+        </IsUserLogin>} />
 
         {/* admin */}
         <Route

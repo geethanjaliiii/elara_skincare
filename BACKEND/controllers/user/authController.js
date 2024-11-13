@@ -386,7 +386,7 @@ const changePassword=async(req,res)=>{
     return res.status(400).json({success:false,message:"Invalid credentials"})
   }
 if(currentPassword===newPassword){
-  return res.status(400).json({success:false, message:"Provide a new password."})
+  return res.status(400).json({success:false, message:"New password cannot be the old password."})
 }
   try {
     const user=await User.findById(userId)

@@ -30,7 +30,7 @@ const{checkStock,allStockOut}=useCart()
       }else{
         toast.error("Stock limit exceeded!")
       }
-    }else if(step='payment'){
+    }else if(step==='payment'){
       if(checkStock()){
         handlePlaceOrder()
       }else{
@@ -40,9 +40,10 @@ const{checkStock,allStockOut}=useCart()
   }
   return (
     <div className="lg:sticky lg:top-6 lg:h-fit">
-          {cart && cart.items.length>0 &&
+       <Toaster/>
+          {cart&& cart?.items?.length>0 &&
           <Card>
-            <Toaster/>
+           
           <CardContent className="p-6">
             <h2 className="mb-4 text-lg font-semibold">PRICE DETAILS</h2>
             <Separator className="mb-4" />

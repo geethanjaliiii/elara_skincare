@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt");
 const Admin = require("../../models/adminModel");
 const RefreshToken=require("../../models/refreshTokenModel")
-const User = require("../../models/userModel");
+
 const jwt=require("jsonwebtoken")
 
 //utils
@@ -68,41 +68,7 @@ const login = async (req, res) => {
   }
 };
 
-const getCustomerDetails = async (req, res) => {
-  try {
-    const users = await User.find({});
-    console.log(users);
 
-    res
-      .status(200)
-      .json({ success: true, message: "Customer details fetched",users});
-  } catch (error) {
-    console.log("error fetching customer details", error.message);
-
-    res.json({ success: false, message: error.message });
-  }
-};
-
-const editCustomerStatus = async (req, res) => {
-  const { userId } = req.params;
-  try {
-    const user = await User.findById(userId)
-
-    if (!user) {
-      console.log(user);
-      
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found" });
-    }
-    user.isBlocked=!user.isBlocked;
-    await user.save()
-    res.status(200).json({success:true, message:"Customer status updated",user})
-  } catch (error) {
-    console.log("Customer status update failed",error.message);
-    res.status(500).json({success:false,message:"An error occurred while updating status"})
-  }
-};
 const logout=async(req,res)=>{
   try {
     const adminRefreshToken= req.cookies['adminRefreshToken']
@@ -139,4 +105,4 @@ const refreshAccessToken =async(req,res)=>{
   res.status(403).json({success:false,message:'Token verification failed',error})
   }
 }
-module.exports = { login, getCustomerDetails, editCustomerStatus ,logout,refreshAccessToken};
+module.exports = { login,logout,refreshAccessToken};

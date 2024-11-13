@@ -10,26 +10,27 @@ import OrderTracker from "./OrderTracker";
 import { Link } from "react-router-dom";
 import { axiosInstance } from "@/config/axiosConfig";
 import toast, { Toaster } from "react-hot-toast";
+import { DeleteWarningModal } from "@/components/shared/DeleteWarningModal";
 
 
 export default function OrderDetails() {
   const { orderId } = useParams();
   const [appliedCoupon, setAppliedCoupon] = useState("DISCOUNT10");
-
+  const [isModalOpen,setIsModalOpen]=useState(false)
   const queryClient=useQueryClient()
-
+  const [itemToCancel,setItemToCancel]=useState(null)
   const cancelOrderMutaion=useMutation({
     mutationFn:({orderId,itemId})=>{
       console.log("cancelling");
       
       cancelOrder(orderId,itemId)},
     onSuccess:(data)=>{
-      toast.success("orderCancelled");
+      toast.success("order Cancelled");
       console.log('data',data);
       
       queryClient.invalidateQueries(['orders'])
       queryClient.invalidateQueries(['userOrders'],data?.userId)
-      queryClient.invalidateQueries(['userDetails'],data.orderNumber)
+      queryClient.invalidateQueries(['orderDetails'],orderId)
     },
     onError:(error)=>{
       const errorMessage=error?.response?.data?.error||"Order cancellation failed"
@@ -48,15 +49,23 @@ export default function OrderDetails() {
   console.log("error", error);
 
   const handleCancel = (itemId) => {
+    setIsModalOpen(true)
+    
     if(itemId){
-      cancelOrderMutaion.mutate({orderId:orderId,itemId})
+      setItemToCancel(itemId)
+      
     }
     else{
       console.log("no itemId");
       
     }
   };
-
+//confirm function for modal
+  const confirmCancelOrder=()=>{
+   cancelOrderMutaion.mutate({orderId:orderId,itemId:itemToCancel})
+   setIsModalOpen(false)
+   setItemToCancel(null)
+  }
   return (
     <div className="container mx-auto p-6 space-y-6">
       <Toaster/>
@@ -73,13 +82,13 @@ export default function OrderDetails() {
           <ChevronRight className="h-4 w-4" />
           <span className="text-primary">Order #{data.orderNumber}</span>
         </nav>
-      <div className="flex justify-between items-center">
+      {/* <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Order #{data.orderNumber}</h1>
         <Button variant="outline">
           <HelpCircle className="mr-2 h-4 w-4" />
           Need Help?
         </Button>
-      </div>
+      </div> */}
 
       <div className="grid md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-4">
@@ -234,6 +243,7 @@ export default function OrderDetails() {
           </Card>
         </div>
       </div>
+      <DeleteWarningModal isOpen={isModalOpen} onClose={()=>setIsModalOpen(false)} onConfirm={confirmCancelOrder} statement={'cancel the order?'}/>
     </div>
   );
 }

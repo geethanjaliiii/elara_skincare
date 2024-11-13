@@ -30,7 +30,7 @@ export default function ShopProducts() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [categories, setCategories] = useState([]);
   const [sortOrder, setSortOrder] = useState("popularity");
-  const [priceRange, setPriceRange] = useState([100, 25000]);
+  const [priceRange, setPriceRange] = useState([100, 3000]);
   const [showFilters, setShowFilters] = useState(false);
   const [products, setProducts] = useState([]);
   const [skinTypeFilters, setSkinTypeFilters] = useState([]);
@@ -70,7 +70,7 @@ export default function ShopProducts() {
         if (searchTerm) {
           queryParams.append("term", searchTerm);
         }
-        if (priceRange[0] > 100 || priceRange[1] < 10000) {
+        if (priceRange[0] > 100 || priceRange[1] < 3000) {
           queryParams.append("maxPrice", priceRange[1]);
           queryParams.append("minPrice", priceRange[0]);
         }
@@ -89,7 +89,7 @@ export default function ShopProducts() {
       }
     }
     fetchProducts();
-  }, [categoryFilters, skinTypeFilters, sortOrder, searchTerm, page]);
+  }, [categoryFilters, skinTypeFilters, sortOrder, searchTerm, page, priceRange]);
 
   const handlePageChange = (newPage) => {
     setPage(newPage);
@@ -167,7 +167,7 @@ export default function ShopProducts() {
                 <h2 className="text-lg font-semibold mb-2">Price Range</h2>
                 <Slider
                   min={100}
-                  max={10000}
+                  max={3500}
                   step={10}
                   value={priceRange}
                   onValueChange={setPriceRange}

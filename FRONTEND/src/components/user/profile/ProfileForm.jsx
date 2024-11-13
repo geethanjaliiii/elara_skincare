@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
-import * as Yup from 'yup';
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -14,14 +14,8 @@ import { setUserDetails } from '@/store/slices/userSlice';
 import toast, { Toaster } from 'react-hot-toast';
 import { Link } from 'react-router-dom';
 import ChangePasswordModal from './ChangePasswordModal';
-
-const validationSchema = Yup.object({
-  name: Yup.string().required("Full name is required"),
-  phone: Yup.string()
-    .matches(/^\d{10}$/, "Phone number must be exactly 10 digits")
-    .required("Phone number is required"),
-  email: Yup.string().email("Invalid email address").required("Email is required"),
-});
+import profileValidationSchema from '@/utils/validation/profileValidationSchema';
+import validateProfileForm from '@/utils/validation/validateProfile';
 
 const ProfileForm = ({ user }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -37,17 +31,23 @@ const ProfileForm = ({ user }) => {
 
  
   const handleSubmit = async (values) => {
-    try {
-      const response = await axiosInstance.put(`/api/users/profile/${user._id}`, values); // Pass values directly
-      console.log("Form submitted successfully:", values);
-      console.log("Updated user", response.data.updatedUser);
-      dispatch(setUserDetails(response.data.updatedUser));
-      toast.success("Profile updated.");
-      setIsEditing(false); // Exit edit mode after save
-    } catch (error) {
-      toast.error("Profile updation failed. Please try again.");
-      console.log("Error updating user", error);
+    console.log(values);
+    if(validateProfileForm(values)){
+      try {
+        const response = await axiosInstance.put(`/api/users/profile/${user._id}`, values); // Pass values directly
+        console.log("Form submitted successfully:", values);
+        console.log("Updated user", response.data.updatedUser);
+        dispatch(setUserDetails(response.data.updatedUser));
+        toast.success("Profile updated.");
+        setIsEditing(false); // Exit edit mode after save
+      } catch (error) {
+        toast.error("Profile updation failed. Please try again.");
+        console.log("Error updating user", error);
+      }
+    }else{
+      toast.error("Please check the required fields.")
     }
+    
   };
 
   return (
@@ -66,7 +66,7 @@ const ProfileForm = ({ user }) => {
                 email: user.email || ''
               }}
               enableReinitialize
-              validationSchema={validationSchema}
+              validationSchema={profileValidationSchema}
               onSubmit={handleSubmit}
             >
               {({ values, handleChange }) => (

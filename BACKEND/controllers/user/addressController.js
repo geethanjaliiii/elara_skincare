@@ -50,7 +50,7 @@ const addAddress = async (req, res) => {
 const showAddresses = async (req, res) => {
   const { userId } = req.params;
   try {
-    const addresses = await Address.find({ user: userId }).select("-createdAt -updatedAt -__v")
+    const addresses = await Address.find({ user: userId ,isListed:true}).select("-createdAt -updatedAt -__v")
 
     if (!addresses) {
       return res
@@ -93,6 +93,7 @@ const editAddress = async (req, res) => {
     const updatedAddress = await Address.findByIdAndUpdate(addressId, data, {
       new: true,
     }).select("-createdAt -updatedAt -__v")
+    console.log("address updated",updatedAddress);
     
     //send response
       res
@@ -109,7 +110,7 @@ const editAddress = async (req, res) => {
 const deleteAddress =async(req,res)=>{
   const {userId, addressId}=req.params
   try {
-    const address=await Address.findOneAndDelete({_id:addressId , user:userId}).select("-createdAt -updatedAt -__v")
+    const address=await Address.findOneAndUpdate({_id:addressId , user:userId},{isListed:false}).select("-createdAt -updatedAt -__v")
     
 
     if(!address){

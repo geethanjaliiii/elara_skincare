@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, useMemo } from "react";
 import { axiosInstance } from "@/config/axiosConfig";
 import { useSelector } from "react-redux";
-import toast from "react-hot-toast";
+import toast,{Toaster} from "react-hot-toast";
 
 const AddressContext = createContext();
 
@@ -47,16 +47,39 @@ export function AddressProvider({ children }) {
     console.log("shipping address is", address);
   }, []);
 
+    //edit address
+    const editAddress = async(values) => {
+      console.log("submitting updated address",values);
+      
+      const addrId=values._id
+      const { _id, ...filteredValues } = values;
+      try {
+        const response =  await axiosInstance.put(`/api/users/${addrId}/addresses`,filteredValues)
+        const updatedAddress=response.data.updatedAddress
+        setAddresses((prev)=>prev.map((addr)=>(addr._id===updatedAddress._id?updatedAddress: addr)))
+        
+        
+      } catch (error) {
+          console.log("error updating address",error);
+          toast.error("Address not updated.")
+      }
+    };
+
+
   const addressContextValue = useMemo(() => ({
     addresses,
     fetchAddresses,
     addAddress,
     handleDeliverHere,
-    shippingAddress,
-  }), [addresses, fetchAddresses, addAddress, handleDeliverHere, shippingAddress]);
+    editAddress,
+    
+    shippingAddress
+  }), [addresses, fetchAddresses, addAddress, handleDeliverHere,editAddress,shippingAddress]);
 
   return (
+  
     <AddressContext.Provider value={addressContextValue}>
+    
       {children}
     </AddressContext.Provider>
   );

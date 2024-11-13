@@ -33,6 +33,7 @@ const addressSchema = Joi.object({
     .valid('Home', 'Work')
     .required(),
   isDefault: Joi.boolean().default(false),
+  isListed:Joi.boolean().default(true)
 });
 
 // Export the validation schema

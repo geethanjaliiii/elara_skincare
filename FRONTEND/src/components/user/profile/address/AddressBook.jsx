@@ -6,10 +6,13 @@ import { AddressForm } from "./AddressForm";
 import { Button } from "@/components/ui/button";
 import { axiosInstance } from "@/config/axiosConfig";
 import toast, { Toaster } from "react-hot-toast";
+import { DeleteWarningModal } from "@/components/shared/DeleteWarningModal";
 
 function AddressBook({ userId }) {
   const [addresses, setAddresses] = useState([]);
   const [isAdding, setIsAdding] = useState(false);
+  const [isModalOpen,setIsModalOpen]=useState(false)
+  const[deleteId,setDeleteId]=useState(null)
   const [editingAddress, setEditingAddress] = useState(null);
   useEffect(() => {
     async function fetchAddresses() {
@@ -58,17 +61,26 @@ function AddressBook({ userId }) {
   };
 
   const handleDeleteAddress = async(id) => {
+    setIsModalOpen(true)
+    setDeleteId(id)
+   
+  };
+
+  //for modal
+  const confirmDelete=async()=>{
     try {
-      await axiosInstance.delete(`/api/users/${userId}/addresses/${id}`)
-        setAddresses((prev) => prev.filter((addr) => addr._id !== id));
+      await axiosInstance.delete(`/api/users/${userId}/addresses/${deleteId}`)
+        setAddresses((prev) => prev.filter((addr) => addr._id !== deleteId));
         toast.success("Address deleted successfully.")
+        setIsModalOpen(false)
+        setDeleteId(null)
     } catch (error) {
         console.log("Address not deleted");
         toast.error('Address deletion failed')
+        setIsModalOpen(false)
+        setDeleteId(null)
     }
-    
-  };
-
+  }
   const handleSetDefault = (id) => {
     setAddresses((prev) =>
       prev.map((addr) => ({ ...addr, isDefault: addr._id === id }))
@@ -88,7 +100,7 @@ function AddressBook({ userId }) {
           onCancel={() => setIsAdding(false)}
         />
       )}
-      {!editingAddress && addresses.map((address) => (
+      {!editingAddress && addresses?.length>0  && addresses.map((address) => (
         <AddressCard
           key={address._id}
           address={address}
@@ -104,6 +116,11 @@ function AddressBook({ userId }) {
           onCancel={() => setEditingAddress(null)}
         />
       )}
+      <DeleteWarningModal isOpen={isModalOpen} onClose={()=>{
+        setDeleteId(null);
+        setIsModalOpen(false)}}
+        onConfirm={confirmDelete}
+        statement={'delete the address'}/>
     </div>
   );
 }

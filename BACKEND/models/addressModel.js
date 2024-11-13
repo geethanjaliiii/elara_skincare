@@ -50,6 +50,10 @@ const addressSchema = new mongoose.Schema({
     enum:['Home','Work'],
     required:true
   },
+  isListed:{
+    type:Boolean,
+    default:true
+  },
   isDefault:{
     type:Boolean,
     default:false

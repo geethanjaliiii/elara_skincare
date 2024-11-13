@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
-import { Toaster } from "react-hot-toast";
+import toast,{ Toaster } from "react-hot-toast";
 import { Modal } from "@/components/shared/Modal";
 import { AddressForm } from "../profile/address/AddressForm";
 import { useAddress } from "@/context/AddressContext";
@@ -13,7 +13,9 @@ import { useAddress } from "@/context/AddressContext";
 export default function AddressSection({ onDeliverHere, addresses }) {
   const [selectedAddress, setSelectedAddress] = useState({});
   const [isModalOpen,setIsModalOpen]=useState(false)
-  const{addAddress}=useAddress()
+  const[addMode,setAddMode]=useState(false)
+  const[editMode,setEditMode]=useState(false)
+  const{addAddress,editAddress}=useAddress()
 
   useEffect(() => {
     const defaultAddress = addresses.find((address) => address.isDefault);
@@ -23,9 +25,12 @@ export default function AddressSection({ onDeliverHere, addresses }) {
 
  function handleAddAddress(){
   setIsModalOpen(true)
+  setAddMode(true)
  }
  function handleCloseModal(){
   setIsModalOpen(false)
+  setAddMode(false)
+  setEditMode(false)
  }
 async function handleAddressSubmit(values){
   try {
@@ -34,12 +39,30 @@ async function handleAddressSubmit(values){
   } catch (error) {
     console.log("address adding failed",error);
   }
+  setAddMode(false)
   setIsModalOpen(false)
  }
- async function handleEditAddress() {
-  
- }
 
+ async function handleEditAddress() {
+  console.log("editing");
+  
+  setIsModalOpen(true)
+  setEditMode(true)
+ setAddMode(false)
+
+ }
+const handleEditSubmit=async(values)=>{
+  console.log("try editing with",selectedAddress);
+  
+  try {
+    await editAddress(values)
+    toast.success("Address updated.")
+  } catch (error) {
+    console.log("address adding failed",error);
+  }
+  setEditMode(false)
+  setIsModalOpen(false)
+}
   return (
     <Card>
       <Toaster/>
@@ -112,11 +135,16 @@ async function handleAddressSubmit(values){
       </CardContent>
       <Button className="mx-6 mb-2" onClick={handleAddAddress}>Add Address</Button>
       <Modal isOpen={isModalOpen} onClose={handleCloseModal} >
-      <AddressForm
+      {addMode && <AddressForm
           initialValues={{}}
           onSubmit={handleAddressSubmit}
           onCancel={handleCloseModal}
-        />
+        />}
+        {editMode && <AddressForm
+        initialValues={selectedAddress}
+      onSubmit={handleEditSubmit}
+      onCancel={handleCloseModal}/>
+    }
       </Modal>
     </Card>
   );

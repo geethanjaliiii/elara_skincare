@@ -10,6 +10,8 @@ import addressSchema from "@/utils/validation/addressValidation"
 
 
 export function AddressForm({ initialValues, onSubmit, onCancel }) {
+  console.log("address for editing",initialValues);
+  
   return (
     <Formik 
     initialValues={{ ...initialValues, isDefault: false }}

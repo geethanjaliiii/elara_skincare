@@ -9,9 +9,10 @@ import ProductDetailsTabs from "../../components/user/ProductDetailsTab";
 import RelatedProducts from "@/components/user/product/RelatedProducts";
 const ProductPage = () => {
   const [product, setProduct] = useState({});
+  const [relatedProducts,setRelatedProducts]=useState([])
   const location = useLocation();
   const { productId } = location.state;
-
+ 
   const dummyReviews = [
     {
       id: "1",
@@ -40,7 +41,11 @@ const ProductPage = () => {
           console.log("product not found");
           return;
         }
+        
         setProduct(response.data.product);
+        if(response?.data?.relatedProducts){
+          setRelatedProducts(response.data.relatedProducts)
+        }
       } catch (error) {
         console.log("error fetching product", error);
       }
@@ -57,7 +62,7 @@ const ProductPage = () => {
         description={product.description}
         reviews={dummyReviews}
       />
-     {product.relatedProducts && (<RelatedProducts products={product.relatedProducts}/>)} 
+     {relatedProducts?.length>0 && (<RelatedProducts products={relatedProducts}/>)} 
       <Footer />
     </div>
   );

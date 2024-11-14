@@ -5,7 +5,7 @@ const {showCategories} =require("../controllers/user/categoryController")
 const {showProfile,editProfile}=require('../controllers/user/userController')
 const authenticateToken =require('../middlewares/user/authMiddleware')
 const {addAddress,showAddresses, editAddress, deleteAddress}=require('../controllers/user/addressController')
-const { addToCart, showCart, updateCart, removeItem } = require('../controllers/user/cartController')
+const { addToCart, showCart, updateCart, removeItem, checkProduct } = require('../controllers/user/cartController')
 const { placeOrder, getOrderDetails ,getAllOrders,cancelOrder} = require('../controllers/user/orderController')
 const userRoute = express()
 
@@ -44,7 +44,7 @@ userRoute.post('/:userId/cart',authenticateToken,addToCart)
 userRoute.get('/:userId/cart',authenticateToken,showCart)
 userRoute.patch('/:userId/cart/:itemId',authenticateToken,updateCart)
 userRoute.delete('/:userId/cart/:itemId',authenticateToken,removeItem)
-
+userRoute.get('/:userId/cart/check',authenticateToken,checkProduct)
 //order
 userRoute.post('/orders',authenticateToken,placeOrder)
 userRoute.get('/orders/:orderId',authenticateToken,getOrderDetails)

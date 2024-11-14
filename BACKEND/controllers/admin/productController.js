@@ -42,13 +42,7 @@ const addProduct = async (req, res) => {
       imageUrls.push(imageUrl);
     }
 
-    const relatedProducts = await Product.find({ categoryId }, "_id");
-    console.log(relatedProducts);
-
-    const relatedProductsIds =
-      relatedProducts.length > 0
-        ? relatedProducts.map((product) => product._id)
-        : [];
+   
     // Create new product
     const newProduct = new Product({
       name,
@@ -60,7 +54,7 @@ const addProduct = async (req, res) => {
       discount,
       sizes: sizes,
       images: imageUrls,
-      relatedProducts: relatedProductsIds,
+    
     });
 
     await newProduct.save();
@@ -94,7 +88,7 @@ const showProducts = async (req, res) => {
       const skinTypeArray = skinTypes.split(",");
       filters.skinType = { $in: skinTypeArray };
     }
-
+ 
     //filter by price
     if (minPrice || maxPrice) {
       filters.price = {};
@@ -122,7 +116,6 @@ const showProducts = async (req, res) => {
     const products = await Product.find(filters)
       .sort(sortOption)
       .populate("categoryId", "name")
-      .populate("relatedProducts", "name price");
 
     res
       .status(200)
@@ -219,13 +212,6 @@ const editProduct = async (req, res) => {
       const imageUrl = await cloudinaryImageUploadMethod(file.buffer);
       imageUrls.push(imageUrl);
     }
-
-    const relatedProducts = await Product.find({ categoryId }, "_id");
-    const relatedProductsIds =relatedProducts.length > 0
-        ? relatedProducts.map((product) => product._id)
-        : [];
-
-    updatedProduct.relatedProducts = relatedProductsIds;
 
     updatedProduct.images =[...(updatedUrls||[]),...imageUrls]
 

@@ -23,11 +23,27 @@ const ViewProduct = ({ product }) => {
     if (product.sizes && product.sizes.length > 0) {
       setSizes(product.sizes);
       setSelectedSize(product.sizes[0]);
+     setAddCart(false)
     }
   }, [product]);
 
-  const handleSizeSelect = (size) => {
-    setSelectedSize(size);
+  const handleSizeSelect = async(size) => {
+    console.log(size);
+    
+    try {
+      const response=  await axiosInstance.get(`/api/users/${userId}/cart/check`,{params:{productId:product._id, size:size.size}})
+      console.log('response',response);
+      if(response.data){
+        console.log(response);
+        
+        setAddCart(response.data.inCart)
+      }
+        setSelectedSize(size);
+    } catch (error) {
+    
+      console.error("Error checking cart:", error);
+    }
+
   };
   async function handleCart() {
     try {

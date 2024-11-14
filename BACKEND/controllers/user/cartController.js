@@ -181,4 +181,26 @@ const removeItem =async(req,res)=>{
     res.status(500).json({success:false,message:"Internal server error"})
   }
 }
-module.exports = { addToCart, showCart, updateCart ,removeItem};
+
+const checkProduct=async(req,res)=>{
+const {userId}=req.params
+const {productId, size}=req.query
+console.log("checking product");
+
+try {
+  if(!userId || !productId ||!size){
+    return res.status(400).json({message:"Invalid inputs"})
+  }
+ const cart= await Cart.findOne({userId,'items.productId':productId,'items.size':size})
+ if(!cart){
+ return  res.json({message:'Product not in cart',inCart:false})
+ }
+ console.log("product is in cart");
+ 
+ res.json({message:'Product in cart',inCart:true})
+} catch (error) {
+  console.err("error checking",error.message);
+  
+}
+}
+module.exports = { addToCart, showCart, updateCart ,removeItem,checkProduct};

@@ -25,7 +25,9 @@ const viewProduct = async (req, res) => {
     }
     const product = await Product.findById(id)
       .populate("categoryId", "name")
-      .populate("relatedProducts", "name price discount images ");
+      
+      const relatedProducts=await Product.find({categoryId:product.categoryId, _id:{$ne:id}}).populate('categoryId')
+     
     if (!product) {
       return res
         .status(401)
@@ -33,7 +35,7 @@ const viewProduct = async (req, res) => {
     }
     res
       .status(200)
-      .json({ success: true, message: "product fetched", product });
+      .json({ success: true, message: "product fetched", product,relatedProducts });
   } catch (error) {
     console.log("error in view products", error);
     res
@@ -75,7 +77,7 @@ const fetchProducts = async (req, res) => {
     }
     //pricerange
     if(minPrice>100 || maxPrice<3500){
-      filter.$and=[{price:{$gt:minPrice}},{price:{$lt:maxPrice}}]
+      filter.$and=[{price:{$gte:minPrice}},{price:{$lte:maxPrice}}]
     }
     //sort
     if (sort === "lowToHigh") {
@@ -98,16 +100,6 @@ const fetchProducts = async (req, res) => {
       .skip(skip)
       .limit(limit)
       .populate("categoryId", "name");
-    // const priceRange=await Product.aggregate([ {
-    //   $group:{
-    //     _id:null,
-    //     maxPrice:{$max:'$price'},
-    //     minPrice:{$min:'$price'}
-    //   }
-    // },{$project:{maxPrice:1,minPrice:1,_id:0}}])
-    // console.log("RANGE",priceRange[0]);
-
-    // const {maxPrice,minPrice}=priceRange[0]||{maxPrice:0, minPrice:0}
 
     const productCount = await Product.countDocuments(filter);
     res

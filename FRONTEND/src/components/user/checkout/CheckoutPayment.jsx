@@ -8,6 +8,7 @@ import { useAddress } from "@/context/AddressContext";
 import toast, { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { usePayment } from "@/hooks/usePayment";
 
 
 export default function CheckoutPayment() {
@@ -20,9 +21,10 @@ export default function CheckoutPayment() {
 const queryClient =useQueryClient();
 
 const placeOrder=async(orderData)=>{
- const response= await axiosInstance.post(`/api/users/orders`,orderData)
-  return response.data
-}
+  const response= await axiosInstance.post(`/api/users/orders`,orderData)
+   return response.data
+ }
+
 const orderMutation=useMutation({
   mutationFn:placeOrder,
   onSuccess:(data)=>{
@@ -35,7 +37,6 @@ const orderMutation=useMutation({
 
         navigate(`/checkout/success/${data.orderId}`);
     }
-   
     console.log(data);
   },
   onError:(error)=>{
@@ -44,9 +45,9 @@ const orderMutation=useMutation({
   
   }
 })
+const {handleRazorpayPayment}=usePayment(orderMutation,toast)
 
-
-const handlePlaceOrder=()=>{
+const handlePlaceOrder=async()=>{
   const items = cart.items.filter((item)=>item.inStock).map((item) => ({
     productId: item.productId._id,
     name: item.productId.name,
@@ -56,6 +57,9 @@ const handlePlaceOrder=()=>{
     price: item.latestPrice,
     totalPrice: item.latestPrice * item.quantity,
   }));
+  if(items.length===0){
+    return toast.error("No valid products in cart.")
+  }
 
   const address = shippingAddress
     ? {
@@ -82,11 +86,11 @@ const handlePlaceOrder=()=>{
     paymentMethod: selectedPayment,
   };
   console.log("orderdata", orderData);
-  if(items.length>0){
-    orderMutation.mutate(orderData)
-  }else{
-    toast.error("No valid products in cart.")
-  }
+if(selectedPayment==='Razorpay'){
+  await handleRazorpayPayment(orderData)
+}else{
+  orderMutation.mutate(orderData)
+}
   
 }
 

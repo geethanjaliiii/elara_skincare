@@ -16,17 +16,23 @@ const placeOrder = async (req, res) => {
       totalAmount,
       shippingAddress,
       paymentMethod,
+      transactionId
     } = req.body;
+console.log("placing order");
+
+    if(!userId ||!items ||!totalAmount ||!shippingAddress){
+      return res.status(404).json({success:false, message:'required fields are missing'})
+    }
 
     const orderNumber = await generateOrderNumber();
     console.log("order number", orderNumber);
 
     const orderDate = new Date(); //date object
-    const deliveryDays = 5;
+    const deliveryDays = 7;
     const expectedDeliveryDate = new Date(orderDate);
     expectedDeliveryDate.setDate(orderDate.getDate() + deliveryDays);
 
-    //reduce stock for each product in the order
+    //check stock for each product in the order
     for (const item of items) {
       const product = await Product.findById(item.productId);
       if (!product) {
@@ -57,6 +63,7 @@ const placeOrder = async (req, res) => {
       totalAmount,
       shippingAddress,
       paymentMethod,
+      transactionId:transactionId?transactionId:'',
       paymentStatus: paymentMethod === "Cash on Delivery" ? "Unpaid" : "Paid",
       orderDate,
       expectedDeliveryDate,

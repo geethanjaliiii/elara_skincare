@@ -20,7 +20,7 @@ export default function PaymentSection({selectedPayment,setSelectedPayment}) {
           <PaymentOption value="Credit Card" icon={CreditCard} label="Credit/Debit Card" offers="4 Offers" />
           <PaymentOption value="PayPal" icon={Building2} label="PayPal" />
           <PaymentOption value="Wallet" icon={Wallet} label="Wallets" offers="2 Offers" />
-          <PaymentOption value="Net Banking" icon={Building2} label="Net Banking" />
+          <PaymentOption value="Razorpay" icon={Building2} label="Razorpay" />
           <PaymentOption value="UPI" icon={CreditCard} label="UPI (Pay via any App)" />
         </RadioGroup>
       </CardContent>

@@ -2,7 +2,7 @@ import axios from "axios";
 import store from '../store/store'
 import {logoutUser} from '../store/slices/userSlice'
 import { logoutAdmin } from "@/store/slices/adminSlice";
-import { Cookie } from "lucide-react";
+
 
 const apiUrl = import.meta.env.VITE_API_URL;
 

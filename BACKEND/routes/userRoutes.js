@@ -7,6 +7,7 @@ const authenticateToken =require('../middlewares/user/authMiddleware')
 const {addAddress,showAddresses, editAddress, deleteAddress}=require('../controllers/user/addressController')
 const { addToCart, showCart, updateCart, removeItem, checkProduct } = require('../controllers/user/cartController')
 const { placeOrder, getOrderDetails ,getAllOrders,cancelOrder} = require('../controllers/user/orderController')
+const { createOrder, verifyPayment } = require('../controllers/user/paymentController')
 const userRoute = express()
 
 //authentication
@@ -51,4 +52,8 @@ userRoute.get('/orders/:orderId',authenticateToken,getOrderDetails)
 userRoute.get('/:userId/orders',authenticateToken,getAllOrders)
 userRoute.patch('/orders/:orderId/items/:itemId',authenticateToken,cancelOrder)
 // userRoute.put('/orders/:orderId')
+
+//payment
+userRoute.post('/payment/create-order',authenticateToken,createOrder)
+userRoute.post('/payment/verify-payment',authenticateToken,verifyPayment)
 module.exports = userRoute

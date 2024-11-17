@@ -6,6 +6,7 @@ const {addProduct,showProducts,listProduct, showProduct, editProduct}=require('.
 const{addCategory,showCategories,editCategory,listCategory,showCategory}=require('../controllers/admin/categoryController')
 const authenticateAdminToken = require('../middlewares/admin/adminAuthMiddleware')
 const { getOrders, cancelOrder, updateStatus } = require('../controllers/admin/OrderController')
+const { createCoupon, deleteCoupon, showCoupons } = require('../controllers/admin/couponController')
 const adminRoute = express()
 
 //customers
@@ -32,4 +33,9 @@ adminRoute.put('/products/:_id',authenticateAdminToken,upload.array('images',4),
 adminRoute.get('/orders',authenticateAdminToken,getOrders)
 adminRoute.patch('/orders/:orderId/cancel/:itemId',authenticateAdminToken,cancelOrder)
 adminRoute.patch('/orders/:orderId/items/:itemId',authenticateAdminToken,updateStatus)
+
+//coupons
+adminRoute.post('/coupons',authenticateAdminToken,createCoupon)
+adminRoute.delete('/coupons',authenticateAdminToken,deleteCoupon)
+adminRoute.get('/coupons',authenticateAdminToken,showCoupons)
 module.exports = adminRoute

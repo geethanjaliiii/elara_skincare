@@ -4,18 +4,24 @@ import { CartProvider } from "@/context/CartContext";
 import { AddressProvider } from "./context/AddressContext.jsx";
 
 // Lazy load components
+//auth
 const UserSignup = lazy(() => import("./pages/user/auth/UserSignup"));
 const UserLogin = lazy(() => import("./pages/user/auth/UserLogin"));
 const AdminLoginPage = lazy(() => import("./pages/admin/adminLoginPage"));
-const LandingPage = lazy(() => import("./pages/user/LandingPage"));
+//admin
 const Customers = lazy(() => import("./components/admin/Customers"));
-const Categories = lazy(() => import("./components/admin/Categories"));
+const Categories = lazy(() => import("./components/admin/categories/Categories.jsx"));
 const DashboardLayout = lazy(() => import("./pages/admin/DashboardLayout"));
-const AddCategory = lazy(() => import("./components/admin/AddCategory"));
-const EditCategory = lazy(() => import("./components/admin/EditCategory"));
-const AddProduct = lazy(() => import("./components/admin/AddProduct"));
-const Products = lazy(() => import("./components/admin/Products"));
-const EditProduct = lazy(() => import("./components/admin/EditProduct"));
+const AddCategory = lazy(() => import("./components/admin/categories/AddCategory.jsx"));
+const EditCategory = lazy(() => import("./components/admin/categories/EditCategory"));
+const AddProduct = lazy(() => import("./components/admin/products/AddProduct"));
+const Products = lazy(() => import("./components/admin/products/Products.jsx"));
+const EditProduct = lazy(() => import("./components/admin/products/EditProduct"));
+const Coupons =lazy(()=>import("./components/admin/coupons/coupons.jsx")) ;
+const AddCoupon =lazy(()=>import("./components/admin/coupons/addCoupons.jsx")) ;
+const AdminOrders = lazy(() => import("./components/admin/orders/Orders"));
+//users
+const LandingPage = lazy(() => import("./pages/user/LandingPage"));
 const ProductPage = lazy(() => import("./pages/user/ProductPage"));
 const ShopPage = lazy(() => import("./pages/user/ShopPage"));
 const ProfilePage = lazy(() => import("./pages/user/ProfilePage"));
@@ -23,7 +29,6 @@ const CartPage = lazy(() => import("./pages/user/cartPage"));
 const CheckoutPage = lazy(() => import("./pages/user/CheckoutPage"));
 const OrderSuccess = lazy(() => import("./pages/user/OrderSuccess"));
 const Orders = lazy(() => import("./components/user/profile/orders/Orders"));
-const AdminOrders = lazy(() => import("./components/admin/orders/Orders"));
 const OrderDetailsPage = lazy(() => import("./pages/user/OrderDetailsPage"));
 const ErrorPage = lazy(() => import("./pages/404page"));
 const ForgetPasswordPage = lazy(() => import("./pages/user/auth/ForgetPasswordPage"));
@@ -33,6 +38,8 @@ import IsAdminLogin from "./store/protect/isAdminLogin";
 import IsAdminLogout from "./store/protect/IsAdminLogout";
 import IsUserLogout from "./store/protect/IsUserLogout";
 import IsUserLogin from "./store/protect/IsUserLogin";
+
+
 
 // Loading component for Suspense fallback
 const LoadingSpinner = () => (
@@ -201,6 +208,8 @@ export default function App() {
             <Route path="categories/add" element={<AddCategory />} />
             <Route path="categories/edit" element={<EditCategory />} />
             <Route path="orders" element={<AdminOrders />} />
+            <Route path="coupons" element={<Coupons/>}/>
+            <Route path="coupons/add" element={<AddCoupon/>}/>
             <Route path="sales" element={<div>Sales Content</div>} />
             <Route path="settings" element={<div>Settings Content</div>} />
           </Route>

@@ -167,8 +167,11 @@ const cancelOrder = async (req, res) => {
     if(item.status==='Cancelled'){
       return res.status(400).json({error:"item already cancelled"})
     }
+
+    //update order records
     const updatedOrder = await Order.findOneAndUpdate(
       { orderNumber: orderId },
+
       {
         $set: { "items.$[elem].status": "Cancelled" },
         $push: {

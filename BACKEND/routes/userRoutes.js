@@ -8,6 +8,7 @@ const {addAddress,showAddresses, editAddress, deleteAddress}=require('../control
 const { addToCart, showCart, updateCart, removeItem, checkProduct } = require('../controllers/user/cartController')
 const { placeOrder, getOrderDetails ,getAllOrders,cancelOrder} = require('../controllers/user/orderController')
 const { createOrder, verifyPayment } = require('../controllers/user/paymentController')
+const { getCoupons, applyCoupon } = require('../controllers/user/couponController')
 const userRoute = express()
 
 //authentication
@@ -56,4 +57,8 @@ userRoute.patch('/orders/:orderId/items/:itemId',authenticateToken,cancelOrder)
 //payment
 userRoute.post('/payment/create-order',authenticateToken,createOrder)
 userRoute.post('/payment/verify-payment',authenticateToken,verifyPayment)
+
+//coupons
+userRoute.get('/:userId/coupons',authenticateToken,getCoupons )
+userRoute.post('/:userId/coupons',authenticateToken,applyCoupon)
 module.exports = userRoute

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import  { adminAxiosInstance } from "@/config/axiosConfig";
 import { useNavigate } from "react-router-dom";
+import { changeCategoryStatus, getCategories } from "../api/categories";
 
 const Categories = () => {
   const [categories, setCategories] = useState([]);
@@ -13,12 +14,11 @@ const Categories = () => {
     // Fetch categories from the database/API
     const fetchCategories = async () => {
       try {
-        const categoryList = await adminAxiosInstance.get("/api/admin/categories");
-        console.log(categoryList?.data);
-        
-        setCategories(categoryList?.data?.categories);
+        const categoryList = await getCategories();
+        console.log(categoryList);
+        setCategories(categoryList);
       } catch (error) {
-        console.error("Error fetching categories:", error);
+       console.error(error)
       }
     };
     fetchCategories();
@@ -35,8 +35,13 @@ const Categories = () => {
 
   const handleStatusToggle = async (categoryId) => {
     // Toggle category status and refresh data
-    const updatedData = await adminAxiosInstance.patch(`/api/admin/categories/list/${categoryId}`);
+    try {
+      await changeCategoryStatus(categoryId)
     setEditStatus(!editStatus); // Toggle edit mode to trigger re-fetch
+    } catch (error) {
+      console.error(error);
+    }
+    
   };
 
   return (

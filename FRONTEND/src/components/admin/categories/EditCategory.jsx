@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Button } from "../ui/button";
+;
 import  { adminAxiosInstance } from "@/config/axiosConfig";
 import { toast, ToastContainer } from "react-toastify";
+import { Button } from "@/components/ui/button";
 
 const EditCategory = () => {
   const [categoryData, setCategoryData] = useState({});

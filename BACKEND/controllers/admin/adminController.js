@@ -83,6 +83,8 @@ const logout=async(req,res)=>{
 }
 
 const refreshAccessToken =async(req,res)=>{
+  console.log("REFRESHING ADMIN ACCESS TOKEN");
+  
   const refreshToken =req.cookies.adminRefreshToken
   if(!refreshToken){
     console.log("NO tokrn provided");

@@ -25,7 +25,7 @@ const addProduct = async (req, res) => {
 
     return res
       .status(400)
-      .json({ message: "Validation error", details: errorMessages });
+      .json({ message: "Validation error", message: errorMessages });
   }
 
   try {
@@ -171,8 +171,6 @@ const editProduct = async (req, res) => {
   const { name, categoryId, updatedUrls,deletedImages } = req.body;
 
 //validate body
-
-
   const { error } = productSchema.validate(req.body);
   if (error) {
     const errorMessages = error.details.map((err) => err.message);

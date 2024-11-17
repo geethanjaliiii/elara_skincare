@@ -22,12 +22,10 @@ import {
 } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-  ChevronDown,
   Edit,
   List,
   Grid,
   Filter,
-  X,
   Search,
   Eye,
   EyeOff,

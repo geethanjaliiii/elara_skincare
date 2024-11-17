@@ -32,7 +32,7 @@ const addCategory = async (req, res) => {
     console.log("Category added");
     res
       .status(200)
-      .json({ success: true, message: "Category added", newCategory });
+      .json({ success: true, message: "Category added" });
   } catch (error) {
     console.log("error in adding category", error.message);
     res

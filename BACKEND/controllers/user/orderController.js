@@ -8,22 +8,24 @@ const placeOrder = async (req, res) => {
   try {
     const {
       userId,
-      items,
-      totalMRP,
-      totalDiscount,
-      shippingFee,
-      tax,
-      totalAmount,
+      // items,
+      // totalMRP,
+      // totalDiscount,
+      // shippingFee,
+      // tax,
+      // totalAmount,
       shippingAddress,
       paymentMethod,
-      transactionId
+      transactionId,
     } = req.body;
-console.log("placing order");
+    console.log("placing order");
 
-    if(!userId ||!items ||!totalAmount ||!shippingAddress){
-      return res.status(404).json({success:false, message:'required fields are missing'})
+    if (!userId || !shippingAddress) {
+      return res
+        .status(404)
+        .json({ success: false, message: "required fields are missing" });
     }
-
+//check coupon validity
     const orderNumber = await generateOrderNumber();
     console.log("order number", orderNumber);
 
@@ -32,8 +34,9 @@ console.log("placing order");
     const expectedDeliveryDate = new Date(orderDate);
     expectedDeliveryDate.setDate(orderDate.getDate() + deliveryDays);
 
+    const cartExist = await Cart.findOne({ userId });
     //check stock for each product in the order
-    for (const item of items) {
+    for (const item of cartExist.items) {
       const product = await Product.findById(item.productId);
       if (!product) {
         throw new Error(`Product with id ${item.productId} not found`);
@@ -50,20 +53,31 @@ console.log("placing order");
       await product.save();
       //remove item from cart
     }
-
+    const orderItems = cartExist.items.map((item) => ({
+      productId: item.productId,
+      size: item.size,
+      quantity: item.quantity,
+      price: item.latestPrice,
+      totalPrice: item.itemTotal,
+      // offerDiscount: item.itemOfferDiscount,
+      // couponDiscount: item.itemCouponDiscount,
+      // finalPrice: item.finalPrice,
+    }));
     //create new order
     const order = new Order({
       orderNumber,
       userId,
-      items,
-      totalMRP,
-      totalDiscount,
-      shippingFee,
-      tax,
-      totalAmount,
+      items: orderItems,
+      totalMRP:cartExist.totalMRP,
+      totalDiscount:cartExist.totalDiscount,
+      shippingFee:cartExist.deliveryCharge,
+      tax:cartExist.platformFee,
+      totalAmount:cartExist.totalAmount,
       shippingAddress,
       paymentMethod,
-      transactionId:transactionId?transactionId:'',
+      couponDiscount:cartExist.couponDiscount,
+      couponCode:cartExist.appliedCoupons[0],
+      transactionId: transactionId ? transactionId : "",
       paymentStatus: paymentMethod === "Cash on Delivery" ? "Unpaid" : "Paid",
       orderDate,
       expectedDeliveryDate,
@@ -77,7 +91,7 @@ console.log("placing order");
       {
         $pull: {
           items: {
-            $or: items.map((orderItem) => ({
+            $or: orderItems.map((orderItem) => ({
               productId: orderItem.productId,
               size: orderItem.size,
             })),
@@ -107,7 +121,9 @@ console.log("placing order");
 const getOrderDetails = async (req, res) => {
   const { orderId } = req.params;
   try {
-    const order = await Order.findOne({ orderNumber: orderId });
+    const order = await Order.findOne({ orderNumber: orderId }).populate(
+      "items.productId"
+    );
     if (!order) {
       return res
         .status(404)
@@ -142,12 +158,10 @@ const getAllOrders = async (req, res) => {
   } catch (error) {
     console.log("error fetching orders", error);
 
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: error.message || "Internal server error",
-      });
+    res.status(500).json({
+      success: false,
+      message: error.message || "Internal server error",
+    });
   }
 };
 
@@ -164,8 +178,8 @@ const cancelOrder = async (req, res) => {
     if (!item) {
       return res.status(404).json({ error: "Item not found" });
     }
-    if(item.status==='Cancelled'){
-      return res.status(400).json({error:"item already cancelled"})
+    if (item.status === "Cancelled") {
+      return res.status(400).json({ error: "item already cancelled" });
     }
 
     //update order records
@@ -180,15 +194,17 @@ const cancelOrder = async (req, res) => {
           },
         },
       },
-      { arrayFilters: [{ "elem._id": itemId }],
-       new: true  },
-      
+      { arrayFilters: [{ "elem._id": itemId }], new: true }
     );
 
     //increase stock
-    const product=await Product.findOneAndUpdate({_id:item.productId},{$inc:{'sizes.$[elem].stock':item.quantity}},{arrayFilters:[{'elem.size':item.size}]})
-    console.log("up order",updatedOrder);
-    await product.save()
+    const product = await Product.findOneAndUpdate(
+      { _id: item.productId },
+      { $inc: { "sizes.$[elem].stock": item.quantity } },
+      { arrayFilters: [{ "elem.size": item.size }] }
+    );
+    console.log("up order", updatedOrder);
+    await product.save();
     res
       .status(200)
       .json({ success: true, message: "Order cancelled", order: updatedOrder });

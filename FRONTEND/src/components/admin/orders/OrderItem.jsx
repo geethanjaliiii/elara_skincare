@@ -136,11 +136,11 @@ export function OrderItem({ order }) {
               className="flex items-center space-x-2 justify-between"
             >
               <img
-                src={item.image}
-                alt={item.name}
+                src={item.productId.images[0]}
+                alt={item.productId.name}
                 className="h-20 w-20 object-cover rounded p-2"
               />
-              <p>{item.name}</p>
+              <p>{item.productId.name}</p>
               <div key={item._id} className="mb-2">
                 <Select
                   value={statusMap[item._id]}

@@ -109,14 +109,14 @@ export default function Orders() {
                       {order.items && order.items.map((product) => (
                         <div key={product._id} className="p-4 flex gap-4">
                           <img
-                            src={product.image}
-                            alt={product.name}
+                            src={product.productId.images[0]}
+                            alt={product.productId.name}
                             width={80}
                             height={80}
                             className="rounded-md object-cover"
                           />
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-medium truncate">{product.name}</h3>
+                            <h3 className="font-medium truncate">{product.productId.name}</h3>
                             <div className="text-sm text-muted-foreground space-x-2">
                               {product.size && <span>Size: {product.size}</span>}
                             </div>
@@ -136,7 +136,7 @@ export default function Orders() {
                             <div className="mt-2 flex justify-between items-center">
                               {product.status !== 'cancelled' ? (
                                 <Suspense fallback={<Button variant="outline" size="sm" disabled>Loading...</Button>}>
-                                  <RatingDialog productName={product.name} />
+                                  <RatingDialog productName={product.productId.name} />
                                 </Suspense>
                               ) : (
                                 <Button variant="outline" size="sm">

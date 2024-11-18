@@ -33,11 +33,21 @@ const cartItemSchema =new mongoose.Schema({
     },
     maxQtyPerUser:{
         type:Number,
-        default:10
+        default:5
     },
     inStock:{
         type:Boolean,
         default:true
+    },
+    itemDiscount:{
+        type:Number,
+        default:0,
+        min:0
+    },
+    itemTotal:{
+        type:Number,
+        default:0,
+        min:0
     }
 })
 const CartSchema = new mongoose.Schema({
@@ -58,11 +68,13 @@ const CartSchema = new mongoose.Schema({
     },
     totalAmount:{
         type:Number,
-        default:0
+        default:0,
+        min:[0,'Total amount cannot be negative'],
     },
     totalDiscount:{
        type:Number,
-       default:0
+       default:0,
+       min:[0,'Discount cannot be negative'],
     },
     appliedCoupons:{
         type:Array,

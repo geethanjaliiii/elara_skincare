@@ -1,5 +1,6 @@
 const { isEthereumAddress } = require("validator");
 const Cart = require("../../models/cartModel");
+const Product=require('../../models/productModel')
 const recalculateCartTotals=require('../../utils/services/recalculateCartTotals');
 const { message } = require("../../utils/validation/addressValidation");
 
@@ -44,8 +45,11 @@ const addToCart = async (req, res) => {
     const productExist = cartExist.items.find(
       (item) => item.productId.equals(productId) && item.size === size
     );
-    if (productExist) {
+    if (productExist ) {
       console.log("product  exist in cart");
+      if(productExist.quantity>=5){
+        return res.status(500).json({success:false,message:"stock limit exceeded."})
+      }
       productExist.quantity += 1;
     } else {
       console.log("product dont exist in cart");

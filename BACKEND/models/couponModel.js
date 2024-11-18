@@ -140,24 +140,24 @@ const couponSchema = new mongoose.Schema(
     indexes: [{ code: 1 }, { isActive: 1 }, { expiryDate: 1 }],
   }
 );
-
-//pre-save middleware
 couponSchema.pre("save", function (next) {
-  if (this.discountType == "percentage" && this.discountValue) {
-    return (
-      (this.discountValue = undefined)(
-        (this.maxDiscountAmount = this.discountPercentage / 100)
-      ) * this.minPurchaseOrder
-    );
-  }
-  if (this.discountType == "flat" && this.discountPercentage) {
-    return (
-      (this.discountPercentage = undefined),
-      (this.maxDiscountAmount = undefined)
-    );
+  if (this.discountType === "percentage") {
+    // If the discount type is "percentage", ensure `discountValue` is undefined
+    this.discountValue = undefined;
+
+    // Calculate the maximum discount amount based on the percentage
+    if (this.discountPercentage && this.minPurchaseOrder) {
+      this.maxDiscountAmount = (this.discountPercentage / 100) * this.minPurchaseOrder;
+    }
+  } else if (this.discountType === "flat") {
+    // If the discount type is "flat", ensure `discountPercentage` is undefined
+    this.discountPercentage = undefined;
+    this.maxDiscountAmount = undefined; // No max limit for flat discount
   }
   next();
 });
+
+
 
 const Coupon = mongoose.model("Coupon", couponSchema);
 const UserCoupon = mongoose.model("userCoupon", userCouponSchema);

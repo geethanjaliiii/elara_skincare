@@ -99,12 +99,12 @@ export default function OrderDetails() {
                   <div className="flex gap-4">
                     <div className="flex flex-col ">
                       <img
-                        src={item.image}
-                        alt={item.name}
+                        src={item.productId.images[0]}
+                        alt={item.productId.name}
                         className="h-20 w-20 object-cover rounded"
                       />
                       <div className="flex flex-col">
-                        <h3 className="font-medium">{item.name}</h3>
+                        <h3 className="font-medium">{item.productId.name}</h3>
                         <p className="text-xs">{item.size}</p>
                         <p className="font-medium">₹{item.price}</p>
                         <div className="flex items-center gap-2">

@@ -48,15 +48,7 @@ const orderMutation=useMutation({
 const {handleRazorpayPayment}=usePayment(orderMutation,toast)
 
 const handlePlaceOrder=async()=>{
-  const items = cart.items.filter((item)=>item.inStock).map((item) => ({
-    productId: item.productId._id,
-    name: item.productId.name,
-    image:item.productId.images[0],
-    size: item.size,
-    quantity: item.quantity,
-    price: item.latestPrice,
-    totalPrice: item.latestPrice * item.quantity,
-  }));
+  const items = cart.items.filter((item)=>item.inStock)
   if(items.length===0){
     return toast.error("No valid products in cart.")
   }
@@ -76,11 +68,10 @@ const handlePlaceOrder=async()=>{
 
   const orderData = {
     userId,
-    items,
-    totalMRP: cart.totalMRP,
-    totalDiscount: cart.totalDiscount,
-    shippingFee: cart.deliveryCharge,
-    tax: cart.platformFee,
+    // totalMRP: cart.totalMRP,
+    // totalDiscount: cart.totalDiscount,
+    // shippingFee: cart.deliveryCharge,
+    // tax: cart.platformFee,
     totalAmount: cart.totalAmount,
     shippingAddress: address,
     paymentMethod: selectedPayment,

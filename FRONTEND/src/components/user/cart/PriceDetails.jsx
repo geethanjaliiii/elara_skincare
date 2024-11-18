@@ -1,55 +1,133 @@
-import React from 'react'
-import { Card, CardContent } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { Button } from '@/components/ui/button'
-import { ShieldCheck } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
-import { useCart } from '@/context/CartContext'
-import toast, { Toaster } from 'react-hot-toast'
 
 
+import { useEffect, useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import { ShieldCheck, Tag, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useCart } from "@/context/CartContext";
+import { Input } from "@/components/ui/input";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarHeader,
+} from "@/components/ui/sidebar";
+import CouponList from "../coupons/CouponList";
+import toast, { Toaster } from "react-hot-toast";
+import CouponModal from "../coupons/CouponModal";
+import { useApplyCouponMutation, useAvailableCoupons } from "@/hooks/admin/customHooks";
+import { useSelector } from "react-redux";
 
-const PriceDetails = ({cart,step,handlePlaceOrder}) => {
-  
-const navigate=useNavigate()
-const{checkStock,allStockOut}=useCart()
+const PriceDetails = ({ cart, step, handlePlaceOrder }) => {
+  const navigate = useNavigate();
+  const { checkStock, allStockOut } = useCart();
+  const [open, setOpen] = useState(false);
+  const [couponCode, setCouponCode] = useState(''); 
 
-  const handleClick=()=>{
-    if(step=='bag'){
-        if(checkStock()){
-          
-          navigate('/checkout/address')
-        }else{
-         toast.error("Stock limit exceeded!")
-        }
-        
+  const {mutate:applyCoupon}=useApplyCouponMutation()
+  const userId = useSelector((state) => state?.user?.userInfo?._id);
+  const { data: availableCoupons, isLoading } = useAvailableCoupons(
+    cart?.totalAmount,
+    userId
+  );
+
+   // Update the couponCode state whenever the cart changes
+  //  useEffect(() => {
+  //   if (cart?.appliedCoupons?.length > 0) {
+  //     setCouponCode(cart.appliedCoupons[cart.appliedCoupons.length-1]); // Assuming only one coupon is applied
+  //   }
+  // }, [cart]);
+ 
+  const handleApplyCoupon = (code) => {
+    // Add your coupon application logic here
+    const cartValue=cart.totalAmount
+   applyCoupon({userId,code,cartValue},{
+    onSuccess:()=>{
+      console.log('coupon applied');
+      setCouponCode(code);
+      toast.success(`Coupon ${code} applied successfully!`);
+    },
+    onError:(error)=>{
+      console.error("Error applying coupons", error);
+      const errorMessage =
+        error?.response?.data?.message || "Coupon not applied.";
+      toast.error(errorMessage);
     }
-    else if(step=='address'){
-      if(checkStock()){
-        navigate('/checkout/payment')
-      }else{
-        toast.error("Stock limit exceeded!")
+   })
+    
+  };
+
+  const handleClick = () => {
+    if (step === "bag") {
+      if (checkStock()) {
+        navigate("/checkout/address");
+      } else {
+        toast.error("Stock limit exceeded!");
       }
-    }else if(step==='payment'){
-      if(checkStock()){
-        handlePlaceOrder()
-      }else{
-        toast.error("Stock limit exceeded!")
+    } else if (step === "address") {
+      if (checkStock()) {
+        navigate("/checkout/payment");
+      } else {
+        toast.error("Stock limit exceeded!");
+      }
+    } else if (step === "payment") {
+      if (checkStock()) {
+        handlePlaceOrder();
+      } else {
+        toast.error("Stock limit exceeded!");
       }
     }
-  }
+  };
+
   return (
     <div className="lg:sticky lg:top-6 lg:h-fit">
-       <Toaster/>
-          {cart&& cart?.items?.length>0 &&
-          <Card>
-           
+      <Toaster />
+      {cart && cart?.items?.length > 0 && (
+        <Card>
           <CardContent className="p-6">
             <h2 className="mb-4 text-lg font-semibold">PRICE DETAILS</h2>
             <Separator className="mb-4" />
+
+            {step !== "bag" && (
+              <div className="mb-4">
+                {!couponCode  ? (
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start gap-2"
+                    onClick={() => setOpen(true)}
+                  >
+                    <Tag className="h-4 w-4" />
+                    Apply Coupon
+                  </Button>
+                ) : (
+                  <div className="flex items-center justify-between w-full gap-2 border rounded-lg p-3">
+                    <div className="flex items-center gap-2">
+                      <Tag className="h-4 w-4" />
+                      <div>
+                        <p className="font-medium">{couponCode}</p>
+                        <p className="text-xs text-muted-foreground">
+                          - Offer applied on the bill
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      className="text-red-600 text-sm font-medium hover:underline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setCouponCode(""); // Clear the coupon code
+                      }}
+                    >
+                      REMOVE
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="space-y-3">
               <div className="flex justify-between">
-                { cart && <span>Price ({cart.totalItems} items)</span>}
+                <span>Price ({cart.totalItems} items)</span>
                 <span>₹{cart.totalMRP}</span>
               </div>
               <div className="flex justify-between text-green-600">
@@ -58,7 +136,13 @@ const{checkStock,allStockOut}=useCart()
               </div>
               <div className="flex justify-between">
                 <span>Delivery Charges</span>
-                <span className="text-green-600">{cart.deliveryCharge?cart.deliveryCharge:'Free'}</span>
+                <span className="">
+                  {cart.deliveryCharge ? cart.deliveryCharge : "Free"}
+                </span>
+              </div>
+              <div className="flex justify-between text-green-600">
+                <span>Coupon Discount</span>
+                <span>- ₹{cart.couponDiscount.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span>Platform Fee</span>
@@ -70,23 +154,40 @@ const{checkStock,allStockOut}=useCart()
                 <span>₹{cart.totalAmount.toFixed(2)}</span>
               </div>
               <div className="text-sm text-green-600">
-                You will save ₹{(cart.totalMRP-cart.totalDiscount).toFixed(2)} on this
-                order
+                You will save ₹{(cart.totalMRP - cart.totalDiscount).toFixed(2)}{" "}
+                on this order
               </div>
             </div>
-            { step &&  <Button className="mt-6 w-full" size="lg" onClick={handleClick} disabled={allStockOut()}>
-            {step==='address'?'CONTINUE':'PLACE ORDER'}
-            </Button> }
-          
-            
+
+            {step && (
+              <Button
+                className="mt-6 w-full"
+                size="lg"
+                onClick={handleClick}
+                disabled={allStockOut()}
+              >
+                {step === "address" ? "CONTINUE" : "PLACE ORDER"}
+              </Button>
+            )}
+
             <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
               <ShieldCheck className="h-4 w-4" />
-              <span>Safe and Secure Payments. Easy returns. 100% Authentic products.</span>
+              <span>
+                Safe and Secure Payments. Easy returns. 100% Authentic products.
+              </span>
             </div>
           </CardContent>
-        </Card>}
-        </div>
-  )
-}
+        </Card>
+      )}
 
-export default PriceDetails
+      <CouponModal
+        open={open}
+        onOpenChange={setOpen}
+        availableCoupons={availableCoupons}
+        onApplyCoupon={handleApplyCoupon}
+      />
+    </div>
+  );
+};
+
+export default PriceDetails;

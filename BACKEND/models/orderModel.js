@@ -15,24 +15,28 @@ const orderSchema = new mongoose.Schema({
         ref: "Product",
         required: true,
       },
-      name: { type: String, required: true },
       size: { type: String },
       quantity: { type: Number, required: true },
       price: { type: Number, required: true }, //price per qty
-      image: { type: String, required: true },
       status: {
         type: String,
         enum: ["Pending", "Confirmed", "Shipped", "Delivered", "Cancelled"],
         default: "Pending",
       },
-      totalPrice: { type: Number, required: true },
+      totalPrice: { type: Number, required: true,min:0 },//totalMrp
+      couponDiscount:{type:Number,default:0,min:0},
+      offerPrice:{type:Number,default:0,min:0},
+      finalPrice:{type:Number,default:0,min:0},
+      totalDiscount:{type:Number,min:0,default:0},
     },
   ],
   totalMRP: { type: Number, required: true },
   totalDiscount: { type: Number, default: 0 },
+  couponDiscount:{type:Number,default:0},
+  couponCode:{type:String},
   shippingFee: { type: Number, default: 0 },
   tax: { type: Number, default: 0 }, //platform fee
-  totalAmount: { type: Number, required: true },
+  totalAmount: { type: Number, required: true ,min:0},
   shippingAddress: {
     //creating a snapshot of shipping address
     fullName: { type: String, required: true },

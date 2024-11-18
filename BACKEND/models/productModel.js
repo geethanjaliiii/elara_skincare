@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { isWhitelisted } = require("validator");
 
 const productSchema = new mongoose.Schema({
   name: {
@@ -60,6 +61,10 @@ const productSchema = new mongoose.Schema({
   isListed: {
     type: Boolean,
     default: true
+  },
+  isWhitelisted:{
+    type:Boolean,
+    default:false
   },
   reviews:[
     {

@@ -1,5 +1,6 @@
-const Cart= require("../../models/cartModel");
+const Cart = require("../../models/cartModel");
 const { Coupon, UserCoupon } = require("../../models/couponModel");
+const recalculateCartTotals = require("../../utils/services/recalculateCartTotals");
 const { description } = require("../../utils/validation/couponValidation");
 
 const getCoupons = async (req, res) => {
@@ -122,50 +123,72 @@ const getCoupons = async (req, res) => {
 
 const applyCoupon = async (req, res) => {
   const { userId } = req.params;
-  const { code ,cartValue} = req.body;
+  const { code } = req.body;
   try {
     console.log(code);
 
-    if (!userId || !code|| !cartValue) {
+    if (!userId || !code) {
       return res
         .status(400)
         .json({ success: false, message: "Invalid input paramenters" });
     }
-    //find coupon with id,
-    //increment totalAPplied count
-    //in userCoupons add coupon id ,userid,applied count,total amountsaved
-    //add coupon code to applied coupons
-    //add coupon discount
-    //reduce total amount
-    //add coupo details to userCoupon schema
-    const coupon = await Coupon.findOne({
-      code: code,
-      isActive: true,
-      expiryDate: { $gt: new Date() },
-      minPurchaseOrder:{$lte: cartValue}
-    });
-    if (!coupon || coupon?.totalAppliedCount >= coupon.usageLimit) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Invalid or Expired coupon" });
+    const cart = await Cart.findOne({ userId });
+    if (!cart) {
+      return res.status(404).json({ message: "Cart not found" });
     }
-if(coupon.discountType=='percentage'){
-  const discount=(coupon.discountPercentage/100)*cartValue
-  const applicableDiscount=Math.min(coupon.maxDiscountAmount,discount )
-}else{
-  const applicableDiscount=coupon.discountValue
-}
-   
-    coupon.totalAppliedCount += 1;
-    await UserCoupon.findOneAndUpdate(
-      { userId: userId, couponId: coupon._id },
-      { $inc: { appliedCount: 1 } },
-      { new: true, upsert: true }
-    );
-   const cart= await Cart.findOne(userId)
-   cart.items.forEach((item)=>item.itemDiscount=(item.latestPrice))
-    console.log("coupon applied");
-    res.status(200).json({ success: true, message: "coupon applied" });
+    const { totalMRP, totalAmount, totalDiscount } =
+    await recalculateCartTotals(cart);
+  let response = {
+    totalMRP,
+    totalAmount,
+    totalDiscount,
+    couponDiscount:0
+  };
+
+    if (code) {
+      const coupon = await Coupon.findOne({
+        code: code,
+        isActive: true,
+        expiryDate: { $gt: new Date() },
+      });
+      if (!coupon) {
+        return res.status(404).json({ message: "Coupon Expired." });
+      }
+      const alreadyApplied = await UserCoupon.findOne({
+        userId: userId,
+        couponId: coupon._id,
+      });
+      if (
+        coupon?.totalAppliedCount >= coupon.usageLimit ||
+        (alreadyApplied &&
+          alreadyApplied?.appliedCount >= coupon.maxUsagePerUser)
+      ) {
+        return res
+          .status(404)
+          .json({ success: false, message: "Coupon usagelimit exceeded." });
+      }
+      if (totalAmount < coupon.minPurchaseOrder) {
+        return res.status(500).json({message:`Add item worth ${coupon.minPurchaseOrder-totalAmount} to avail the coupon.`})
+      }
+        const couponDiscount =
+          coupon?.discountType == "percentage"
+            ? Math.min(
+                coupon.maxDiscountAmount,
+                (coupon.discountPercentage / 100) * totalAmount
+              )
+            : coupon.discountValue;
+
+        //change discount
+        response.couponDiscount=couponDiscount
+        response.totalDiscount += couponDiscount;
+        response.totalAmount = totalMRP - totalDiscount;
+        
+      
+    }
+
+    res
+      .status(200)
+      .json({ success: true, message: "coupon applied", calculatedOrder:response });
   } catch (error) {
     console.log("error applying code", error);
   }
@@ -176,3 +199,55 @@ const removeCoupon = async (req, res) => {
 };
 
 module.exports = { getCoupons, applyCoupon, removeCoupon };
+async function calculateOrderAmount(cart, userId, code, res) {
+  try {
+    const { totalMRP, totalAmount, totalDiscount } =
+      await recalculateCartTotals(cart);
+    let response = {
+      totalMRP,
+      totalAmount,
+      totalDiscount,
+      // couponDiscount:0
+    };
+    if (code) {
+      const coupon = await Coupon.findOne({
+        code: code,
+        isActive: true,
+        expiryDate: { $gt: new Date() },
+      });
+      if (!coupon) {
+        return res.status(404).json({ message: "Invalid coupon" });
+      }
+      const alreadyApplied = await UserCoupon.findOne({
+        userId: userId,
+        couponId: coupon._id,
+      });
+      if (
+        coupon?.totalAppliedCount >= coupon.usageLimit ||
+        (alreadyApplied &&
+          alreadyApplied?.appliedCount >= coupon.maxUsagePerUser)
+      ) {
+        return res
+          .status(404)
+          .json({ success: false, message: "Invalid or Expired coupon" });
+      }
+      if (coupon && totalAmount >= coupon.minPurchaseOrder) {
+        const couponDiscount =
+          coupon?.discountType == "percentage"
+            ? Math.min(
+                coupon.maxDiscountAmount,
+                (coupon.discountPercentage / 100) * totalAmount
+              )
+            : coupon.discountValue;
+
+        //change discount
+        response.totalDiscount += couponDiscount;
+        response.totalAmount = totalMRP - totalDiscount;
+        console.log("coupon is applicable");
+      }
+    }
+    return response;
+  } catch (error) {
+    console.error("failed calculating order amount", error);
+  }
+}

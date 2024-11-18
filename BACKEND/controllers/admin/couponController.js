@@ -1,4 +1,4 @@
-const Coupon =require('../../models/couponModel')
+const {Coupon} =require('../../models/couponModel')
 const couponValidationSchema=require('../../utils/validation/couponValidation')
 
 
@@ -52,7 +52,7 @@ const createCoupon=async(req,res)=>{
 const showCoupons=async(req,res)=>{
     console.log("fetching coupons");
     try {
-    const coupons=  await Coupon.find().sort({createdAt:-1}) 
+    const coupons=  await Coupon.find({}).sort({createdAt:-1}) 
     if(!coupons){
         console.log('coupons',coupons);
         

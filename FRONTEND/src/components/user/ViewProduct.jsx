@@ -9,7 +9,7 @@ import Breadcrumbs from "./product/Breadcrumbs";
 import { axiosInstance } from "@/config/axiosConfig";
 import { useSelector } from "react-redux";
 import toast, { Toaster } from "react-hot-toast";
-
+import { addToWhishlist } from "@/services/whishlist";
 
 const ViewProduct = ({ product }) => {
   const [sizes, setSizes] = useState([]);
@@ -18,32 +18,40 @@ const ViewProduct = ({ product }) => {
   const userId = useSelector((state) => state?.user?.userInfo?._id);
   const [cartItem, setCartItem] = useState({});
 
-
   useEffect(() => {
     if (product.sizes && product.sizes.length > 0) {
       setSizes(product.sizes);
-      setSelectedSize(product.sizes[0]);
-     setAddCart(false)
+      const availableSize = product.sizes.filter((size) => size.stock != 0);
+
+      console.log("ac", availableSize);
+      if (availableSize?.length != 0) {
+        setSelectedSize(availableSize[0]);
+        handleSizeSelect(availableSize[0]);
+      } else {
+        setSelectedSize(product.sizes[0]);
+        handleSizeSelect(product.sizes[0]);
+      }
     }
   }, [product]);
 
-  const handleSizeSelect = async(size) => {
+  const handleSizeSelect = async (size) => {
     console.log(size);
-    
+
     try {
-      const response=  await axiosInstance.get(`/api/users/${userId}/cart/check`,{params:{productId:product._id, size:size.size}})
-      console.log('response',response);
-      if(response.data){
+      const response = await axiosInstance.get(
+        `/api/users/${userId}/cart/check`,
+        { params: { productId: product._id, size: size.size } }
+      );
+      console.log("response", response);
+      if (response.data) {
         console.log(response);
-        
-        setAddCart(response.data.inCart)
+
+        setAddCart(response.data.inCart);
       }
-        setSelectedSize(size);
+      setSelectedSize(size);
     } catch (error) {
-    
       console.error("Error checking cart:", error);
     }
-
   };
   async function handleCart() {
     try {
@@ -52,10 +60,10 @@ const ViewProduct = ({ product }) => {
       cartItem.size = selectedSize.size;
       cartItem.quantity = 1;
       cartItem.priceAtAddition = selectedSize.price;
-      cartItem.latestPrice=selectedSize.price
+      cartItem.latestPrice = selectedSize.price;
       cartItem.discount = product.discount;
-      console.log("product adding,USERiD==>",userId);
-      
+      console.log("product adding,USERiD==>", userId);
+
       const response = await axiosInstance.post(
         `/api/users/${userId}/cart`,
         cartItem
@@ -69,7 +77,14 @@ const ViewProduct = ({ product }) => {
     }
   }
 
-  
+  async function whishlistProduct() {
+    try {
+      await addToWhishlist(product._id,selectedSize.size)
+      toast.success("Product added to whishlist")
+    } catch (error) {
+      console.error("Error adding product to whishlist");
+    }
+  }
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
       <Toaster />

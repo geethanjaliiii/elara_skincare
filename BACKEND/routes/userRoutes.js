@@ -9,8 +9,12 @@ const { addToCart, showCart, updateCart, removeItem, checkProduct } = require('.
 const { placeOrder, getOrderDetails ,getAllOrders,cancelOrder} = require('../controllers/user/orderController')
 const { createOrder, verifyPayment } = require('../controllers/user/paymentController')
 const { getCoupons, applyCoupon } = require('../controllers/user/couponController')
+const {addToWishlist,removeFromWishlist,getWishlist} = require("../controllers/user/wishlistController");
 const userRoute = express()
 
+
+  
+  
 //authentication
 userRoute.post('/send-otp',sendOTP)
 userRoute.post('/refresh-token',refreshUserToken)
@@ -61,4 +65,10 @@ userRoute.post('/payment/verify-payment',authenticateToken,verifyPayment)
 //coupons
 userRoute.get('/:userId/coupons',authenticateToken,getCoupons )
 userRoute.post('/:userId/coupons',authenticateToken,applyCoupon)
+
+//wishlist
+userRoute.post("/add", authenticateToken,addToWishlist);
+  userRoute.post("/remove",authenticateToken, removeFromWishlist);
+  userRoute.get("/:userId",authenticateToken, getWishlist)
+
 module.exports = userRoute

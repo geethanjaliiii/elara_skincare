@@ -114,6 +114,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { useCoupons } from '@/hooks/admin/customHooks'
+import toast, { Toaster } from 'react-hot-toast'
 
 // Mock data for demonstration
 const mockCoupons = [
@@ -142,6 +143,7 @@ export default function Coupons() {
 
   return (
     <div className="container mx-auto py-10 px-4 sm:px-6 lg:px-8">
+      <Toaster/>
       <h1 className="text-3xl font-bold mb-6">Coupon Management</h1>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <Input 
@@ -181,7 +183,7 @@ export default function Coupons() {
                     {coupon.isActive ? 'Active' : 'Inactive'}
                   </span>
                 </TableCell>
-                <TableCell>{coupon.usersApplied.reduce((acc,curr)=>acc+=curr.appliedCount,0)} / {coupon.usageLimit}</TableCell>
+                <TableCell>{coupon.totalAppliedCount} / {coupon.usageLimit}</TableCell>
                 <TableCell>
                   <div className="flex space-x-2">
                     <Button variant="outline" size="icon">
@@ -216,7 +218,7 @@ export default function Coupons() {
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">Usage: {coupon.usersApplied.reduce((acc,curr)=>acc+=curr.appliedCount,0)} / {coupon.usageLimit}</span>
+                <span className="text-sm text-muted-foreground">Usage: {coupon.totalAppliedCount} / {coupon.usageLimit}</span>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="icon">

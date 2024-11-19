@@ -46,6 +46,8 @@ const ProductPage = () => {
         if(response?.data?.relatedProducts){
           setRelatedProducts(response.data.relatedProducts)
         }
+        console.log(response.data.product,'product');
+        
       } catch (error) {
         console.log("error fetching product", error);
       }

@@ -141,10 +141,13 @@ const showCategory = async (req, res) => {
       .json({ message: error.message || "Something went wrong" });
   }
 };
+
+
 module.exports = {
   addCategory,
   showCategories,
   editCategory,
   listCategory,
-  showCategory,
+  showCategory, 
+ 
 };

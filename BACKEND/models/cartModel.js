@@ -39,16 +39,7 @@ const cartItemSchema =new mongoose.Schema({
         type:Boolean,
         default:true
     },
-    itemDiscount:{
-        type:Number,
-        default:0,
-        min:0
-    },
-    itemTotal:{
-        type:Number,
-        default:0,
-        min:0
-    }
+   
 })
 const CartSchema = new mongoose.Schema({
     userId:{

@@ -20,6 +20,7 @@ const EditProduct = lazy(() => import("./components/admin/products/EditProduct")
 const Coupons =lazy(()=>import("./components/admin/coupons/coupons.jsx")) ;
 const AddCoupon =lazy(()=>import("./components/admin/coupons/addCoupons.jsx")) ;
 const AdminOrders = lazy(() => import("./components/admin/orders/Orders"));
+const OfferManagement=lazy(()=>import('./components/admin/offers/OfferManagement.jsx'))
 //users
 const LandingPage = lazy(() => import("./pages/user/LandingPage"));
 const ProductPage = lazy(() => import("./pages/user/ProductPage"));
@@ -209,6 +210,7 @@ export default function App() {
             <Route path="categories/edit" element={<EditCategory />} />
             <Route path="orders" element={<AdminOrders />} />
             <Route path="coupons" element={<Coupons/>}/>
+            <Route path="offers" element={<OfferManagement/>}/>
             <Route path="coupons/add" element={<AddCoupon/>}/>
             <Route path="sales" element={<div>Sales Content</div>} />
             <Route path="settings" element={<div>Settings Content</div>} />

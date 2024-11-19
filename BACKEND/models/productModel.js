@@ -25,6 +25,7 @@ const productSchema = new mongoose.Schema({
     min: [0, "Discount cannot be negative"],
     max: [100, "Discount cannot exceed 100%"],
   },
+  offerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Offer', default: null },
   skinType: {
     type: String,
     enum: [

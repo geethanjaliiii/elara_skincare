@@ -73,6 +73,8 @@ export function CartProvider({ children }) {
       const response = await axiosInstance.delete(
         `/api/users/${userId}/cart/${itemId}`
       );
+      console.log(response.data);
+      
       setCart(response.data.cart);
       setCartItems(response.data.cart.items);
     } catch (error) {

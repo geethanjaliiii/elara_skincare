@@ -9,7 +9,7 @@ import Breadcrumbs from "./product/Breadcrumbs";
 import { axiosInstance } from "@/config/axiosConfig";
 import { useSelector } from "react-redux";
 import toast, { Toaster } from "react-hot-toast";
-import { addToWhishlist } from "@/services/whishlist";
+import { addToWishlist } from "@/services/wishlist";
 
 const ViewProduct = ({ product }) => {
   const [sizes, setSizes] = useState([]);
@@ -79,7 +79,7 @@ const ViewProduct = ({ product }) => {
 
   async function whishlistProduct() {
     try {
-      await addToWhishlist(product._id,selectedSize.size)
+      await addToWishlist(product._id,selectedSize.size)
       toast.success("Product added to whishlist")
     } catch (error) {
       console.error("Error adding product to whishlist");

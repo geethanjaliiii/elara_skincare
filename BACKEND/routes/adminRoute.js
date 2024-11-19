@@ -7,6 +7,7 @@ const{addCategory,showCategories,editCategory,listCategory,showCategory}=require
 const authenticateAdminToken = require('../middlewares/admin/adminAuthMiddleware')
 const { getOrders, cancelOrder, updateStatus } = require('../controllers/admin/OrderController')
 const { createCoupon, deleteCoupon, showCoupons } = require('../controllers/admin/couponController')
+const {fetchProducts,createProductoffer, createCategoryoffer,fetchOffers, listedCategories}=require('../controllers/admin/offerController')
 const adminRoute = express()
 
 //customers
@@ -17,11 +18,12 @@ adminRoute.post('/logout',logout)
 adminRoute.post('/refresh-token',refreshAccessToken)
 //category
 adminRoute.post('/categories',authenticateAdminToken,addCategory)
+adminRoute.get('/categories/offer',authenticateAdminToken,listedCategories)
 adminRoute.get('/categories',authenticateAdminToken,showCategories)
 adminRoute.put('/categories/:catId',authenticateAdminToken,editCategory)
 adminRoute.get('/categories/:catId',authenticateAdminToken,showCategory)
 adminRoute.patch('/categories/list/:categoryId',authenticateAdminToken,listCategory)
- 
+
 //products
 adminRoute.post('/products',authenticateAdminToken,upload.array('images',4),addProduct)
 adminRoute.get('/products',authenticateAdminToken,showProducts)
@@ -38,4 +40,11 @@ adminRoute.patch('/orders/:orderId/items/:itemId',authenticateAdminToken,updateS
 adminRoute.post('/coupons',authenticateAdminToken,createCoupon)
 adminRoute.delete('/coupons',authenticateAdminToken,deleteCoupon)
 adminRoute.get('/coupons',authenticateAdminToken,showCoupons)
+
+//offers
+adminRoute.get('/offers',authenticateAdminToken,fetchOffers)
+adminRoute.post('/offers/products',authenticateAdminToken,createProductoffer)
+adminRoute.post('/offers/categories',authenticateAdminToken,createCategoryoffer)
+
+adminRoute.get('/offers/products',authenticateAdminToken,fetchProducts)
 module.exports = adminRoute

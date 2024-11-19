@@ -1,7 +1,7 @@
 // components/Sidebar.tsx
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { FiHome, FiShoppingCart, FiSettings } from 'react-icons/fi';
+import { FiHome, FiShoppingCart, FiSettings,FiPercent } from 'react-icons/fi';
 import {
   FaUsers,
   FaChartLine,
@@ -20,6 +20,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     { name: 'Sales', path: '/analytics', icon: <FaChartLine /> },
     { name: 'Order List', path: '/admin/dashboard/orders', icon: <FaClipboardList /> },
     { name: 'Coupons', path: '/admin/dashboard/coupons', icon: <FaTags /> },
+    {name:'offers',path:'/admin/dashboard/offers' ,icon:<FiPercent/> },
     { name: 'Banner', path: '/banner', icon: <FaImage /> },
     { name: 'Categories', path: '/admin/dashboard/categories', icon: <FaThList /> }, // New Category option
     { name: 'Settings', path: '/settings', icon: <FiSettings /> },

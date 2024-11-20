@@ -4,20 +4,9 @@ const Product = require("../../models/productModel");
 const recalculateCartTotals = require("../../utils/services/recalculateCartTotals");
 const { message } = require("../../utils/validation/addressValidation");
 const calculateDiscountPrice = require("../../utils/services/calculateDiscountPrice");
+const checkStock = require("../../utils/services/checkStock");
 
-function checkStock(cart) {
-  for (let item of cart.items) {
-    const product = item.productId.sizes.find(
-      (size) => size.size === item.size
-    );
-    const sizeInStock = product.stock > 0;
-    if (!sizeInStock) {
-      item.inStock = false;
-    } else {
-      item.inStock = true;
-    }
-  }
-}
+
 
 const addToCart = async (req, res) => {
   const { userId } = req.params;
@@ -82,43 +71,53 @@ const showCart = async (req, res) => {
     const cart = await Cart.findOne(userId).populate({
       path: "items.productId",
       populate: { path: "offerId" },
-    });
+    })
     if (!cart) {
       return res
         .status(404)
         .json({ success: false, message: "Cart not found" });
     }
 
-    //clearing unlisted products from cart
-    cart.items = cart.items.filter((item) => item.productId.isListed);
-
-    //check stock(cart)
-    checkStock(cart);
-
+    cart.items=cart.items.reduce((acc,item)=>{
+      //skip if product is not listed
+      if(!item?.productId?.isListed) return acc
+      //check stock and mark item status
+      item.inStock=checkStock(item);
+      acc.push(item)
+      return acc
+    },[])
     //recalculating total amount of listed products
     recalculateCartTotals(cart);
-    await cart.save();
-    let newCart = cart.toObject();
-    const offerAvailable=newCart.items.filter((item)=>item?.productId?.offerId!=null)
 
-    console.log('oav',offerAvailable);
-    if(offerAvailable){
-      
-      newCart.items = newCart.items.map((item) => {
+    //saving cart to database
+    await cart.save();
+    const frontendCart = JSON.parse(JSON.stringify(cart));
+    const hasOffer=frontendCart.items.some((item)=>item?.productId?.offerId)
+
+    console.log('has offer',hasOffer);
+    if(hasOffer){
+      //apply offer discount
+      frontendCart.items = frontendCart.items.map((item) => {
         if (item.productId?.offerId) {
-          const newDiscount=calculateDiscountPrice(item.productId)
-          return { ...item, discount: newDiscount };
+          const offerDiscount=calculateDiscountPrice(item.productId)
+          return { ...item, discount: offerDiscount };
         }
         return item;
       });
-      recalculateCartTotals(newCart)
-      console.log(newCart, "newcart");
-    }
-   ///
 
-    res
+      //recalculate totals with offer discount
+     const finalFrontendCart= recalculateCartTotals(frontendCart)
+      console.log(finalFrontendCart, "final frontend cart with offers");
+
+      return res.status(200).json({success:true, message:'Cart updated with oferdiscount',cart:finalFrontendCart})
+    }
+   //if no offers available
+
+console.log("no offers avilable for products in cart");
+
+   return res
       .status(200)
-      .json({ success: true, message: "Cart fetched", cart: newCart });
+      .json({ success: true, message: "Cart fetched cart without any offers", cart: frontendCart });
   } catch (error) {
     res
       .status(500)
@@ -221,7 +220,7 @@ const removeItem = async (req, res) => {
     recalculateCartTotals(updatedCart);
 
     await updatedCart.save();
-    console.log(updateCart);
+    console.log(updatedCart);
     
     let newCart = updatedCart.toObject();
     newCart.items = newCart.items.map((item) => {
@@ -265,3 +264,55 @@ const checkProduct = async (req, res) => {
   }
 };
 module.exports = { addToCart, showCart, updateCart, removeItem, checkProduct };
+
+
+// const showCart = async (req, res) => {
+//   const userId = req.params;
+//   try {
+//     const cart = await Cart.findOne(userId).populate({
+//       path: "items.productId",
+//       populate: { path: "offerId" },
+//     }).lean()//remove mongoose methods
+//     if (!cart) {
+//       return res
+//         .status(404)
+//         .json({ success: false, message: "Cart not found" });
+//     }
+
+//     //clearing unlisted products from cart
+//     cart.items = cart.items.filter((item) => item.productId.isListed);
+
+//     //check stock(cart)
+//     checkStock(cart);
+
+//     //recalculating total amount of listed products
+//     recalculateCartTotals(cart);
+//     await cart.save();
+//     let newCart = cart.toObject();
+//     const offerAvailable=newCart.items.filter((item)=>item?.productId?.offerId!=null)
+
+//     console.log('oav',offerAvailable);
+//     if(offerAvailable){
+      
+//       newCart.items = newCart.items.map((item) => {
+//         if (item.productId?.offerId) {
+//           const newDiscount=calculateDiscountPrice(item.productId)
+//           return { ...item, discount: newDiscount };
+//         }
+//         return item;
+//       });
+//       recalculateCartTotals(newCart)
+//       console.log(newCart, "newcart");
+//     }
+//    ///
+
+//     res
+//       .status(200)
+//       .json({ success: true, message: "Cart fetched", cart: newCart });
+//   } catch (error) {
+//     res
+//       .status(500)
+//       .json({ success: false, message: "Internal server error", error });
+//     console.log("error fetching cart", error.message);
+//   }
+// };

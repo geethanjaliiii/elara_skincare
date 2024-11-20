@@ -5,16 +5,20 @@ import { useCart } from "@/context/CartContext";
 import { axiosInstance } from "@/config/axiosConfig";
 import { useSelector } from "react-redux";
 import { useAddress } from "@/context/AddressContext";
+import { useNavigate } from "react-router-dom";
 
 export default function CheckoutAddress() {
   const [step, setStep] = useState("");
   const { cart, fetchCart } = useCart();
   const { addresses, fetchAddresses } = useAddress();
-
+  const navigate=useNavigate()
   useEffect(() => {
     //to refetch the newest values in addresses and cart
     fetchAddresses();
     fetchCart();
+    if(cart.items?.length==0){
+     navigate('/cart')
+    }
   }, []);
 
   const {handleDeliverHere }= useAddress();

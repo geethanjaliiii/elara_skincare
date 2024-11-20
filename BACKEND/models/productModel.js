@@ -63,10 +63,6 @@ const productSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
-  isWhitelisted:{
-    type:Boolean,
-    default:false
-  },
   reviews:[
     {
       name:{

@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query"
 import { CheckCircle2, ChevronRight, Home, Package, ShoppingCart, Timer } from "lucide-react"
 import { Link, useNavigate, useParams } from "react-router-dom"
 import { formatDeliveryDate,formatOrderDate } from "@/utils/dateFormatting"
+import { LoadingSpinner } from "@/App"
 
 export default function OrderSuccess() {
   const navigate=useNavigate()
@@ -18,8 +19,11 @@ export default function OrderSuccess() {
     queryKey:['orderDetails',orderId],
     queryFn:()=> getOrderDetails(orderId)
   })
-  if(isLoading) return <p>Loading...</p>;
-  if(error) return <p>Error loading order details.</p>
+  if(isLoading) return <LoadingSpinner/>;
+  if(error) {
+    navigate('/orders')
+    
+  } 
   console.log("data",data);
   console.log("error",error);
   

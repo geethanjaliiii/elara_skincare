@@ -123,29 +123,16 @@ const getCoupons = async (req, res) => {
 
 const applyCoupon = async (req, res) => {
   const { userId } = req.params;
-  const { code } = req.body;
+  const { code ,cartValue} = req.body;
   try {
     console.log(code);
 
-    if (!userId || !code) {
+    if (!userId || !code ||!cartValue) {
       return res
         .status(400)
         .json({ success: false, message: "Invalid input paramenters" });
     }
-    const cart = await Cart.findOne({ userId });
-    if (!cart) {
-      return res.status(404).json({ message: "Cart not found" });
-    }
-    const { totalMRP, totalAmount, totalDiscount } =
-    await recalculateCartTotals(cart);
-  let response = {
-    totalMRP,
-    totalAmount,
-    totalDiscount,
-    couponDiscount:0
-  };
-
-    if (code) {
+    
       const coupon = await Coupon.findOne({
         code: code,
         isActive: true,
@@ -165,30 +152,23 @@ const applyCoupon = async (req, res) => {
       ) {
         return res
           .status(404)
-          .json({ success: false, message: "Coupon usagelimit exceeded." });
+          .json({ success: false, message: "Coupon not applicable." });
       }
-      if (totalAmount < coupon.minPurchaseOrder) {
-        return res.status(500).json({message:`Add item worth ${coupon.minPurchaseOrder-totalAmount} to avail the coupon.`})
+      if (cartValue < coupon.minPurchaseOrder) {
+        return res.status(500).json({message:`Add item worth ${coupon.minPurchaseOrder-cartValue} to avail the coupon.`})
       }
+      //if coupon applicable send discountapplicable to frontend
         const couponDiscount =
           coupon?.discountType == "percentage"
             ? Math.min(
                 coupon.maxDiscountAmount,
-                (coupon.discountPercentage / 100) * totalAmount
+                (coupon.discountPercentage / 100) * cartValue
               )
             : coupon.discountValue;
 
-        //change discount
-        response.couponDiscount=couponDiscount
-        response.totalDiscount += couponDiscount;
-        response.totalAmount = totalMRP - totalDiscount;
-        
-      
-    }
-
     res
       .status(200)
-      .json({ success: true, message: "coupon applied", calculatedOrder:response });
+      .json({ success: true, message: "coupon applied", couponDiscount });
   } catch (error) {
     console.log("error applying code", error);
   }
@@ -251,3 +231,79 @@ async function calculateOrderAmount(cart, userId, code, res) {
     console.error("failed calculating order amount", error);
   }
 }
+// const applyCoupon = async (req, res) => {
+//   const { userId } = req.params;
+//   const { code } = req.body;
+//   try {
+//     console.log(code);
+
+//     if (!userId || !code) {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: "Invalid input paramenters" });
+//     }
+//     const cart = await Cart.findOne({ userId });
+//     if (!cart) {
+//       return res.status(404).json({ message: "Cart not found" });
+//     }
+
+//     //check offerid
+//     //if no offer send original
+//     const { totalMRP, totalAmount, totalDiscount } =
+//     await recalculateCartTotals(cart);
+//   let response = {
+//     totalMRP,
+//     totalAmount,
+//     totalDiscount,
+//     couponDiscount:0
+//   };
+// console.log('resp',response);
+
+//     if (code) {
+//       const coupon = await Coupon.findOne({
+//         code: code,
+//         isActive: true,
+//         expiryDate: { $gt: new Date() },
+//       });
+//       if (!coupon) {
+//         return res.status(404).json({ message: "Coupon Expired." });
+//       }
+//       const alreadyApplied = await UserCoupon.findOne({
+//         userId: userId,
+//         couponId: coupon._id,
+//       });
+//       if (
+//         coupon?.totalAppliedCount >= coupon.usageLimit ||
+//         (alreadyApplied &&
+//           alreadyApplied?.appliedCount >= coupon.maxUsagePerUser)
+//       ) {
+//         return res
+//           .status(404)
+//           .json({ success: false, message: "Coupon not applicable." });
+//       }
+//       if (totalAmount < coupon.minPurchaseOrder) {
+//         return res.status(500).json({message:`Add item worth ${coupon.minPurchaseOrder-totalAmount} to avail the coupon.`})
+//       }
+//         const couponDiscount =
+//           coupon?.discountType == "percentage"
+//             ? Math.min(
+//                 coupon.maxDiscountAmount,
+//                 (coupon.discountPercentage / 100) * totalAmount
+//               )
+//             : coupon.discountValue;
+
+//         //change discount
+//         response.couponDiscount=couponDiscount
+//         response.totalDiscount += couponDiscount;
+//         response.totalAmount = totalMRP - totalDiscount;
+        
+      
+//     }
+
+//     res
+//       .status(200)
+//       .json({ success: true, message: "coupon applied", calculatedOrder:response });
+//   } catch (error) {
+//     console.log("error applying code", error);
+//   }
+// };

@@ -18,12 +18,16 @@ import toast, { Toaster } from "react-hot-toast";
 import CouponModal from "../coupons/CouponModal";
 import { useApplyCouponMutation, useAvailableCoupons } from "@/hooks/admin/customHooks";
 import { useSelector } from "react-redux";
+import { useCoupon } from "@/context/CouponContext";
 
 const PriceDetails = ({ cart, step, handlePlaceOrder }) => {
   const navigate = useNavigate();
   const { checkStock, allStockOut } = useCart();
   const [open, setOpen] = useState(false);
+  const[couponDiscount,setCouponDiscount]=useState(0)
   const [couponCode, setCouponCode] = useState(''); 
+  // const { couponCode, setCouponCode, couponDiscount, setCouponDiscount } =
+  //   useCoupon();
 
   const {mutate:applyCoupon}=useApplyCouponMutation()
   const userId = useSelector((state) => state?.user?.userInfo?._id);
@@ -32,20 +36,16 @@ const PriceDetails = ({ cart, step, handlePlaceOrder }) => {
     userId
   );
 
-   // Update the couponCode state whenever the cart changes
-  //  useEffect(() => {
-  //   if (cart?.appliedCoupons?.length > 0) {
-  //     setCouponCode(cart.appliedCoupons[cart.appliedCoupons.length-1]); // Assuming only one coupon is applied
-  //   }
-  // }, [cart]);
- 
   const handleApplyCoupon = (code) => {
     // Add your coupon application logic here
     const cartValue=cart.totalAmount
    applyCoupon({userId,code,cartValue},{
-    onSuccess:()=>{
+    onSuccess:(data)=>{
       console.log('coupon applied');
       setCouponCode(code);
+      setCouponDiscount(data?.couponDiscount||0)
+     console.log(data);
+     
       toast.success(`Coupon ${code} applied successfully!`);
     },
     onError:(error)=>{
@@ -73,7 +73,9 @@ const PriceDetails = ({ cart, step, handlePlaceOrder }) => {
       }
     } else if (step === "payment") {
       if (checkStock()) {
-        handlePlaceOrder();
+        console.log('coupon code',couponCode);
+        
+        handlePlaceOrder(couponCode,couponDiscount);
       } else {
         toast.error("Stock limit exceeded!");
       }
@@ -89,7 +91,7 @@ const PriceDetails = ({ cart, step, handlePlaceOrder }) => {
             <h2 className="mb-4 text-lg font-semibold">PRICE DETAILS</h2>
             <Separator className="mb-4" />
 
-            {step !== "bag" && (
+            {step === "payment" && (
               <div className="mb-4">
                 {!couponCode  ? (
                   <Button
@@ -115,7 +117,8 @@ const PriceDetails = ({ cart, step, handlePlaceOrder }) => {
                       className="text-red-600 text-sm font-medium hover:underline"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setCouponCode(""); // Clear the coupon code
+                        setCouponCode(""); 
+                        setCouponDiscount(0)// Clear the coupon code
                       }}
                     >
                       REMOVE
@@ -132,7 +135,7 @@ const PriceDetails = ({ cart, step, handlePlaceOrder }) => {
               </div>
               <div className="flex justify-between text-green-600">
                 <span>Discount</span>
-                <span>- ₹{cart.totalDiscount.toFixed(2)}</span>
+                <span>- ₹{(couponDiscount?couponDiscount+cart.totalDiscount:cart.totalDiscount).toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span>Delivery Charges</span>
@@ -140,10 +143,10 @@ const PriceDetails = ({ cart, step, handlePlaceOrder }) => {
                   {cart.deliveryCharge ? cart.deliveryCharge : "Free"}
                 </span>
               </div>
-              <div className="flex justify-between text-green-600">
+           {couponDiscount!=0 &&<div className="flex justify-between text-green-600">
                 <span>Coupon Discount</span>
                 <span>- ₹{cart.couponDiscount.toFixed(2)}</span>
-              </div>
+              </div>}
               <div className="flex justify-between">
                 <span>Platform Fee</span>
                 <span>₹{cart.platformFee}</span>
@@ -151,10 +154,10 @@ const PriceDetails = ({ cart, step, handlePlaceOrder }) => {
               <Separator />
               <div className="flex justify-between font-semibold">
                 <span>Total Amount</span>
-                <span>₹{cart.totalAmount.toFixed(2)}</span>
+                <span>₹{(cart.totalAmount-couponDiscount).toFixed(2)}</span>
               </div>
               <div className="text-sm text-green-600">
-                You will save ₹{(cart.totalMRP - cart.totalDiscount).toFixed(2)}{" "}
+                You will save ₹{(cart.totalMRP - cart.totalDiscount+couponDiscount).toFixed(2)}{" "}
                 on this order
               </div>
             </div>

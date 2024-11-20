@@ -3,11 +3,6 @@ const mongoose = require("mongoose");
 const orderSchema = new mongoose.Schema({
   orderNumber: { type: String, unique: true, required: true },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  status: {
-    type: String,
-    enum: ["Pending", "Confirmed", "Shipped", "Delivered", "Cancelled",'Partially Cancelled'],
-    default: "Pending",
-  },
   items: [
     {
       productId: {
@@ -15,19 +10,38 @@ const orderSchema = new mongoose.Schema({
         ref: "Product",
         required: true,
       },
-      size: { type: String },
+      size: { type: String ,required:true},
       quantity: { type: Number, required: true },
       price: { type: Number, required: true }, //price per qty
+      discount:{type:Number,required:true ,
+        min: [0, "Discount cannot be negative"],
+        max: [100, "Discount cannot exceed 100%"],},
+      totalPrice:{type:Number, required:true,min:0},
       status: {
         type: String,
-        enum: ["Pending", "Confirmed", "Shipped", "Delivered", "Cancelled"],
+        enum: ["Pending", "Confirmed", "Shipped", "Delivered", "Cancelled","Returned"],
         default: "Pending",
       },
-      totalPrice: { type: Number, required: true,min:0 },//totalMrp
-      couponDiscount:{type:Number,default:0,min:0},
-      offerPrice:{type:Number,default:0,min:0},
-      finalPrice:{type:Number,default:0,min:0},
-      totalDiscount:{type:Number,min:0,default:0},
+      returnRequest:{
+        isRequested:{
+          type:Boolean,
+          default:false
+        },
+        reason:{
+          type:String,
+        },
+        comment:{
+          type:String
+        },
+        isApproved:{
+          type:Boolean,
+          default:false
+        },
+        isResponseSend:{
+          type:Boolean,
+          default:false
+        }
+      }
     },
   ],
   totalMRP: { type: Number, required: true },

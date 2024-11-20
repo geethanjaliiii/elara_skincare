@@ -5,13 +5,19 @@ import CheckoutAddress from "@/components/user/checkout/CheckoutAddress";
 import CheckoutPayment from "@/components/user/checkout/CheckoutPayment";
 import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
+import { useCart } from "@/context/CartContext";
 
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
   const[payActive,setPayActive]=useState(false)
+  const {cart}=useCart()
   
- 
+ useEffect(()=>{
+if(cart?.items?.length===0){
+navigate('/cart')
+}
+ },[cart])
   return (
     <>
     <Navbar/>

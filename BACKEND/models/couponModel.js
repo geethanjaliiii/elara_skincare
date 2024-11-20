@@ -137,7 +137,6 @@ const couponSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-    indexes: [{ code: 1 }, { isActive: 1 }, { expiryDate: 1 }],
   }
 );
 couponSchema.pre("save", function (next) {

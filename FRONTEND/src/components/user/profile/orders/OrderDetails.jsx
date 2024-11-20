@@ -107,11 +107,12 @@ export default function OrderDetails() {
                         <h3 className="font-medium">{item.productId.name}</h3>
                         <p className="text-xs">{item.size}</p>
                         <p className="font-medium">₹{item.price}</p>
+                        <p className="text-sm">quantity-{item.quantity}</p>
                         <div className="flex items-center gap-2">
                           <span className="text-sm capitalize">
                             {item.status}
                           </span>
-                          <span className="text-xs text-gray-500">
+                          <span className="text-xs text-gray-500 ">
                             ({item.status})
                           </span>
                         </div>

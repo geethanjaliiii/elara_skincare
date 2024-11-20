@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PaymentSection from "@/components/user/checkout/PaymentSection";
 import PriceDetails from "@/components/user/cart/PriceDetails";
 import { useCart } from "@/context/CartContext";
@@ -9,6 +9,11 @@ import toast, { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { usePayment } from "@/hooks/usePayment";
+import { calculateTotalPrice } from "@/utils/calculateTotalItemPrice";
+import { useCoupon } from "@/context/CouponContext";
+
+
+
 
 
 export default function CheckoutPayment() {
@@ -17,9 +22,15 @@ export default function CheckoutPayment() {
   const { cart ,allStockOut} = useCart();
   const navigate = useNavigate();
   const { shippingAddress } = useAddress();
+  // const {couponCode,couponDiscount}=useCoupon()
   
 const queryClient =useQueryClient();
 
+useEffect(()=>{
+  if(cart.items?.length==0){
+    navigate('/cart')
+   }
+},[cart])
 const placeOrder=async(orderData)=>{
   const response= await axiosInstance.post(`/api/users/orders`,orderData)
    return response.data
@@ -47,8 +58,18 @@ const orderMutation=useMutation({
 })
 const {handleRazorpayPayment}=usePayment(orderMutation,toast)
 
-const handlePlaceOrder=async()=>{
-  const items = cart.items.filter((item)=>item.inStock)
+
+const handlePlaceOrder=async(couponCode,couponDiscount)=>{
+console.log(couponCode,couponDiscount);
+
+  const items = cart.items.filter((item)=>item.inStock).map((item) => ({
+    productId: item.productId._id,
+    size: item.size,
+    quantity: item.quantity,
+    price: item.latestPrice,
+    discount:item.discount,//in %
+    totalPrice:calculateTotalPrice(item)
+  }));
   if(items.length===0){
     return toast.error("No valid products in cart.")
   }
@@ -68,11 +89,14 @@ const handlePlaceOrder=async()=>{
 
   const orderData = {
     userId,
-    // totalMRP: cart.totalMRP,
-    // totalDiscount: cart.totalDiscount,
-    // shippingFee: cart.deliveryCharge,
-    // tax: cart.platformFee,
-    totalAmount: cart.totalAmount,
+    items,
+    totalMRP: cart.totalMRP,
+    totalDiscount: (cart.totalDiscount+(couponDiscount||0)).toFixed(2),
+    shippingFee: cart.deliveryCharge,
+    couponDiscount:couponDiscount,
+    couponCode:couponCode,
+    tax: cart.platformFee,
+    totalAmount: (cart.totalAmount-(couponDiscount||0)).toFixed(2),
     shippingAddress: address,
     paymentMethod: selectedPayment,
   };
@@ -84,6 +108,7 @@ if(selectedPayment==='Razorpay'){
 }
   
 }
+
 
   return (
     <div className="grid lg:grid-cols-[1fr_400px] gap-6">

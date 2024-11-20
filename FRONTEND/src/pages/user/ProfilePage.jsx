@@ -9,6 +9,7 @@ import AddressBook from '@/components/user/profile/address/AddressBook'
 import Navbar from '@/components/shared/Navbar'
 import Footer from '@/components/shared/Footer'
 import Orders from '@/components/user/profile/orders/Orders'
+import Wallet from '@/components/user/wallet/wallet'
 
 const ProfilePage = () => {
     const [activeItem ,setActiveItem]=useState('My Profile')
@@ -50,6 +51,7 @@ const ProfilePage = () => {
                 {activeItem=='My Profile' && <ProfileForm user={user}/>}
                 {activeItem=='Address Book' && <AddressBook userId={user._id}/>}
                 {activeItem=='My Orders' &&  <Orders/>}
+                {activeItem=='Wallet' && <Wallet/>}
                </main>
         </div>
         </div>

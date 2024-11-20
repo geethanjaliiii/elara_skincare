@@ -2,7 +2,7 @@ import { Suspense, lazy } from "react";
 import { Route, Routes } from "react-router-dom";
 import { CartProvider } from "@/context/CartContext";
 import { AddressProvider } from "./context/AddressContext.jsx";
-
+import { CouponProvider } from "@/context/CouponContext";
 // Lazy load components
 //auth
 const UserSignup = lazy(() => import("./pages/user/auth/UserSignup"));
@@ -39,11 +39,12 @@ import IsAdminLogin from "./store/protect/isAdminLogin";
 import IsAdminLogout from "./store/protect/IsAdminLogout";
 import IsUserLogout from "./store/protect/IsUserLogout";
 import IsUserLogin from "./store/protect/IsUserLogin";
+import Wallet from "./components/user/wallet/wallet.jsx";
 
 
 
 // Loading component for Suspense fallback
-const LoadingSpinner = () => (
+export const LoadingSpinner = () => (
   <div className="flex items-center justify-center min-h-screen">
     <div className="w-16 h-16 border-4 border-primary border-solid rounded-full border-t-transparent animate-spin"></div>
   </div>
@@ -121,22 +122,31 @@ export default function App() {
               <IsUserLogin>
                 <AddressProvider>
                   <CartProvider>
+                    <CouponProvider>
                     <CartPage />
+                    </CouponProvider>
+                   
                   </CartProvider>
                 </AddressProvider>
               </IsUserLogin>
             }
           />
-
+          
           <Route
             path="/checkout/*"
             element={
               <IsUserLogin>
+                <CouponProvider>
                 <AddressProvider>
+                
                   <CartProvider>
-                    <CheckoutPage />
+                 
+                  <CheckoutPage />
+                  
                   </CartProvider>
+                
                 </AddressProvider>
+                </CouponProvider>
               </IsUserLogin>
             }
           />
@@ -150,6 +160,14 @@ export default function App() {
                     <Orders />
                   </CartProvider>
                 </AddressProvider>
+              </IsUserLogin>
+            }
+          />
+          <Route
+            path="/wallet"
+            element={
+              <IsUserLogin>
+               <Wallet/>
               </IsUserLogin>
             }
           />

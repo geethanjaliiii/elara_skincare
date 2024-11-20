@@ -91,7 +91,7 @@ console.log(couponCode,couponDiscount);
     userId,
     items,
     totalMRP: cart.totalMRP,
-    totalDiscount: (cart.totalDiscount+(couponDiscount||0)).toFixed(2),
+    totalDiscount: (cart.totalDiscount).toFixed(2),
     shippingFee: cart.deliveryCharge,
     couponDiscount:couponDiscount,
     couponCode:couponCode,

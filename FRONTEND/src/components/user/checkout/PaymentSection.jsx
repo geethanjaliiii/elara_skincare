@@ -14,10 +14,10 @@ export default function PaymentSection({selectedPayment,setSelectedPayment}) {
         <CardTitle>Select Payment Method</CardTitle>
       </CardHeader>
       <CardContent>
-        <OfferBanner />
+        {/* <OfferBanner /> */}
         <RadioGroup value={selectedPayment} onValueChange={setSelectedPayment} className="space-y-2">
           <PaymentOption value="Cash on Delivery" icon={Banknote} label="Cash On Delivery (Cash/UPI)" />
-          <PaymentOption value="Credit Card" icon={CreditCard} label="Credit/Debit Card" offers="4 Offers" />
+          {/* <PaymentOption value="Credit Card" icon={CreditCard} label="Credit/Debit Card" offers="4 Offers" /> */}
           <PaymentOption value="PayPal" icon={Building2} label="PayPal" />
           <PaymentOption value="Wallet" icon={Wallet} label="Wallets" offers="2 Offers" />
           <PaymentOption value="Razorpay" icon={Building2} label="Razorpay" />
@@ -28,19 +28,19 @@ export default function PaymentSection({selectedPayment,setSelectedPayment}) {
   );
 }
 
-function OfferBanner() {
-  return (
-    <div className="mb-6 flex items-center gap-2 rounded-lg border p-4">
-      <BadgePercent className="h-5 w-5 text-primary" />
-      <div>
-        <h3 className="font-semibold">Bank Offer</h3>
-        <p className="text-sm text-muted-foreground">
-          7.5% Instant Discount up to ₹750 on every spend with Myntra Kotak Credit Card.
-        </p>
-      </div>
-    </div>
-  );
-}
+// function OfferBanner() {
+//   return (
+//     <div className="mb-6 flex items-center gap-2 rounded-lg border p-4">
+//       <BadgePercent className="h-5 w-5 text-primary" />
+//       <div>
+//         <h3 className="font-semibold">Bank Offer</h3>
+//         <p className="text-sm text-muted-foreground">
+//           7.5% Instant Discount up to ₹750 on every spend with Myntra Kotak Credit Card.
+//         </p>
+//       </div>
+//     </div>
+//   );
+// }
 
 function PaymentOption({ value, icon: Icon, label, offers }) {
   return (

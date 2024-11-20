@@ -6,119 +6,6 @@ const {Coupon ,UserCoupon}=require('../../models/couponModel')
 const generateOrderNumber = require("../../utils/generateOrderNumber");
 const recalculateCartTotals = require("../../utils/services/recalculateCartTotals");
 
-// const placeOrder = async (req, res) => {
-//   try {
-//     const {
-//       userId,
-//       // items,
-//       // totalMRP,
-//       // totalDiscount,
-//       // shippingFee,
-//       // tax,
-//       // totalAmount,
-//       shippingAddress,
-//       paymentMethod,
-//       transactionId,
-//     } = req.body;
-//     console.log("placing order");
-
-//     if (!userId || !shippingAddress) {
-//       return res
-//         .status(404)
-//         .json({ success: false, message: "required fields are missing" });
-//     }
-// //check coupon validity
-//     const orderNumber = await generateOrderNumber();
-//     console.log("order number", orderNumber);
-
-//     const orderDate = new Date(); //date object
-//     const deliveryDays = 7;
-//     const expectedDeliveryDate = new Date(orderDate);
-//     expectedDeliveryDate.setDate(orderDate.getDate() + deliveryDays);
-
-//     const cartExist = await Cart.findOne({ userId });
-//     //check stock for each product in the order
-//     for (const item of cartExist.items) {
-//       const product = await Product.findById(item.productId);
-//       if (!product) {
-//         throw new Error(`Product with id ${item.productId} not found`);
-//       }
-//       const size = product.sizes.find((size) => size.size === item.size);
-//       if (!size || size.stock < item.quantity) {
-//         throw new Error(
-//           `Insufficient stock for product: ${product.name}, size: ${item.size}`
-//         );
-//       }
-//       //Reduce stock
-//       size.stock -= item.quantity;
-//       //save product with stock reduction
-//       await product.save();
-//       //remove item from cart
-//     }
-//     const orderItems = cartExist.items.map((item) => ({
-//       productId: item.productId,
-//       size: item.size,
-//       quantity: item.quantity,
-//       price: item.latestPrice,
-//       totalPrice: item.itemTotal,
-//       // offerDiscount: item.itemOfferDiscount,
-//       // couponDiscount: item.itemCouponDiscount,
-//       // finalPrice: item.finalPrice,
-//     }));
-//     //create new order
-//     const order = new Order({
-//       orderNumber,
-//       userId,
-//       items: orderItems,
-//       totalMRP:cartExist.totalMRP,
-//       totalDiscount:cartExist.totalDiscount,
-//       shippingFee:cartExist.deliveryCharge,
-//       tax:cartExist.platformFee,
-//       totalAmount:cartExist.totalAmount,
-//       shippingAddress,
-//       paymentMethod,
-//       couponDiscount:cartExist.couponDiscount,
-//       couponCode:cartExist.appliedCoupons[0],
-//       transactionId: transactionId ? transactionId : "",
-//       paymentStatus: paymentMethod === "Cash on Delivery" ? "Unpaid" : "Paid",
-//       orderDate,
-//       expectedDeliveryDate,
-//       activityLog: [{ status: "Order Placed", changedAt: orderDate }],
-//     });
-
-//     await order.save();
-//     //REMOVE ORDERED ITEMS FROM CART
-//     const cart = await Cart.findOneAndUpdate(
-//       { userId },
-//       {
-//         $pull: {
-//           items: {
-//             $or: orderItems.map((orderItem) => ({
-//               productId: orderItem.productId,
-//               size: orderItem.size,
-//             })),
-//           },
-//         },
-//       }
-//     );
-//     if (cart) {
-//       //SAVE CART WITH NEW VALUES
-//       recalculateCartTotals(cart);
-//       await cart.save();
-//     }
-
-//     res.status(201).json({
-//       success: true,
-//       message: "ORDER PLACED SUCCESSFULLY",
-//       orderId: orderNumber,
-//     });
-//   } catch (error) {
-//     console.log("error placing order", error);
-//     res
-//       .status(500)
-//       .json({ message: "Failed to place order", error: error.message });
-//   }
-// };
 const placeOrder = async (req, res) => {
   try {
     const {
@@ -285,7 +172,7 @@ const cancelOrder = async (req, res) => {
   try {
     const order = await Order.findOne({ orderNumber: orderId });
     if (!order) {
-      return res.status(404).json({ succees: false, error: "Order not found" });
+      return res.status(404).json({ success: false, error: "Order not found" });
     }
     const item = order.items.find((item) => item._id.equals(itemId));
     if (!item) {
@@ -295,7 +182,7 @@ const cancelOrder = async (req, res) => {
       return res.status(400).json({ error: "item already cancelled" });
     }
 
-    //update order records
+   if(order.paymentMethod=='Cash on Delivery'){
     const updatedOrder = await Order.findOneAndUpdate(
       { orderNumber: orderId },
 
@@ -309,6 +196,14 @@ const cancelOrder = async (req, res) => {
       },
       { arrayFilters: [{ "elem._id": itemId }], new: true }
     );
+   }else{
+
+    //update order records
+    //if payment mod not cashon delivery payemnt status to refunded and 
+    //update calculate amount to be refunded of the particular item 
+    //save to wallet schema
+   }
+   
 
     //increase stock
     const product = await Product.findOneAndUpdate(

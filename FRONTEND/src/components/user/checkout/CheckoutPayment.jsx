@@ -10,105 +10,137 @@ import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { usePayment } from "@/hooks/usePayment";
 import { calculateTotalPrice } from "@/utils/calculateTotalItemPrice";
-import { useCoupon } from "@/context/CouponContext";
-
-
-
-
+import { useQuery } from "@tanstack/react-query";
+import { fetchWallet } from "@/services/wallet";
 
 export default function CheckoutPayment() {
   const [selectedPayment, setSelectedPayment] = useState("");
-  const userId = useSelector((state) => state?.user?.userInfo?._id);
-  const { cart ,allStockOut} = useCart();
+  const user = useSelector((state) => state?.user?.userInfo);
+  const userId=user._id
+  const name=user.name
+ 
+  const { cart, allStockOut } = useCart();
   const navigate = useNavigate();
   const { shippingAddress } = useAddress();
   // const {couponCode,couponDiscount}=useCoupon()
-  
-const queryClient =useQueryClient();
 
-useEffect(()=>{
-  if(cart.items?.length==0){
-    navigate('/cart')
-   }
-},[cart])
-const placeOrder=async(orderData)=>{
-  const response= await axiosInstance.post(`/api/users/orders`,orderData)
-   return response.data
- }
+  const queryClient = useQueryClient();
+  const {
+    data: wallet,
+    isLoading: walletLoading,
+    error: walletError,
+  } = useQuery({
+    queryKey: ["wallet", userId],
+    queryFn: () => fetchWallet(userId),
+    enabled: selectedPayment === "Wallet",
+  });
 
-const orderMutation=useMutation({
-  mutationFn:placeOrder,
-  onSuccess:(data)=>{
-    if(data?.orderId){
-      toast.success("Order placed successfully!.")
-      console.log(data.orderId);
+  function checkLimit(amount) {
+    if (selectedPayment == "Wallet") {
+      //if no wallet it should be diabled
+      //if wallet balance less than amount
+      if (!wallet) {
+        return true;
+      } else if (wallet.balance < amount) {
+        return true;
+      }
+    }
+    return false;
+  }
 
-      //Invalidate 'orderDetails to refetch fresh data
-      queryClient.invalidateQueries(['orderDetails',data.orderId]);
+  useEffect(() => {
+    if (cart.items?.length == 0) {
+      navigate("/cart");
+    }
+  }, [cart]);
+  const placeOrder = async (orderData) => {
+    const response = await axiosInstance.post(`/api/users/orders`, orderData);
+    return response.data;
+  };
+
+  const orderMutation = useMutation({
+    mutationFn: placeOrder,
+    onSuccess: (data) => {
+      if (data?.orderId) {
+        toast.success("Order placed successfully!.");
+        console.log(data.orderId);
+
+        //Invalidate 'orderDetails to refetch fresh data
+        queryClient.invalidateQueries(["orderDetails", data.orderId]);
 
         navigate(`/checkout/success/${data.orderId}`);
-    }
-    console.log(data);
-  },
-  onError:(error)=>{
-    const errorMessage=error?.response?.data?.error||'Ordet not placed.Please try again.'
-    toast.error(errorMessage)
-  
-  }
-})
-const {handleRazorpayPayment}=usePayment(orderMutation,toast)
-
-
-const handlePlaceOrder=async(couponCode,couponDiscount)=>{
-console.log(couponCode,couponDiscount);
-
-  const items = cart.items.filter((item)=>item.inStock).map((item) => ({
-    productId: item.productId._id,
-    size: item.size,
-    quantity: item.quantity,
-    price: item.latestPrice,
-    discount:item.discount,//in %
-    totalPrice:calculateTotalPrice(item)
-  }));
-  if(items.length===0){
-    return toast.error("No valid products in cart.")
-  }
-
-  const address = shippingAddress
-    ? {
-        fullName: shippingAddress.fullname,
-        phone: shippingAddress.phone,
-        email: shippingAddress.email,
-        addressLine: shippingAddress.addressLine,
-        city: shippingAddress.city,
-        state: shippingAddress.state,
-        pincode: shippingAddress.pincode,
-        landmark: shippingAddress.landmark,
       }
-    : {};
+      console.log(data);
+    },
+    onError: (error) => {
+      const errorMessage =
+        error?.response?.data?.error || "Ordet not placed.Please try again.";
+      toast.error(errorMessage);
+    },
+  });
+  const { handleRazorpayPayment } = usePayment(orderMutation, toast);
 
-  const orderData = {
-    userId,
-    items,
-    totalMRP: cart.totalMRP,
-    totalDiscount: (cart.totalDiscount).toFixed(2),
-    shippingFee: cart.deliveryCharge,
-    couponDiscount:couponDiscount,
-    couponCode:couponCode,
-    tax: cart.platformFee,
-    totalAmount: (cart.totalAmount-(couponDiscount||0)).toFixed(2),
-    shippingAddress: address,
-    paymentMethod: selectedPayment,
+  const handlePlaceOrder = async (couponCode, couponDiscount) => {
+    console.log(couponCode, couponDiscount);
+
+    const totalAmount = cart.totalAmount - (couponDiscount || 0);
+    if (selectedPayment==='Wallet' && checkLimit(totalAmount)) {
+      if (!wallet) {
+        return toast.error("Please activate your Wallet.");
+      } else if (wallet.balance < totalAmount) {
+        return toast.error("Insufficient wallet balance.");
+      }
+    }
+
+    const items = cart.items
+      .filter((item) => item.inStock)
+      .map((item) => ({
+        productId: item.productId._id,
+        name:item.productId.name,
+        size: item.size,
+        quantity: item.quantity,
+        price: item.latestPrice,
+        discount: item.discount, //in %
+        totalPrice: calculateTotalPrice(item),
+      }));
+    if (items.length === 0) {
+      return toast.error("No valid products in cart.");
+    }
+
+    const address = shippingAddress
+      ? {
+          fullName: shippingAddress.fullname,
+          phone: shippingAddress.phone,
+          email: shippingAddress.email,
+          addressLine: shippingAddress.addressLine,
+          city: shippingAddress.city,
+          state: shippingAddress.state,
+          pincode: shippingAddress.pincode,
+          landmark: shippingAddress.landmark,
+        }
+      : {};
+
+    const orderData = {
+      userId,
+      customerName:name,
+      items,
+      totalMRP: cart.totalMRP,
+      totalDiscount: cart.totalDiscount.toFixed(2),
+      shippingFee: cart.deliveryCharge,
+      couponDiscount: couponDiscount,
+      couponCode: couponCode,
+      tax: cart.platformFee,
+      totalAmount: (cart.totalAmount - (couponDiscount || 0)).toFixed(2),
+      shippingAddress: address,
+      paymentMethod: selectedPayment,
+    };
+    console.log("orderdata", orderData);
+    if (selectedPayment === "Razorpay") {
+      await handleRazorpayPayment(orderData);
+    } else {
+      orderMutation.mutate(orderData);
+    }
   };
-  console.log("orderdata", orderData);
-if(selectedPayment==='Razorpay'){
-  await handleRazorpayPayment(orderData)
-}else{
-  orderMutation.mutate(orderData)
-}
-  
-}
-
 
   return (
     <div className="grid lg:grid-cols-[1fr_400px] gap-6">
@@ -116,15 +148,18 @@ if(selectedPayment==='Razorpay'){
       <PaymentSection
         selectedPayment={selectedPayment}
         setSelectedPayment={setSelectedPayment}
+        wallet={wallet}
+        walletLoading={walletLoading}
+        walletError={walletError}
       />
-      {!allStockOut() &&   <PriceDetails
-        cart={cart}
-        step={"payment"}
-        handlePlaceOrder={handlePlaceOrder}
-      />}
-    
+      {!allStockOut() && (
+        <PriceDetails
+          cart={cart}
+          step={"payment"}
+          handlePlaceOrder={handlePlaceOrder}
+          checkLimit={checkLimit}
+        />
+      )}
     </div>
   );
 }
-
-

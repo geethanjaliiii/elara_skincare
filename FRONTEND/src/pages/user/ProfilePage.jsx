@@ -51,7 +51,7 @@ const ProfilePage = () => {
                 {activeItem=='My Profile' && <ProfileForm user={user}/>}
                 {activeItem=='Address Book' && <AddressBook userId={user._id}/>}
                 {activeItem=='My Orders' &&  <Orders/>}
-                {activeItem=='Wallet' && <Wallet/>}
+                {activeItem=='Wallet' && <Wallet  />}
                </main>
         </div>
         </div>

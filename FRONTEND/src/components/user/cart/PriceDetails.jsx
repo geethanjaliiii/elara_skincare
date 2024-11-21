@@ -18,16 +18,14 @@ import toast, { Toaster } from "react-hot-toast";
 import CouponModal from "../coupons/CouponModal";
 import { useApplyCouponMutation, useAvailableCoupons } from "@/hooks/admin/customHooks";
 import { useSelector } from "react-redux";
-import { useCoupon } from "@/context/CouponContext";
 
-const PriceDetails = ({ cart, step, handlePlaceOrder }) => {
+
+const PriceDetails = ({ cart, step, handlePlaceOrder,checkLimit}) => {
   const navigate = useNavigate();
   const { checkStock, allStockOut } = useCart();
   const [open, setOpen] = useState(false);
   const[couponDiscount,setCouponDiscount]=useState(0)
   const [couponCode, setCouponCode] = useState(''); 
-  // const { couponCode, setCouponCode, couponDiscount, setCouponDiscount } =
-  //   useCoupon();
 
   const {mutate:applyCoupon}=useApplyCouponMutation()
   const userId = useSelector((state) => state?.user?.userInfo?._id);
@@ -41,7 +39,7 @@ const PriceDetails = ({ cart, step, handlePlaceOrder }) => {
     const cartValue=cart.totalAmount
    applyCoupon({userId,code,cartValue},{
     onSuccess:(data)=>{
-      console.log('coupon applied');
+      console.log('coupon applied',code,data?.couponDiscount);
       setCouponCode(code);
       setCouponDiscount(data?.couponDiscount||0)
      console.log(data);
@@ -135,7 +133,7 @@ const PriceDetails = ({ cart, step, handlePlaceOrder }) => {
               </div>
               <div className="flex justify-between text-green-600">
                 <span>Discount</span>
-                <span>- ₹{(couponDiscount?couponDiscount+cart.totalDiscount:cart.totalDiscount).toFixed(2)}</span>
+                <span>- ₹{(cart.totalDiscount).toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span>Delivery Charges</span>
@@ -145,7 +143,7 @@ const PriceDetails = ({ cart, step, handlePlaceOrder }) => {
               </div>
            {couponDiscount!=0 &&<div className="flex justify-between text-green-600">
                 <span>Coupon Discount</span>
-                <span>- ₹{cart.couponDiscount.toFixed(2)}</span>
+                <span>- ₹{couponDiscount.toFixed(2)}</span>
               </div>}
               <div className="flex justify-between">
                 <span>Platform Fee</span>
@@ -167,7 +165,7 @@ const PriceDetails = ({ cart, step, handlePlaceOrder }) => {
                 className="mt-6 w-full"
                 size="lg"
                 onClick={handleClick}
-                disabled={allStockOut()}
+                disabled={allStockOut()||(step === "payment" && checkLimit(cart.totalAmount-couponDiscount))}
               >
                 {step === "address" ? "CONTINUE" : "PLACE ORDER"}
               </Button>

@@ -10,6 +10,7 @@ const { placeOrder, getOrderDetails ,getAllOrders,cancelOrder} = require('../con
 const { createOrder, verifyPayment } = require('../controllers/user/paymentController')
 const { getCoupons, applyCoupon } = require('../controllers/user/couponController')
 const {addToWishlist,removeFromWishlist,getWishlist} = require("../controllers/user/wishlistController");
+const { fetchWallet } = require('../controllers/user/walletController')
 const userRoute = express()
 
 
@@ -70,5 +71,6 @@ userRoute.post('/:userId/coupons',authenticateToken,applyCoupon)
 userRoute.post("/add", authenticateToken,addToWishlist);
   userRoute.post("/remove",authenticateToken, removeFromWishlist);
   userRoute.get("/:userId",authenticateToken, getWishlist)
-
+//wallet
+userRoute.get('/wallet/:userId',authenticateToken,fetchWallet)
 module.exports = userRoute

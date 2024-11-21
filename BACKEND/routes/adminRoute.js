@@ -8,6 +8,7 @@ const authenticateAdminToken = require('../middlewares/admin/adminAuthMiddleware
 const { getOrders, cancelOrder, updateStatus } = require('../controllers/admin/OrderController')
 const { createCoupon, deleteCoupon, showCoupons } = require('../controllers/admin/couponController')
 const {fetchProducts,createProductoffer, createCategoryoffer,fetchOffers, listedCategories}=require('../controllers/admin/offerController')
+const fetchSalesData = require('../controllers/admin/salesController')
 const adminRoute = express()
 
 //customers
@@ -45,6 +46,8 @@ adminRoute.get('/coupons',authenticateAdminToken,showCoupons)
 adminRoute.get('/offers',authenticateAdminToken,fetchOffers)
 adminRoute.post('/offers/products',authenticateAdminToken,createProductoffer)
 adminRoute.post('/offers/categories',authenticateAdminToken,createCategoryoffer)
-
 adminRoute.get('/offers/products',authenticateAdminToken,fetchProducts)
+
+//sales
+adminRoute.get('/sales',authenticateAdminToken,fetchSalesData)
 module.exports = adminRoute

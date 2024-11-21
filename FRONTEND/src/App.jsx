@@ -40,6 +40,7 @@ import IsAdminLogout from "./store/protect/IsAdminLogout";
 import IsUserLogout from "./store/protect/IsUserLogout";
 import IsUserLogin from "./store/protect/IsUserLogin";
 import Wallet from "./components/user/wallet/wallet.jsx";
+import SalesReport from "./components/admin/sales/salesReport.jsx";
 
 
 
@@ -230,7 +231,7 @@ export default function App() {
             <Route path="coupons" element={<Coupons/>}/>
             <Route path="offers" element={<OfferManagement/>}/>
             <Route path="coupons/add" element={<AddCoupon/>}/>
-            <Route path="sales" element={<div>Sales Content</div>} />
+            <Route path="sales" element={<SalesReport/>} />
             <Route path="settings" element={<div>Settings Content</div>} />
           </Route>
         </Routes>

@@ -100,7 +100,7 @@ export function OrderItem({ order }) {
     onSuccess: (data) => {
       toast.success("Order cancelled");
       console.log("order cancelled", data);
-
+    
       queryClient.invalidateQueries(["orders"]);
       queryClient.invalidateQueries(["userOrders"], order.userId);
       queryClient.invalidateQueries(["orderDetails"], order.orderNumber);
@@ -136,7 +136,7 @@ export function OrderItem({ order }) {
               className="flex items-center space-x-2 justify-between"
             >
               <img
-                src={item.productId.images[0]}
+                src={item.productId?.images[0]}
                 alt={item.productId.name}
                 className="h-20 w-20 object-cover rounded p-2"
               />
@@ -152,7 +152,7 @@ export function OrderItem({ order }) {
                 >
                   <SelectTrigger className="w-[150px] ">
                     <SelectValue>
-                      <Badge
+                      <Badge 
                         className={`${
                           statusColors[statusMap[item._id]]
                         } text-white`}
@@ -179,11 +179,16 @@ export function OrderItem({ order }) {
           ))}
         </TableCell>
         <TableCell>
-          <Badge
-            className={`${paymentStatusColors[order.paymentStatus]} text-white`}
+        {order.items.map((item)=>(
+          <div >
+            <Badge key={item._id}
+            className={`${paymentStatusColors[item.paymentStatus]} text-white my-5`}
           >
-            {order.paymentStatus}
+            {item.paymentStatus}
           </Badge>
+          </div>
+        ))}
+          
         </TableCell>
         <TableCell className="text-right">
           ₹{order.totalAmount}

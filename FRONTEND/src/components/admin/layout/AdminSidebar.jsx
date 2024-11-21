@@ -17,7 +17,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     { name: 'Dashboard', path: '/dashboard', icon: <FiHome /> },
     { name: 'Products', path: '/admin/dashboard/products', icon: <FiShoppingCart /> },
     { name: 'Customers', path: '/admin/dashboard/customers', icon: <FaUsers /> },
-    { name: 'Sales', path: '/analytics', icon: <FaChartLine /> },
+    { name: 'Sales', path: '/admin/dashboard/sales', icon: <FaChartLine /> },
     { name: 'Order List', path: '/admin/dashboard/orders', icon: <FaClipboardList /> },
     { name: 'Coupons', path: '/admin/dashboard/coupons', icon: <FaTags /> },
     {name:'offers',path:'/admin/dashboard/offers' ,icon:<FiPercent/> },

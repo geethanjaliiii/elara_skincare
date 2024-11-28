@@ -1,9 +1,10 @@
 const mongoose=require('mongoose');
 const { wishlist } = require('validator');
+const { type } = require('../utils/validation/addressValidation');
 
 const wishlistSchema = new mongoose.Schema(
   {
-    user: {
+    userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "user",
       required: true,
@@ -23,6 +24,21 @@ const wishlistSchema = new mongoose.Schema(
           type: Date,
           default: Date.now,
         },
+        price:{
+          type:Number,
+          required:true,
+        },
+        
+        discount:{
+          type:Number,
+          required:true,
+          min:0,
+          max:99
+        },
+        inStock:{
+          type:Boolean,
+          default:true
+        }
       },
     ],
   },
@@ -31,6 +47,6 @@ const wishlistSchema = new mongoose.Schema(
   }
 );
 
-const Wishlist = mongoose.model("wishlist", wishlistSchema);
+const Wishlist = mongoose.model("Wishlist", wishlistSchema);
 
 module.exports =Wishlist

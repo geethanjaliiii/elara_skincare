@@ -10,6 +10,7 @@ import Navbar from '@/components/shared/Navbar'
 import Footer from '@/components/shared/Footer'
 import Orders from '@/components/user/profile/orders/Orders'
 import Wallet from '@/components/user/wallet/wallet'
+import Coupons from '@/components/user/coupons/Coupons'
 
 const ProfilePage = () => {
     const [activeItem ,setActiveItem]=useState('My Profile')
@@ -52,6 +53,7 @@ const ProfilePage = () => {
                 {activeItem=='Address Book' && <AddressBook userId={user._id}/>}
                 {activeItem=='My Orders' &&  <Orders/>}
                 {activeItem=='Wallet' && <Wallet  />}
+                {activeItem=='Coupons' && <Coupons/>}
                </main>
         </div>
         </div>

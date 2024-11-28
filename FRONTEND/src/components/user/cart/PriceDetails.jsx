@@ -138,7 +138,7 @@ const PriceDetails = ({ cart, step, handlePlaceOrder,checkLimit}) => {
               <div className="flex justify-between">
                 <span>Delivery Charges</span>
                 <span className="">
-                  {cart.deliveryCharge ? cart.deliveryCharge : "Free"}
+                  {cart.deliveryCharge >0? cart.deliveryCharge : "Free"}
                 </span>
               </div>
            {couponDiscount!=0 &&<div className="flex justify-between text-green-600">
@@ -155,7 +155,7 @@ const PriceDetails = ({ cart, step, handlePlaceOrder,checkLimit}) => {
                 <span>₹{(cart.totalAmount-couponDiscount).toFixed(2)}</span>
               </div>
               <div className="text-sm text-green-600">
-                You will save ₹{(cart.totalMRP - cart.totalDiscount+couponDiscount).toFixed(2)}{" "}
+                You will save ₹{(cart.totalMRP - cart.totalDiscount-couponDiscount).toFixed(2)}{" "}
                 on this order
               </div>
             </div>

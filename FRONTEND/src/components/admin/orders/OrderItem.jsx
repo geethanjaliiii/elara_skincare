@@ -13,6 +13,9 @@ import { DeleteWarningModal } from "@/components/shared/DeleteWarningModal";
 import { adminAxiosInstance } from "@/config/axiosConfig";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { Button } from "@/components/ui/button";
+import { AlertCircle } from 'lucide-react'
+import { Modal } from "@/components/shared/Modal";
 // import { cancelOrder } from "@/services/orderService";
 
 const paymentStatusColors = {
@@ -30,11 +33,12 @@ const statusColors = {
 //array of all status
 const statusOrder = Object.keys(statusColors);
 
-export function OrderItem({ order }) {
+export function OrderItem({ order,onApproveReturn,onDeclineReturn }) {
   // State to manage status for each item individually
-  const [isModalOpen, setIsmodalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalData, setModalData] = useState(null);
   const queryClient = useQueryClient();
-
+const[returnModalOpen,setReturnModalOpen]=useState(false)
   const [itemToCancel, setItemToCancel] = useState(null);
   const [statusMap, setStatusMap] = useState(
     order.items.reduce((acc, item) => {
@@ -42,7 +46,21 @@ export function OrderItem({ order }) {
       return acc;
     }, {})
   );
-
+ //open modal
+  const openModal=(item,orderId)=>{
+    setReturnModalOpen(true);
+    setModalData({
+      reason: item.returnRequest.reason,
+      comment: item.returnRequest.comment,
+      orderId: orderId,
+      itemId: item._id,
+    })
+  }
+  // Close Modal
+  const closeModal = () => {
+    setModalData(null);
+    setReturnModalOpen(false);
+  };
   // Handler to update status for a specific item
   const handleStatusChange = (itemId, newStatus) => {
     console.log(newStatus);
@@ -194,7 +212,68 @@ export function OrderItem({ order }) {
           ₹{order.totalAmount}
         </TableCell>
         <TableCell>
-          <OrderActionsDropdown />
+          {order.items.map((item)=>(item.returnRequest.isRequested && !item.returnRequest.isResponseSend && 
+            <AlertCircle 
+            key={item._id}
+             className="cursor-pointer text-warning"
+            onClick={()=>openModal(item,order._id)}/>
+          ) )}
+          <Modal isOpen={returnModalOpen} onClose={closeModal}>
+            {modalData && (<>
+              <h2 className="text-lg font-bold">Return Details</h2>
+              <p>
+                <strong>Reason:</strong> {modalData.reason}
+              </p>
+              <p>
+                <strong>Comment:</strong>{" "}
+                {modalData.comment || "No comment provided"}
+              </p>
+
+              {/* Approve and Decline Buttons */}
+              <div className="flex space-x-4 mt-4">
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    onApproveReturn(modalData.orderId, modalData.itemId);
+                    closeModal(); // Close modal after action
+                  }}
+                >
+                  Approve
+                </Button>
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={() => {
+                    onDeclineReturn(modalData.orderId, modalData.itemId);
+                    closeModal(); // Close modal after action
+                  }}
+                >
+                  Decline
+                </Button>
+              </div>
+              </>)}
+          </Modal>
+        {/* {order.items.map((item) => (
+          item.returnRequest.isRequested && !item.returnRequest.isResponseSend && (
+
+            <div key={item._id} className="flex space-x-2">
+              <Button
+                size="sm"
+                onClick={() => onApproveReturn(order._id,item._id)}
+              >
+                Approve
+              </Button>
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={() => onDeclineReturn(order._id,item._id)}
+              >
+                Decline
+              </Button>
+            </div>
+          )
+        ))} */}
+          {/* <OrderActionsDropdown /> */}
         </TableCell>
       </TableRow>
 

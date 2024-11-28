@@ -25,22 +25,7 @@ const CartItem = ({ cartItems, updateQuantity, removeItem }) => {
    
   }
 
-  // const handleQtyChange=(id,newQty)=>{
-  //   const item=cartItems.find((item)=>item._id===id)
-  //   console.log("item",item);
-    
-  //   const selectedSize=item.productId.sizes.find((size)=>size.size===item.size)
-  //   console.log(selectedSize);
-    
-    
-  //   if(newQty<=selectedSize.stock && newQty<=item.maxQtyPerUser){
-  //    updateQuantity(id,newQty)
-  //   }else{
-  //    toast.error('Stock limit exceeded')
-  //   }
-    
-  //  }
-  //fetch items
+
 
   return (
     <div className="space-y-6">

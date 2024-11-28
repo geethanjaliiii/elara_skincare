@@ -14,7 +14,7 @@ import {
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
   const menuItems = [
-    { name: 'Dashboard', path: '/dashboard', icon: <FiHome /> },
+    { name: 'Dashboard', path: '/admin/dashboard', icon: <FiHome /> },
     { name: 'Products', path: '/admin/dashboard/products', icon: <FiShoppingCart /> },
     { name: 'Customers', path: '/admin/dashboard/customers', icon: <FaUsers /> },
     { name: 'Sales', path: '/admin/dashboard/sales', icon: <FaChartLine /> },

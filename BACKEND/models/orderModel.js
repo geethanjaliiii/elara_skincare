@@ -15,6 +15,7 @@ const orderSchema = new mongoose.Schema({
       size: { type: String, required: true },
       quantity: { type: Number, required: true },
       price: { type: Number, required: true }, //price per qty
+      totalMRP:{type:Number,required:true},
       discount: {
         type: Number,
         required: true,
@@ -34,6 +35,7 @@ const orderSchema = new mongoose.Schema({
         ],
         default: "Pending",
       },
+      deliveryDate:{type:Date},
       paymentStatus: {
         type: String,
         enum: ["Pending", "Paid", "Unpaid", "Refunded", "Failed"],
@@ -98,7 +100,9 @@ const orderSchema = new mongoose.Schema({
   },
   transactionId: { type: String },
   orderDate: { type: Date, default: Date.now },
+ 
   expectedDeliveryDate: { type: Date },
+  createdAt:{type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
   activityLog: [
     { status: { type: String }, changedAt: { type: Date, default: Date.now } },

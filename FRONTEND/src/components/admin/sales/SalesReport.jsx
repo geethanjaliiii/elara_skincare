@@ -34,21 +34,7 @@ import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { Download } from "lucide-react";
-// Dummy data
-// const dummyOrders = Array.from({ length: 50 }, (_, i) => ({
-//   id: `${i + 1}`,
-//   customer: `Customer ${i + 1}`,
-//   date: `2023-06-${(i % 30 + 1).toString().padStart(2, '0')}`,
-//   items: [
-//     {
-//       product: `Product ${i + 1}`,
-//       quantity: Math.floor(Math.random() * 5) + 1,
-//       unitPrice: parseFloat((Math.random() * 100 + 10).toFixed(2)),
-//       couponDiscount: parseFloat((Math.random() * 10).toFixed(2)),
-//       otherDiscount: parseFloat((Math.random() * 5).toFixed(2)),
-//     },
-//   ],
-// }))
+
 
 export default function SalesReport() {
   const [filterType, setFilterType] = useState("daily");

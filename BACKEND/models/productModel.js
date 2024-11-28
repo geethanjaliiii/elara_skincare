@@ -23,7 +23,7 @@ const productSchema = new mongoose.Schema({
     type: Number,
     required: true,
     min: [0, "Discount cannot be negative"],
-    max: [100, "Discount cannot exceed 100%"],
+    max: [90, "Discount cannot exceed 90%"],
   },
   offerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Offer', default: null },
   skinType: {

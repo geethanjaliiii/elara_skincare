@@ -9,11 +9,14 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import FilterSheet from './FilterSheets'
 import { ChevronRight, Package, Search } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { getAllOrders } from '@/services/orderService'
 import { toast } from 'react-hot-toast'
 import { Link, useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
+import { usePayment } from '@/hooks/usePayment'
+import { retryPayment } from '@/services/razorpay'
+import { format } from "date-fns";
 
 const RatingDialog = React.lazy(() => import('@/components/shared/RatingDialouge'))
 
@@ -21,7 +24,10 @@ export default function Orders() {
   const userId = useSelector((state) => state?.user?.userInfo?._id)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedStatuses,setSelectedStatuses]=useState([])
+  const queryClient =useQueryClient()
   const navigate =useNavigate()
+
+  //fetch orderdata
   const { data, error, isLoading } = useQuery({
     queryKey: ['userOrders'],
     queryFn: () => getAllOrders(userId),
@@ -30,6 +36,38 @@ export default function Orders() {
 
   if (isLoading) (<div>Loading</div>)
   if (error) toast.error("Error loading orders")
+
+//handle retry payment
+const orderMutation=useMutation({
+  mutationFn:retryPayment,
+  onSuccess:(data)=>{
+   
+    toast.success("Payment Completed")
+    //Invalidate 'orderDetails to refetch fresh data
+    queryClient.invalidateQueries(['orders'])
+    queryClient.invalidateQueries(["orderDetails", data.orderId]);
+    queryClient.invalidateQueries(["userOrders",data.userId]);
+    // navigate(`/checkout/success/${data.orderId}`);
+  },
+  onError:(error)=>{
+    const errorMessage =
+        error?.response?.data?.message ||"Payment Failed"
+      toast.error(errorMessage);
+  }
+})
+
+//with retry payment
+const {handleRazorpayPayment}=usePayment(orderMutation,toast)
+
+//calling retry function
+const handleRetryPayment=(order)=>{
+  console.log("trying retry payment with ",order);
+  
+  handleRazorpayPayment(
+    order,
+    order._id,
+  )
+}
     const FilterContent = () => (
       <div className="space-y-4 px-1">
         <div>
@@ -97,12 +135,19 @@ export default function Orders() {
                     <div className="bg-muted p-4">
                       <div className="flex justify-between items-center">
                         <div>
-                          <p className="font-semibold">Order #{order.orderNumber}</p>
+                          
                           <p className="text-sm text-muted-foreground">
-                            Placed on {new Date(order.orderDate).toLocaleDateString()}
+                            Placed on {new Date(order.expectedDeliveryDate).toLocaleDateString()}
                           </p>
                         </div>
+                        <div>
+                        {order?.paymentStatus=='Failed' &&
+                         <Button 
+                         className="w-20 bg-orange-700"
+                         onClick={()=>handleRetryPayment(order)}>PAY</Button>}
+                      
                         <p className="font-semibold">Total: ₹{order.totalAmount}</p>
+                        </div>
                       </div>
                     </div>
                     <div className="divide-y" >
@@ -121,16 +166,19 @@ export default function Orders() {
                               {product.size && <span>Size: {product.size}</span>}
                             </div>
                             <div className="mt-2 flex items-center justify-between gap-2">
-                              <Badge
+                              <span><Badge
                                 variant="secondary"
                                 className={`${
-                                  product.status === 'delivered' ? 'bg-green-500' : 
-                                  product.status === 'cancelled' ? 'bg-red-500' : 
+                                  product.status === 'Delivered' ? 'bg-green-500' : 
+                                  product.status === 'Cancelled' ? 'bg-red-500' : 
                                   'bg-blue-500'
                                 } text-white`}
                               >
-                                {product.status}
+                                
+                                {product.status} 
                               </Badge>
+                               {product.status=='Delivered' && <> on { new Date(product.deliveryDate).toLocaleDateString()}</>}
+                                {['Pending','Confirmed','Shipped'].includes(product.status) && <> on {new Date(order.expectedDeliveryDate).toLocaleDateString()}</>}</span>
                               <p className="font-medium">₹{product.price}</p>
                             </div>
                             <div className="mt-2 flex justify-between items-center">

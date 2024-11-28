@@ -15,6 +15,7 @@ const ViewProduct = ({ product }) => {
   const [sizes, setSizes] = useState([]);
   const [selectedSize, setSelectedSize] = useState({});
   const [addCart, setAddCart] = useState(false);
+  const[inWishlist,setInWishlist]=useState(false)
   const userId = useSelector((state) => state?.user?.userInfo?._id);
   const [cartItem, setCartItem] = useState({});
 
@@ -79,7 +80,8 @@ const ViewProduct = ({ product }) => {
 
   async function whishlistProduct() {
     try {
-      await addToWishlist(product._id,selectedSize.size)
+    const response=  await addToWishlist(product._id,selectedSize.size,userId)
+    setInWishlist(response.data.inWishlist)
       toast.success("Product added to whishlist")
     } catch (error) {
       console.error("Error adding product to whishlist");
@@ -157,6 +159,8 @@ const ViewProduct = ({ product }) => {
             totalStock={product.totalStock}
             handleCart={handleCart}
             onAdded={addCart}
+            whishlistProduct={whishlistProduct}
+            inWishlist={inWishlist}
           />
           <ProductDetails {...product} />
           <div className="block md:hidden">
@@ -175,3 +179,4 @@ const ViewProduct = ({ product }) => {
 };
 
 export default ViewProduct;
+

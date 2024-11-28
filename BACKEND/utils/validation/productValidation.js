@@ -14,8 +14,13 @@ const productSchema = Joi.object({
     "string.empty": "Ingredient is required.",
     "any.required": "Ingredient is required.",
   }),
-  price: Joi.number().required().messages({
+  price: Joi.number().required()
+  .min(0)
+  .max(90).
+  messages({
     "number.base": "Price must be a number.",
+    'number.min': 'Offer value cannot be less than 0.',
+      'number.max': 'Offer value cannot exceed 90.',
     "any.required": "Price is required.",
   }),
   discount: Joi.number().required().messages({

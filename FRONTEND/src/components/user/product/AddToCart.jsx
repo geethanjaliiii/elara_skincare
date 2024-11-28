@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Heart, Minus, Plus, ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-const AddToCart = ({ totalStock ,handleCart,onAdded,whishlistProduct}) => {
+const AddToCart = ({ totalStock ,handleCart,onAdded,whishlistProduct,inWishlist}) => {
   
   const navigate=useNavigate()
   return (
@@ -23,7 +23,7 @@ const AddToCart = ({ totalStock ,handleCart,onAdded,whishlistProduct}) => {
 
       {/* Wishlist Button */}
       <button
-        className="p-3 rounded-full border border-gray-300 hover:border-red-500 transition duration-200"
+        className={`p-3 rounded-full border border-gray-3001 ${inWishlist}:border-red-500 transition duration-200`}
         aria-label="Add to Wishlist"
         onClick={whishlistProduct}
       >

@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { Heart, Minus, Plus, ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useWishlist } from "@/hooks/useWishlist";
+import { useSelector } from "react-redux";
 
-const AddToCart = ({ totalStock ,handleCart,onAdded,whishlistProduct,inWishlist}) => {
-  
+const AddToCart = ({ totalStock ,handleCart,onAdded,whishlistProduct,isWishlisted}) => {
+ 
   const navigate=useNavigate()
   return (
     <div className="flex items-center space-x-6 p-4 mt-4 ">
@@ -23,11 +25,12 @@ const AddToCart = ({ totalStock ,handleCart,onAdded,whishlistProduct,inWishlist}
 
       {/* Wishlist Button */}
       <button
-        className={`p-3 rounded-full border border-gray-3001 ${inWishlist}:border-red-500 transition duration-200`}
+        // className={`${isWishlisted}?`}
+        // className={`p-3 rounded-full border border-gray-3001 ${isWishlisted}:border-red-500 transition duration-200`}
         aria-label="Add to Wishlist"
         onClick={whishlistProduct}
       >
-        <Heart className="w-5 h-5 text-red-500" />
+         <Heart className={`h-5 w-5 ${isWishlisted ? 'fill-red-500 text-red-500' : 'text-gray-500'}`} />
       </button>
     </div>
   );

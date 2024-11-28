@@ -22,7 +22,7 @@ import { useSelector } from "react-redux";
 
 const PriceDetails = ({ cart, step, handlePlaceOrder,checkLimit}) => {
   const navigate = useNavigate();
-  const { checkStock, allStockOut } = useCart();
+  const { checkStock, allStockOut, fetchCart} = useCart();
   const [open, setOpen] = useState(false);
   const[couponDiscount,setCouponDiscount]=useState(0)
   const [couponCode, setCouponCode] = useState(''); 
@@ -59,18 +59,21 @@ const PriceDetails = ({ cart, step, handlePlaceOrder,checkLimit}) => {
   const handleClick = () => {
     if (step === "bag") {
       if (checkStock()) {
+        fetchCart()
         navigate("/checkout/address");
       } else {
         toast.error("Stock limit exceeded!");
       }
     } else if (step === "address") {
       if (checkStock()) {
+        fetchCart()
         navigate("/checkout/payment");
       } else {
         toast.error("Stock limit exceeded!");
       }
     } else if (step === "payment") {
       if (checkStock()) {
+        fetchCart()
         console.log('coupon code',couponCode);
         
         handlePlaceOrder(couponCode,couponDiscount);

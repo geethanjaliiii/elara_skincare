@@ -17,10 +17,10 @@ const cartItemSchema =new mongoose.Schema({
         required:true,
         min:1
     },
-    priceAtAddition:{
-        type:Number,
-        required:true
-    },
+    // priceAtAddition:{
+    //     type:Number,
+    //     required:true
+    // },
     latestPrice:{
         type:Number,
         required:true
@@ -53,37 +53,6 @@ const CartSchema = new mongoose.Schema({
         type:Number,
         default:3
     },
-    // totalItems:{
-    //     type:Number,
-    //     default:0
-    // },
-    // totalMRP:{
-    //     type:Number,
-    //     default:0
-    // },
-    // totalAmount:{
-    //     type:Number,
-    //     default:0,
-    //     min:[0,'Total amount cannot be negative'],
-    // },
-    // totalDiscount:{
-    //    type:Number,
-    //    default:0,
-    //    min:[0,'Discount cannot be negative'],
-    // },
-    // appliedCoupons:{
-    //     type:Array,
-    //     default:[]
-    // },
-    // couponDiscount:{
-    //   type:Number,
-    //   default:0
-    // },
-   
-    // deliveryCharge:{
-    //     type:Number,
-    //     default:0
-    // }
 },
 {
     timestamps:true

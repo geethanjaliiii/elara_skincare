@@ -13,6 +13,7 @@ import { calculateTotalPrice } from "@/utils/calculateTotalItemPrice";
 import { useQuery } from "@tanstack/react-query";
 import { fetchWallet } from "@/services/wallet";
 import { roundToTwo } from "@/utils/roundToTwo";
+import { calculateDiscountPrice } from "@/utils/calculateDiscountPrice";
 
 export default function CheckoutPayment() {
   const [selectedPayment, setSelectedPayment] = useState("");
@@ -102,7 +103,9 @@ export default function CheckoutPayment() {
         size: item.size,
         quantity: item.quantity,
         price: item.latestPrice,
-        discount: item.discount, //in %
+        discount: item.discount, //in %,
+        couponDiscountPrice:calculateDiscountPrice(cart,item,couponDiscount).itemCouponDiscount,
+        offerDiscountPrice:calculateDiscountPrice(cart,item,couponDiscount).offerDiscount,
         totalMRP:item.latestPrice*item.quantity,
         totalPrice: calculateTotalPrice(cart,item,couponDiscount),
       }));

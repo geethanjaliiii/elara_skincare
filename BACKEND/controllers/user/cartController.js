@@ -5,6 +5,7 @@ const recalculateCartTotals = require("../../utils/services/recalculateCartTotal
 const { message } = require("../../utils/validation/addressValidation");
 const calculateDiscountPrice = require("../../utils/services/calculateDiscountPrice");
 const checkStock = require("../../utils/services/checkStock");
+const { fetchLatestPrice } = require("../../utils/services/fetchLatestPrice");
 
 
 
@@ -77,12 +78,15 @@ const showCart = async (req, res) => {
         .json({ success: false, message: "Cart not found" });
     }
 
+   
     //filtering only necessary items to disply total amount
     cart.items=cart.items.reduce((acc,item)=>{
       //skip if product is not listed
       if(!item?.productId?.isListed) return acc
       //check stock and mark item status
       item.inStock=checkStock(item);
+      item.latestPrice=fetchLatestPrice(item)
+      item.discount=item.productId.discount
       acc.push(item)
       return acc
     },[])

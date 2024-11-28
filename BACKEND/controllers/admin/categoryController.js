@@ -142,12 +142,18 @@ const showCategory = async (req, res) => {
   }
 };
 
-
+const fetchBestCategories=async(req,res)=>{
+  try {
+      
+  } catch (error) {
+      
+  }
+}
 module.exports = {
   addCategory,
   showCategories,
   editCategory,
   listCategory,
   showCategory, 
- 
+ fetchBestCategories
 };

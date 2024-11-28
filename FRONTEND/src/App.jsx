@@ -22,9 +22,9 @@ const AddCoupon =lazy(()=>import("./components/admin/coupons/addCoupons.jsx")) ;
 const AdminOrders = lazy(() => import("./components/admin/orders/Orders"));
 const OfferManagement=lazy(()=>import('./components/admin/offers/OfferManagement.jsx'))
 //users
-const LandingPage = lazy(() => import("./pages/user/LandingPage"));
+import LandingPage from "./pages/user/LandingPage.jsx";
+import ShopPage from "./pages/user/ShopPage.jsx";
 const ProductPage = lazy(() => import("./pages/user/ProductPage"));
-const ShopPage = lazy(() => import("./pages/user/ShopPage"));
 const ProfilePage = lazy(() => import("./pages/user/ProfilePage"));
 const CartPage = lazy(() => import("./pages/user/cartPage"));
 const CheckoutPage = lazy(() => import("./pages/user/CheckoutPage"));
@@ -33,7 +33,7 @@ const Orders = lazy(() => import("./components/user/profile/orders/Orders"));
 const OrderDetailsPage = lazy(() => import("./pages/user/OrderDetailsPage"));
 const ErrorPage = lazy(() => import("./pages/404page"));
 const ForgetPasswordPage = lazy(() => import("./pages/user/auth/ForgetPasswordPage"));
-
+const WishlistPage=lazy(()=>import('./pages/user/WishlistPage.jsx'))
 // Import protection components normally since they're lightweight
 import IsAdminLogin from "./store/protect/isAdminLogin";
 import IsAdminLogout from "./store/protect/IsAdminLogout";
@@ -41,6 +41,7 @@ import IsUserLogout from "./store/protect/IsUserLogout";
 import IsUserLogin from "./store/protect/IsUserLogin";
 import Wallet from "./components/user/wallet/wallet.jsx";
 import SalesReport from "./components/admin/sales/salesReport.jsx";
+import Dashboard from "./components/admin/dashboard/Dashboard.jsx";
 
 
 
@@ -132,7 +133,11 @@ export default function App() {
               </IsUserLogin>
             }
           />
-          
+          <Route
+          path="/wishlist"
+          element={<IsUserLogin>
+            <WishlistPage/>
+          </IsUserLogin>}/>
           <Route
             path="/checkout/*"
             element={
@@ -219,7 +224,7 @@ export default function App() {
               </IsAdminLogin>
             }
           >
-            <Route index element={<div>DASHBOARD CONTENT</div>} />
+            <Route index element={<Dashboard/>} />
             <Route path="products" element={<Products />} />
             <Route path="products/add" element={<AddProduct />} />
             <Route path="products/edit" element={<EditProduct />} />

@@ -1,18 +1,26 @@
 import { initiateRazorpayPayment } from "../services/razorpay";
 
 export const usePayment =(orderMutation,toast)=>{
-    const handleRazorpayPayment=async(orderData)=>{
+    const handleRazorpayPayment=async(orderData,orderId)=>{
+        console.log("orderdata in hook",orderData,orderId);
+        
+        //initialize payment
         await initiateRazorpayPayment({
             orderData,
+            orderId,
             onSuccess:(finalOrderData)=>{
+                //call api to place order or retry
              orderMutation.mutate(finalOrderData);
             },
             onError:(error)=>{
                 toast.error(error.message ||'payment failed.please try again.')
-            }
+            },
+            
         })
     }
     return {
     handleRazorpayPayment
     }
 }
+
+

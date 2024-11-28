@@ -6,13 +6,13 @@ const walletSchema = new mongoose.Schema(
     balance: { type: Number, default: 0 },
     transactionHistory: [
       {
-        transactionId: { type: String, unique: true, required: true },
+        transactionId: { type: String, unique: true,  },
         type: {
           type: String,
           enum: ["credit", "debit", "refund"],
           required: true,
         },
-        amount: { type: Number, required: true },
+        amount: { type: Number, required: true ,min:0},
         description: { type: String },
         orderId: { type: mongoose.Schema.Types.ObjectId, ref: "Order" },
         status: {

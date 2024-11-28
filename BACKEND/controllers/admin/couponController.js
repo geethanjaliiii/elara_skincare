@@ -64,11 +64,25 @@ const showCoupons=async(req,res)=>{
         res.status(500).json({success:false,message:"Failed to fetch coupons"})
     }
 }
-const deleteCoupon=async(req,res)=>{
+
+const changeCouponStatus=async(req,res)=>{
+    const {couponId}=req.params
+    if(!couponId){
+        return res.status(400).json({success:false,message:"Coupon status changed"})
+    }
     try {
-        
+        const coupon = await Coupon.findById(couponId);
+        if (!coupon) {
+          return res.status(404).json({ success: false, message: "Coupon not found" });
+        }
+    
+        coupon.isActive = !coupon.isActive; // Toggle the status
+        await coupon.save();
+    
+        res.status(200).json({ success: true, message: "Coupon status changed", coupon });
+  
     } catch (error) {
-        
+        res.status(200).json({success:false,message:"failed to change status"})
     }
 }
-module.exports={createCoupon,deleteCoupon,showCoupons}
+module.exports={createCoupon,showCoupons,changeCouponStatus}

@@ -36,6 +36,7 @@ const addToCart = async (req, res) => {
     }
     const productExist = cartExist.items.find(
       (item) => item.productId.equals(productId) && item.size === size
+      && item.productId.isListed
     );
     if (productExist) {
       console.log("product  exist in cart");
@@ -49,14 +50,12 @@ const addToCart = async (req, res) => {
       console.log("product dont exist in cart");
       cartExist.items.push(product);
     }
-    //recalculating total amounts
-    recalculateCartTotals(cartExist);
-
+    //saving cart items
     await cartExist.save();
+    
     res.status(200).json({
       success: true,
       message: "product added to cart",
-      cart: cartExist,
       isAdded: true,
     });
   } catch (error) {
@@ -78,6 +77,7 @@ const showCart = async (req, res) => {
         .json({ success: false, message: "Cart not found" });
     }
 
+    //filtering only necessary items to disply total amount
     cart.items=cart.items.reduce((acc,item)=>{
       //skip if product is not listed
       if(!item?.productId?.isListed) return acc
@@ -86,39 +86,17 @@ const showCart = async (req, res) => {
       acc.push(item)
       return acc
     },[])
-    //recalculating total amount of listed products
-    recalculateCartTotals(cart);
-
-    //saving cart to database
-    await cart.save();
+    await cart.save()
+   
     const frontendCart = JSON.parse(JSON.stringify(cart));
-    const hasOffer=frontendCart.items.some((item)=>item?.productId?.offerId)
-
-    console.log('has offer',hasOffer);
-    if(hasOffer){
-      //apply offer discount
-      frontendCart.items = frontendCart.items.map((item) => {
-        if (item.productId?.offerId) {
-          const offerDiscount=calculateDiscountPrice(item.productId)
-          return { ...item, discount: offerDiscount };
-        }
-        return item;
-      });
-
       //recalculate totals with offer discount
      const finalFrontendCart= recalculateCartTotals(frontendCart)
       console.log(finalFrontendCart, "final frontend cart with offers");
 
       return res.status(200).json({success:true, message:'Cart updated with oferdiscount',cart:finalFrontendCart})
     }
-   //if no offers available
-
-console.log("no offers avilable for products in cart");
-
-   return res
-      .status(200)
-      .json({ success: true, message: "Cart fetched cart without any offers", cart: frontendCart });
-  } catch (error) {
+  
+   catch (error) {
     res
       .status(500)
       .json({ success: false, message: "Internal server error", error });
@@ -177,19 +155,14 @@ const updateCart = async (req, res) => {
     } else {
       item.inStock = true;
     }
-    //recalculating amount with new values
-    recalculateCartTotals(cart);
-
+  
     await cart.save();
+    
     let newCart = cart.toObject();
-    newCart.items = newCart.items.map((item) => {
-      if (item.productId?.offerId) {
-        return { ...item, discount: calculateDiscountPrice(item.productId) };
-      }
-      return item;
-    });
-    console.log(newCart, "newcart");
-    res.status(200).json({ success: true, message: "Quantity updated", cart:newCart });
+      //recalculating amount with new values
+      const frontendCart=  recalculateCartTotals(newCart);
+   
+    res.status(200).json({ success: true, message: "Quantity updated", cart:frontendCart });
   } catch (error) {
     console.log("error in cart updation", error);
 
@@ -216,23 +189,20 @@ const removeItem = async (req, res) => {
       { $pull: { items: { _id: itemId } } },
       { new: true }
     ).populate({path:"items.productId",populate:{path:'offerId'}});
-    //recalculatetotals
-    recalculateCartTotals(updatedCart);
-
+    
     await updatedCart.save();
+   
+
+    
     console.log(updatedCart);
     
     let newCart = updatedCart.toObject();
-    newCart.items = newCart.items.map((item) => {
-      if (item.productId?.offerId) {
-        return { ...item, discount: calculateDiscountPrice(item.productId) };
-      }
-      return item;
-    });
-    console.log(newCart, "newcart");
+     //recalculatetotals
+     const frontendCart=recalculateCartTotals(newCart);
+  
     res
       .status(200)
-      .json({ success: true, message: "Cart item removed", cart: newCart });
+      .json({ success: true, message: "Cart item removed", cart: frontendCart });
   } catch (error) {
     console.log("error removing item", error);
     res.status(500).json({ success: false, message: "Internal server error" });

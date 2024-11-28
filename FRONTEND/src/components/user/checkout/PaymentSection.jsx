@@ -14,6 +14,7 @@ import {
 import { useSelector } from "react-redux";
 import { useQuery } from "@tanstack/react-query";
 import { fetchWallet } from "@/services/wallet";
+import { Link } from "react-router-dom";
 
 export default function PaymentSection({
   selectedPayment,
@@ -48,7 +49,7 @@ export default function PaymentSection({
             value="Wallet"
             icon={Wallet}
             label="Wallets"
-            offers="2 Offers"
+            // offers="2 Offers"
           />
          {selectedPayment === "Wallet" && wallet && !walletLoading && (
             <div className="text-green-600 text-sm ml-4">
@@ -62,7 +63,7 @@ export default function PaymentSection({
 
           {selectedPayment === "Wallet" && walletError && (
             <div className="text-red-600 text-sm ml-4">
-              Error loading wallet balance
+             PLease activate your {<Link to="/wallet" className="text-red-600 text-sm  underline">Wallet.</Link>}
             </div>
           )}
           <PaymentOption value="Razorpay" icon={Building2} label="Razorpay" />

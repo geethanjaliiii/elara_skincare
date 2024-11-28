@@ -5,21 +5,23 @@ const razorpay =require('../../config/razorpayConfig')
 const crypto =require('crypto')
 
 const createOrder= async(req,res)=>{
-    const {amount}=req.body
+    const {amount,orderId}=req.body
 try {
+    console.log(amount,'amounyt');
+    
     if(!amount){
         return res.status(400).json({success:false,message:"Amount is required!"})
     }
     console.log("creating order payment");
     
     const options={
-        amount:amount*100,//conver to paisa,
+        amount:Math.round(amount*100),//conver to paisa,
         currency:'INR',
         receipt:`ela_rcptid_${Math.floor(Math.random*1000)}`,
         payment_capture:1
     }
     const order=await razorpay.orders.create(options);
-    console.log("payment createed order",order);
+    console.log("payment created order",order);
     
     if(!order){
         return res.status(500).json({success:false,message:'Failed to create Razorpay order.'})
@@ -57,4 +59,31 @@ const verifyPayment =async(req,res)=>{
     }
 }
 
-module.exports={createOrder,verifyPayment}
+const retryPayment=async(req,res)=>{
+    const {orderId}=req.params
+    const {amount}=req.body
+    if(!orderId || !amount ){
+        return res.status(400).json({success:false,message:"Invalid input parameters for retry payment"})
+    }
+    try {
+      const order=  await Order.findById(orderId)
+      if(!order){
+        return res.status(404).json({success:false,message:"Order not found"})
+      }
+      if(order.paymentStatus!='Failed'){
+        return  res.status(400).json({ success: false, message: "Only failed payments can be retried" });
+      }
+        // Create new Razorpay order
+        const razorpayOrder = await razorpay.orders.create({
+            amount: Math.round(order.totalAmount * 100), // Convert to paise
+            currency: "INR",
+            receipt: `retry_${orderId}`,
+        });
+         // Send Razorpay order details to the frontend
+         res.json({ success: true, order: razorpayOrder });
+    } catch (error) {
+        console.error("Retry payment failed", error);
+        res.status(500).json({ success: false, message: "Retry payment failed" });
+    }
+}
+module.exports={createOrder,verifyPayment,retryPayment}

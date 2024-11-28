@@ -25,6 +25,18 @@ export const cancelOrder=async(orderId,itemId)=>{
     const response=await axiosInstance.patch(`api/users/orders/${orderId}/items/${itemId}`)
     return response.data.order
 }
+
+export const sendReturnRequest=async(requestData)=>{
+    console.log("req data",requestData);
+    
+    try {
+        const response=await axiosInstance.put('/api/users/orders/return',requestData)
+        return response.data
+    } catch (error) {
+        console.error("return req sending failed",error);
+        throw new Error("Return request not sent.")
+    }
+}
 //*********************admin*********************** */
 export const changeStatus = async (orderId, itemId, newStatus) => {
     const response = await adminAxiosInstance.patch(

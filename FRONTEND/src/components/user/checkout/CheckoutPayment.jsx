@@ -33,6 +33,7 @@ export default function CheckoutPayment() {
     queryKey: ["wallet", userId],
     queryFn: () => fetchWallet(userId),
     enabled: selectedPayment === "Wallet",
+    retry:false
   });
 
   function checkLimit(amount) {
@@ -101,7 +102,8 @@ export default function CheckoutPayment() {
         quantity: item.quantity,
         price: item.latestPrice,
         discount: item.discount, //in %
-        totalPrice: calculateTotalPrice(item),
+        totalMRP:item.latestPrice*item.quantity,
+        totalPrice: calculateTotalPrice(cart,item,couponDiscount),
       }));
     if (items.length === 0) {
       return toast.error("No valid products in cart.");

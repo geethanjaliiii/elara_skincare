@@ -6,11 +6,12 @@ const {showProfile,editProfile}=require('../controllers/user/userController')
 const authenticateToken =require('../middlewares/user/authMiddleware')
 const {addAddress,showAddresses, editAddress, deleteAddress}=require('../controllers/user/addressController')
 const { addToCart, showCart, updateCart, removeItem, checkProduct } = require('../controllers/user/cartController')
-const { placeOrder, getOrderDetails ,getAllOrders,cancelOrder} = require('../controllers/user/orderController')
-const { createOrder, verifyPayment } = require('../controllers/user/paymentController')
-const { getCoupons, applyCoupon } = require('../controllers/user/couponController')
+const { placeOrder, getOrderDetails ,getAllOrders,cancelOrder, changePaymentStatus, sendReturnRequest} = require('../controllers/user/orderController')
+const { createOrder, verifyPayment, retryPayment } = require('../controllers/user/paymentController')
+const { getCoupons, applyCoupon, getAllCoupons } = require('../controllers/user/couponController')
 const {addToWishlist,removeFromWishlist,getWishlist} = require("../controllers/user/wishlistController");
 const { fetchWallet } = require('../controllers/user/walletController')
+
 const userRoute = express()
 
 
@@ -54,23 +55,26 @@ userRoute.delete('/:userId/cart/:itemId',authenticateToken,removeItem)
 userRoute.get('/:userId/cart/check',authenticateToken,checkProduct)
 //order
 userRoute.post('/orders',authenticateToken,placeOrder)
+userRoute.put('/orders/return',authenticateToken,sendReturnRequest)
 userRoute.get('/orders/:orderId',authenticateToken,getOrderDetails)
 userRoute.get('/:userId/orders',authenticateToken,getAllOrders)
 userRoute.patch('/orders/:orderId/items/:itemId',authenticateToken,cancelOrder)
-// userRoute.put('/orders/:orderId')
+userRoute.put('/orders/:orderId/status',authenticateToken,changePaymentStatus)
 
 //payment
 userRoute.post('/payment/create-order',authenticateToken,createOrder)
 userRoute.post('/payment/verify-payment',authenticateToken,verifyPayment)
+userRoute.post('/payment/:orderId/retry-payment',authenticateToken,retryPayment)
 
 //coupons
+userRoute.get('/coupons',authenticateToken,getAllCoupons)
 userRoute.get('/:userId/coupons',authenticateToken,getCoupons )
 userRoute.post('/:userId/coupons',authenticateToken,applyCoupon)
 
 //wishlist
-userRoute.post("/add", authenticateToken,addToWishlist);
-  userRoute.post("/remove",authenticateToken, removeFromWishlist);
-  userRoute.get("/:userId",authenticateToken, getWishlist)
+userRoute.post("/wishlist/:userId", authenticateToken,addToWishlist);
+  userRoute.delete("/:userId/wishlist/:itemId",authenticateToken, removeFromWishlist);
+  userRoute.get("/wishlist/:userId",authenticateToken, getWishlist)
 //wallet
 userRoute.get('/wallet/:userId',authenticateToken,fetchWallet)
 module.exports = userRoute

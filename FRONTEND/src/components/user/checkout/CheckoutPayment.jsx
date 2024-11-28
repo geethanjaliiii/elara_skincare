@@ -12,6 +12,7 @@ import { usePayment } from "@/hooks/usePayment";
 import { calculateTotalPrice } from "@/utils/calculateTotalItemPrice";
 import { useQuery } from "@tanstack/react-query";
 import { fetchWallet } from "@/services/wallet";
+import { roundToTwo } from "@/utils/roundToTwo";
 
 export default function CheckoutPayment() {
   const [selectedPayment, setSelectedPayment] = useState("");
@@ -127,12 +128,12 @@ export default function CheckoutPayment() {
       customerName:name,
       items,
       totalMRP: cart.totalMRP,
-      totalDiscount: cart.totalDiscount.toFixed(2),
+      totalDiscount: cart.totalDiscount,
       shippingFee: cart.deliveryCharge,
       couponDiscount: couponDiscount,
       couponCode: couponCode,
       tax: cart.platformFee,
-      totalAmount: (cart.totalAmount - (couponDiscount || 0)).toFixed(2),
+      totalAmount:roundToTwo( Math.max((cart.totalAmount - (couponDiscount || 0)),0)),
       shippingAddress: address,
       paymentMethod: selectedPayment,
     };

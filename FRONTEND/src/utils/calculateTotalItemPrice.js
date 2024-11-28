@@ -6,6 +6,7 @@
 //     const itemDeliveryCharge=cart.deliveryCharge/cart.items.length
 //     return totalMRP-itemDiscount-itemCouponDiscount+itemTax+itemDeliveryCharge
 //   }
+const roundToTwo = (num) => Number((Math.round(num * 100) / 100).toFixed(2));
 export const calculateTotalPrice=(cart,item,couponDiscount=0)=>{
   const totalMRP=item.latestPrice*item.quantity
   const itemDiscount=(item.discount*totalMRP)/100
@@ -13,5 +14,6 @@ export const calculateTotalPrice=(cart,item,couponDiscount=0)=>{
   const itemTax=(totalMRP/cart.totalMRP)*cart.platformFee
   const itemDeliveryCharge=(totalMRP/cart.totalMRP)*cart.deliveryCharge
   console.log(couponDiscount)
-  return totalMRP-itemDiscount-itemCouponDiscount+itemTax+itemDeliveryCharge
+ const maxTotalPrice=Math.max((totalMRP-itemDiscount-itemCouponDiscount+itemTax+itemDeliveryCharge),0)
+ return roundToTwo(maxTotalPrice)
 }

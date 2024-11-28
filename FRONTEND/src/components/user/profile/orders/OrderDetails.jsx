@@ -141,7 +141,7 @@ console.log(data)
                       <div className="flex flex-col">
                         <h3 className="font-medium">{item.productId.name}</h3>
                         <p className="text-xs">{item.size}</p>
-                        <p className="font-medium">₹{item.price}</p>
+                        <p className="font-medium">₹{item.totalPrice}</p>
                         <p className="text-sm">quantity-{item.quantity}</p>
 
                         <div className="flex items-center gap-2">

@@ -179,7 +179,7 @@ const handleRetryPayment=(order)=>{
                               </Badge>
                                {product.status=='Delivered' && <> on { new Date(product.deliveryDate).toLocaleDateString()}</>}
                                 {['Pending','Confirmed','Shipped'].includes(product.status) && <> on {new Date(order.expectedDeliveryDate).toLocaleDateString()}</>}</span>
-                              <p className="font-medium">₹{product.price}</p>
+                              <p className="font-medium">₹{product.totalPrice}</p>
                             </div>
                             <div className="mt-2 flex justify-between items-center">
                               {product.status !== 'cancelled' ? (

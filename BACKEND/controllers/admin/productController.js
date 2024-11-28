@@ -171,6 +171,8 @@ const editProduct = async (req, res) => {
   const { name, categoryId, updatedUrls,deletedImages } = req.body;
 
 //validate body
+console.log("product is editing..");
+
   const { error } = productSchema.validate(req.body);
   if (error) {
     const errorMessages = error.details.map((err) => err.message);

@@ -8,36 +8,14 @@ import { useSelector } from 'react-redux';
 import { LoadingSpinner } from '@/App';
 import { ProductCard } from './ProductCard';
 import { EmptyWishlist } from './EmptyWishlist';
+import { useWishlist } from '@/hooks/useWishlist';
 
 
 
 const Wishlist = () => {
   const userId = useSelector((state) => state?.user?.userInfo?._id);
-  const queryClient = useQueryClient();
-  const {
-    data: wishlistData,
-    isLoading,
-    isError
-  } = useQuery({
-    queryKey: ['wishlist', userId],
-    queryFn: () => getWishlist({ userId }),
-    enabled: !!userId,
-    staleTime: 30000, // Consider data fresh for 30 seconds
-    cacheTime: 300000, // Keep data in cache for 5 minutes
-    retry: 1, // Only retry failed requests twice
-    refetchOnWindowFocus: false, // Prevent refetch on window focus
-  });
+  const {wishlistData,isLoading,}=useWishlist(userId);
 
-  const mutation=useMutation({
-    mutationFn:({itemId})=>removeFromWishlist({userId,itemId}),
-    onSuccess:()=>{
-      queryClient.invalidateQueries(['wishlist',userId])
-    },
-    onError:(error)=>{console.log("error removing item from wishlist",error)}
-  })
- async function handleRemoveFromWishlist(itemId) {
-  mutation.mutate({itemId})
- } 
   if (!userId) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4">
@@ -85,14 +63,14 @@ const Wishlist = () => {
           
           {hasItems && (
             <div className="flex items-center space-x-4">
-              <button className="flex items-center space-x-2 text-gray-600 hover:text-gray-800">
+              {/* <button className="flex items-center space-x-2 text-gray-600 hover:text-gray-800">
                 <Filter size={20} />
                 <span className="hidden sm:inline">Filter</span>
-              </button>
-              <button className="flex items-center space-x-2 text-gray-600 hover:text-gray-800">
+              </button> */}
+              {/* <button className="flex items-center space-x-2 text-gray-600 hover:text-gray-800">
                 <ShoppingBag size={20} />
                 <span className="hidden sm:inline">Move all to Bag</span>
-              </button>
+              </button> */}
             </div>
           )}
         </div>
@@ -100,7 +78,7 @@ const Wishlist = () => {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {hasItems ? (
             wishlistData.items.map((item) => (
-              <ProductCard key={item._id} item={item} handleRemove={handleRemoveFromWishlist}/>
+              <ProductCard key={item._id} item={item} />
             ))
           ) : (
             <EmptyWishlist />

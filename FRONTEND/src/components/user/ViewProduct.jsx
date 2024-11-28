@@ -9,16 +9,27 @@ import Breadcrumbs from "./product/Breadcrumbs";
 import { axiosInstance } from "@/config/axiosConfig";
 import { useSelector } from "react-redux";
 import toast, { Toaster } from "react-hot-toast";
-import { addToWishlist } from "@/services/wishlist";
+import { useWishlist } from "@/hooks/useWishlist";
+
 
 const ViewProduct = ({ product }) => {
   const [sizes, setSizes] = useState([]);
   const [selectedSize, setSelectedSize] = useState({});
   const [addCart, setAddCart] = useState(false);
-  const[inWishlist,setInWishlist]=useState(false)
+  // const[inWishlist,setInWishlist]=useState(false)
   const userId = useSelector((state) => state?.user?.userInfo?._id);
   const [cartItem, setCartItem] = useState({});
+  
+  const {wishlistData,toggleWishlist}=useWishlist(userId);
+console.log("wish",wishlistData);
 
+const isWishlisted =
+wishlistData?.items?.some(
+  (item) =>
+    item.productId._id === product._id && item.size === selectedSize.size
+) ?? false;
+  console.log(isWishlisted,'isWishlisted');
+  
   useEffect(() => {
     if (product.sizes && product.sizes.length > 0) {
       setSizes(product.sizes);
@@ -37,7 +48,6 @@ const ViewProduct = ({ product }) => {
 
   const handleSizeSelect = async (size) => {
     console.log(size);
-
     try {
       const response = await axiosInstance.get(
         `/api/users/${userId}/cart/check`,
@@ -60,7 +70,7 @@ const ViewProduct = ({ product }) => {
       cartItem.productId = product._id;
       cartItem.size = selectedSize.size;
       cartItem.quantity = 1;
-      cartItem.priceAtAddition = selectedSize.price;
+      // cartItem.priceAtAddition = selectedSize.price;
       cartItem.latestPrice = selectedSize.price;
       cartItem.discount = product.discount;
       console.log("product adding,USERiD==>", userId);
@@ -78,14 +88,15 @@ const ViewProduct = ({ product }) => {
     }
   }
 
-  async function whishlistProduct() {
-    try {
-    const response=  await addToWishlist(product._id,selectedSize.size,userId)
-    setInWishlist(response.data.inWishlist)
-      toast.success("Product added to whishlist")
-    } catch (error) {
-      console.error("Error adding product to whishlist");
-    }
+  function handleToggleWishlist() {
+try {
+  toggleWishlist({userId,productId:product._id,size:selectedSize.size})
+  const message=isWishlisted?"removed from":'added to'
+  toast.success(`product ${message} wishlist`)
+} catch (error) {
+  toast.error("Failed to add product to wishlist.")
+}
+   
   }
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
@@ -159,8 +170,8 @@ const ViewProduct = ({ product }) => {
             totalStock={product.totalStock}
             handleCart={handleCart}
             onAdded={addCart}
-            whishlistProduct={whishlistProduct}
-            inWishlist={inWishlist}
+            whishlistProduct={handleToggleWishlist}
+            isWishlisted={isWishlisted}
           />
           <ProductDetails {...product} />
           <div className="block md:hidden">

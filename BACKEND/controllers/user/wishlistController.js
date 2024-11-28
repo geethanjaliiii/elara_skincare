@@ -3,11 +3,9 @@ const Product = require("../../models/productModel");
 const checkStock = require("../../utils/services/checkStock");
 const calculateDiscountPrice = require("../../utils/services/calculateDiscountPrice");
 // Add product to wishlist
-exports.addToWishlist = async (req, res) => {
-  const { size, productId } = req.body;
+exports.toggleWishlist = async (req, res) => {
+  const { size, productId ,userId} = req.body;
 
-  
-const {userId}=req.params
   if (!userId || !size || !productId) {
     return res
       .status(400)
@@ -25,17 +23,18 @@ const {userId}=req.params
     if (!product) {
       return res
         .status(400)
-        .json({ success: false, message: "The prduct is currently unavailable." });
+        .json({ success: false, message: "The product is currently unavailable." });
     }
     const item=product.sizes.find((s)=>s.size==size)
     
+    let status
     if (!wishlist) {
       // Create a new wishlist if it doesn't exist
       wishlist = new Wishlist({ 
         userId,
          items: [{ 
           productId,
-           size ,
+           size,
            discount:product.discount,
            price:item.price, 
            inStock:item.stock>0
@@ -47,18 +46,24 @@ const {userId}=req.params
       );
 
       if (productExists) {
-        return res.status(400).json({ message: "Product already in wishlist" });
+        status='removed from'
+        
+      wishlist.items=  wishlist.items.filter(item=>!(item.productId.equals(productId) && item.size==size))
+        // return res.status(400).json({ message: "Product already in wishlist" });
+      }else{
+        status='added to'
+        wishlist.items.push({
+           productId ,
+           size,
+           discount:product.discount,
+          price:item.price,
+        inStock:item.stock>0});
       }
-      wishlist.items.push({
-         productId ,
-         size,
-         discount:product.discount,
-        price:item.price,
-      inStock:item.stock>0});
-    }
-
-    await wishlist.save();
-    res.status(200).json({ message: "Product added to wishlist", wishlist ,inWishlist:true});
+      }
+      await wishlist.save();
+console.log(`Product ${status} wishlist`);
+    
+    res.status(200).json({ message: `Product ${status} wishlist`, wishlist });
   } catch (error) {
     res.status(500).json({ message: "Error adding to wishlist", error });
   }
@@ -77,15 +82,6 @@ if(!userId || !itemId){
       { new: true }
     );
 
-    // if (wishlist) {
-    //   wishlist.items = wishlist.items.filter(
-    //     (item) => item.productId.toString() !== productId && item.size===size
-    //   );
-    //   await wishlist.save();
-    //   res.status(200).json({ message: "Product removed from wishlist" });
-    // } else {
-    //   res.status(404).json({ message: "Wishlist not found" });
-    // }
     res.status(200).json({success:true,message:"Item removed from wishlist",wishlist})
   } catch (error) {
     console.error("eror removing item from wish",error);
@@ -97,7 +93,6 @@ if(!userId || !itemId){
 // Get wishlist for user
 exports.getWishlist = async (req, res) => {
   const { userId } = req.params;
-
   try {
     const wishlist = await Wishlist.findOne(
       { userId },
@@ -115,8 +110,6 @@ exports.getWishlist = async (req, res) => {
         }
       return acc
     },[])
-    
-
       // Update the database only if filtered items differ
       if (filteredItems.length !== wishlist.items.length) {
         await Wishlist.findOneAndUpdate(
@@ -124,21 +117,6 @@ exports.getWishlist = async (req, res) => {
           { items: filteredItems }
         );
       }
-
-    console.log('wishlist.items',wishlist.items);
-    //to correct the response format 
-    // const cleanWishlist=JSON.parse(JSON.stringify(wishlist))
-    // const frontendWishlist={
-    //   ...cleanWishlist,
-    //   items:filteredItems.map((item)=>{
-    //  const updatedItem={...item}
-    //  if(item?.productId?.offerId){
-    //   updatedItem.discount=calculateDiscountPrice(item.productId)
-    //  }
-    //  return updatedItem
-    //   })
-    // }
- 
     res
       .status(200)
       .json({

@@ -244,7 +244,7 @@ console.log(data)
                             itemId={item._id}
                           />
                         {item.status==='Delivered' && item.paymentStatus=='Paid'&&  
-                          <Button onClick={()=>generateInvoice(data)}
+                          <Button onClick={()=>generateInvoice(data,item)}
                           className="w-auto bg-green-600 text-white mt-4">Download Invoice</Button>}
                         </div>
                       </div>

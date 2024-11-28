@@ -80,10 +80,6 @@ const productSchema = new mongoose.Schema({
       }
     }
   ],
-  // relatedProducts:[{
-  //   type:mongoose.Schema.Types.ObjectId,
-  //   ref:"Product"
-  // }],
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });

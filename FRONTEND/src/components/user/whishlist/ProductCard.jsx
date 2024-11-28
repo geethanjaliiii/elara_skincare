@@ -1,27 +1,63 @@
+import { axiosInstance } from '@/config/axiosConfig';
+import { useWishlist } from '@/hooks/useWishlist';
+import { addToCart } from '@/services/cart';
 import { X, Filter, ShoppingBag, Heart } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { useEffect, useState } from 'react';
+import toast, { Toaster } from 'react-hot-toast';
+import { useSelector } from 'react-redux';
 
-export const ProductCard = ({ item ,handleRemove}) => {
+export const ProductCard = ({ item }) => {
+const [isAddedToBag,setIsAddedToBag]=useState(false)
+  const userId = useSelector((state) => state?.user?.userInfo?._id);
+  const {removeWishlist}=useWishlist(userId);
+const getLatestItemDetails=(item)=>{
+  const selectedSize=item.productId.sizes.find((size)=>size.size=item.size)
+return {price:selectedSize.price,discount:item.productId.discount}
+}
     const productName = item?.productId?.name || 'Product Name Unavailable';
     const productImage = item?.productId?.images?.[0] || '/placeholder.svg?height=200&width=200';
     const price = item?.price || 0;
     const discount = item?.discount || 0;
-  
     const discountedPrice = price - (price * discount) / 100;
-    const isAddedToBag = false;
-  function handleAddToBag(){
-    toast.success("Product added to bag")
+    
+    async function checkCart(){
+      try {
+        const response= await axiosInstance.get(`/api/users/${userId}/cart/check`,{params:{productId:item.productId._id,size:item.size}})
+      setIsAddedToBag(response.data.inCart)
+      } catch (error) {
+        console.log("cartstatus not updated");
+      }
+    }
+    useEffect(()=>{
+      checkCart()
+    },[])
+ async function handleAddToBag(){
+    const cartItem={}
+    cartItem.productId=item.productId._id;
+    cartItem.size=item.size;
+    cartItem.quantity=1;
+    // cartItem.priceAtAddition=getLatestItemDetails(item).price
+    cartItem.latestPrice=getLatestItemDetails(item).price
+    cartItem.discount=getLatestItemDetails(item).discount
+try {
+  await addToCart({userId,cartItem})
+ checkCart()
+  toast.success("Product added to bag")
+} catch (error) {
+  toast.error("Item not added to cart")
+}
   }
   
     return (
       <div className="bg-gray-50 rounded-lg p-3 relative group">
+        <Toaster/>
         {discount > 0 && (
           <span className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
             {discount}% Off
           </span>
         )}
         <button className="absolute top-2 right-2 p-1 bg-white rounded-full shadow hover:shadow-md"
-        onClick={()=>handleRemove(item._id)}>
+        onClick={()=>removeWishlist({userId,itemId:item._id})}>
           <X size={16} />
         </button>
         <img 

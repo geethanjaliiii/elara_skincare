@@ -15,6 +15,8 @@ const orderSchema = new mongoose.Schema({
       size: { type: String, required: true },
       quantity: { type: Number, required: true },
       price: { type: Number, required: true }, //price per qty
+      offerDiscountPrice:{type: Number, required: true},
+      couponDiscountPrice:{type: Number, required: true},
       totalMRP:{type:Number,required:true},
       discount: {
         type: Number,

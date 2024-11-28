@@ -177,133 +177,16 @@ const removeCoupon = async (req, res) => {
   try {
   } catch (error) {}
 };
-
-module.exports = { getCoupons, applyCoupon, removeCoupon };
-async function calculateOrderAmount(cart, userId, code, res) {
+const getAllCoupons=async (req,res)=>{
   try {
-    const { totalMRP, totalAmount, totalDiscount } =
-      await recalculateCartTotals(cart);
-    let response = {
-      totalMRP,
-      totalAmount,
-      totalDiscount,
-      // couponDiscount:0
-    };
-    if (code) {
-      const coupon = await Coupon.findOne({
-        code: code,
-        isActive: true,
-        expiryDate: { $gt: new Date() },
-      });
-      if (!coupon) {
-        return res.status(404).json({ message: "Invalid coupon" });
-      }
-      const alreadyApplied = await UserCoupon.findOne({
-        userId: userId,
-        couponId: coupon._id,
-      });
-      if (
-        coupon?.totalAppliedCount >= coupon.usageLimit ||
-        (alreadyApplied &&
-          alreadyApplied?.appliedCount >= coupon.maxUsagePerUser)
-      ) {
-        return res
-          .status(404)
-          .json({ success: false, message: "Invalid or Expired coupon" });
-      }
-      if (coupon && totalAmount >= coupon.minPurchaseOrder) {
-        const couponDiscount =
-          coupon?.discountType == "percentage"
-            ? Math.min(
-                coupon.maxDiscountAmount,
-                (coupon.discountPercentage / 100) * totalAmount
-              )
-            : coupon.discountValue;
-
-        //change discount
-        response.totalDiscount += couponDiscount;
-        response.totalAmount = totalMRP - totalDiscount;
-        console.log("coupon is applicable");
-      }
-    }
-    return response;
+   const coupons= await Coupon.find({expiryDate:{$gt:new Date()},isActive:true})
+   const expiredCoupons=await Coupon.find({expiryDate:{$lt:new Date()},isActive:true})
+   console.log("coupons fetched");
+   
+   res.status(200).json({success:true,message:"coupons fetched",coupons,expiredCoupons})
   } catch (error) {
-    console.error("failed calculating order amount", error);
+    console.log("Failed to fetch coupons",error);
+    res.status(500).json({success:false,message:"Failed to fetch coupons"})
   }
 }
-// const applyCoupon = async (req, res) => {
-//   const { userId } = req.params;
-//   const { code } = req.body;
-//   try {
-//     console.log(code);
-
-//     if (!userId || !code) {
-//       return res
-//         .status(400)
-//         .json({ success: false, message: "Invalid input paramenters" });
-//     }
-//     const cart = await Cart.findOne({ userId });
-//     if (!cart) {
-//       return res.status(404).json({ message: "Cart not found" });
-//     }
-
-//     //check offerid
-//     //if no offer send original
-//     const { totalMRP, totalAmount, totalDiscount } =
-//     await recalculateCartTotals(cart);
-//   let response = {
-//     totalMRP,
-//     totalAmount,
-//     totalDiscount,
-//     couponDiscount:0
-//   };
-// console.log('resp',response);
-
-//     if (code) {
-//       const coupon = await Coupon.findOne({
-//         code: code,
-//         isActive: true,
-//         expiryDate: { $gt: new Date() },
-//       });
-//       if (!coupon) {
-//         return res.status(404).json({ message: "Coupon Expired." });
-//       }
-//       const alreadyApplied = await UserCoupon.findOne({
-//         userId: userId,
-//         couponId: coupon._id,
-//       });
-//       if (
-//         coupon?.totalAppliedCount >= coupon.usageLimit ||
-//         (alreadyApplied &&
-//           alreadyApplied?.appliedCount >= coupon.maxUsagePerUser)
-//       ) {
-//         return res
-//           .status(404)
-//           .json({ success: false, message: "Coupon not applicable." });
-//       }
-//       if (totalAmount < coupon.minPurchaseOrder) {
-//         return res.status(500).json({message:`Add item worth ${coupon.minPurchaseOrder-totalAmount} to avail the coupon.`})
-//       }
-//         const couponDiscount =
-//           coupon?.discountType == "percentage"
-//             ? Math.min(
-//                 coupon.maxDiscountAmount,
-//                 (coupon.discountPercentage / 100) * totalAmount
-//               )
-//             : coupon.discountValue;
-
-//         //change discount
-//         response.couponDiscount=couponDiscount
-//         response.totalDiscount += couponDiscount;
-//         response.totalAmount = totalMRP - totalDiscount;
-        
-      
-//     }
-
-//     res
-//       .status(200)
-//       .json({ success: true, message: "coupon applied", calculatedOrder:response });
-//   } catch (error) {
-//     console.log("error applying code", error);
-//   }
-// };
+module.exports = { getCoupons, applyCoupon, removeCoupon ,getAllCoupons};

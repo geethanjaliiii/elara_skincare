@@ -42,6 +42,7 @@ import IsUserLogin from "./store/protect/IsUserLogin";
 import Wallet from "./components/user/wallet/wallet.jsx";
 import SalesReport from "./components/admin/sales/salesReport.jsx";
 import Dashboard from "./components/admin/dashboard/Dashboard.jsx";
+import Wishlist from "./components/user/whishlist/wishlist.jsx";
 
 
 
@@ -177,6 +178,7 @@ export default function App() {
               </IsUserLogin>
             }
           />
+         
 
           <Route
             path="/checkout/success/:orderId"

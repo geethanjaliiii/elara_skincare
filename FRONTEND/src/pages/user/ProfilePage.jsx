@@ -11,6 +11,7 @@ import Footer from '@/components/shared/Footer'
 import Orders from '@/components/user/profile/orders/Orders'
 import Wallet from '@/components/user/wallet/wallet'
 import Coupons from '@/components/user/coupons/Coupons'
+import Wishlist from '@/components/user/whishlist/wishlist'
 
 const ProfilePage = () => {
     const [activeItem ,setActiveItem]=useState('My Profile')
@@ -54,6 +55,7 @@ const ProfilePage = () => {
                 {activeItem=='My Orders' &&  <Orders/>}
                 {activeItem=='Wallet' && <Wallet  />}
                 {activeItem=='Coupons' && <Coupons/>}
+                {activeItem=='My Wishlist' && <Wishlist/>}
                </main>
         </div>
         </div>

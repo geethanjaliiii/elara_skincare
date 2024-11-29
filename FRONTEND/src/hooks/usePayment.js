@@ -1,4 +1,4 @@
-import { initiateRazorpayPayment } from "../services/razorpay";
+import { addMoneyToWallet, initiateRazorpayPayment } from "../services/razorpay";
 
 export const usePayment =(orderMutation,toast)=>{
     const handleRazorpayPayment=async(orderData,orderId)=>{
@@ -18,9 +18,28 @@ export const usePayment =(orderMutation,toast)=>{
             
         })
     }
+
+   
     return {
     handleRazorpayPayment
     }
 }
-
-
+export const useAddMoney=(mutation,toast)=>{
+    const handleAddMoneyToWallet=async({userId,amount})=>{
+        await addMoneyToWallet({
+            userId,
+            amount,
+            onSuccess:(data)=>{
+                console.log(data,'data');
+                
+                mutation.mutate(data)
+            },
+            onError:(error)=>{
+                toast.error(error.message ||'payment failed.please try again.')
+            },
+        })
+    }
+    return{
+        handleAddMoneyToWallet
+    }
+}

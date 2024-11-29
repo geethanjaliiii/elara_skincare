@@ -5,3 +5,9 @@ export const fetchWallet=async(userId)=>{
 return response.data.wallet
 }
 
+export const creditMoneyToWallet=async(paymentData)=>{
+console.log("pay data",paymentData);
+
+   const response=await axiosInstance.post(`/api/users/wallet/credit`,paymentData)
+return response.data
+}

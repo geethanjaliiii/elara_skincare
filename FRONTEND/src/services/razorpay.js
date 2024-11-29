@@ -2,6 +2,7 @@ import { axiosInstance } from "@/config/axiosConfig";
 import { current } from "@reduxjs/toolkit";
 import { useSelector } from "react-redux";
 import { redirect } from "react-router-dom";
+import { creditMoneyToWallet } from "./wallet";
 // const contactNumber=useSelector((state)=>state?.user?.userInfo?.phone)
 
 export const loadRazorpayScript = () => {
@@ -115,14 +116,6 @@ export const initiateRazorpayPayment = async ({
               }
 
               onSuccess(failedOrderData)
-            //   await axiosInstance.post(`api/users/orders/update-payment-status`,{
-            //     orderId:orderId||data.order.id,
-            //     status:'payment_failed',
-            //     errorSetails:{
-            //         code:response.error.code,
-            //         description:response.error.description
-            //     }
-            //   })
               const errorMessage = response.error.description || 'Payment failed';
               onError(new Error(errorMessage));
         } catch (updateError) {
@@ -132,7 +125,7 @@ export const initiateRazorpayPayment = async ({
     })
     paymentObject.open();
   } catch (error) {
-    console.log("payment not completed", error);
+    console.log("Payment not completed", error);
 
     onError(error);
   }
@@ -153,4 +146,76 @@ try {
   
   throw new Error("Failed to update payment status");
 }
+}
+
+export const addMoneyToWallet=async({
+  userId,
+  amount,
+onError,
+onSuccess})=>{
+  try {
+   
+    const isLoaded = await loadRazorpayScript();
+    if (!isLoaded) {
+      throw new Error("Razorpay SDK failed to load");
+    }
+   const {data}= await axiosInstance.post(`/api/users/payment/create-order`,{userId,
+    amount:parseFloat(amount)})
+    if (!data.success) throw new Error("Failed to create order");
+
+    const options = {
+      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+      amount: amount*100,
+      currency: 'INR',
+      name: "ELARA",
+      description: "Wallet Crediting",
+      order_id: data.order.id,
+      //success handler
+      handler: async (response) => {
+        console.log("create payment resp", response);
+
+        const { data: verificationData } = await axiosInstance.post(
+          "/api/users/payment/verify-payment",
+          {
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature,
+          }
+        );
+        if (verificationData.success) {
+            const finalData={
+              transactionId:response.razorpay_payment_id,
+              amount,
+              userId
+            }
+            onSuccess(finalData)
+        } else {
+          throw new Error("Payment verification failed");
+        }
+      },
+   
+      theme: {
+        color: "#3399cc",
+      },
+      
+      //Error handlers
+      modal:{
+        ondismiss:()=>{
+            onError(new Error('Payment process cancelled'))
+        }
+      },
+
+      callback_url:null,
+      redirect:false
+
+      
+    };
+    const razorpay = new Razorpay(options);
+      razorpay.open();
+  } catch (error) {
+    console.log("payment not completed", error);
+    onError(error);
+throw new Error("payment not completed")
+    
+  }
 }

@@ -33,10 +33,9 @@ const CartItem = ({ cartItems, updateQuantity, removeItem }) => {
       {cartItems &&
         cartItems.map((item) => {
           const selectedSize=item.productId.sizes.find((size)=>size.size===item.size)
-          const currentPrice=selectedSize.price*item.quantity
+          const currentPrice=selectedSize?selectedSize.price*item.quantity:0
           const discountPrice=(currentPrice*item.discount/100)
           const discountedPrice=currentPrice-discountPrice
-          
           return (
             <Card key={item._id}>
               <CardContent className="flex gap-4 p-4">
@@ -64,7 +63,7 @@ const CartItem = ({ cartItems, updateQuantity, removeItem }) => {
                       <span className="sr-only">Remove item</span>
                     </Button>
                   </div>
-                  {selectedSize.stock>0 ? (
+                  {selectedSize && selectedSize.stock>0 ? (
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Button
@@ -107,11 +106,14 @@ const CartItem = ({ cartItems, updateQuantity, removeItem }) => {
                        
                       </div>
                     </div>
-                  ) : (
+                  ) : selectedSize?(
                     <p className="text-sm font-medium text-destructive">
                       Out Of Stock
                     </p>
-                  )}
+                  ):<p className="text-sm font-medium text-destructive">
+                   Currently Unavailable.
+                </p>}
+                 
                 </div>
               </CardContent>
             </Card>

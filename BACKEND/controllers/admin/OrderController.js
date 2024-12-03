@@ -7,7 +7,7 @@ const { message } = require("../../utils/validation/addressValidation");
 
 const getOrders = async (req, res) => {
   try {
-    const orders = await Order.find({})
+    const orders = await Order.find({}).sort({createdAt:-1})
       .populate("userId")
       .populate("items.productId");
     if (!orders) {
@@ -234,8 +234,8 @@ const approveReturnRequest = async (req, res) => {
     }
     const returnItem = order.items.find((item) => item._id.equals(itemId));
     if (
-      !returnItem.returnRequest.isRequested &&
-      returnItem.returnRequest.isApproved &&
+      !returnItem.returnRequest.isRequested ||
+      returnItem.returnRequest.isApproved ||
       returnItem.returnRequest.isResponseSend
     ) {
       return res
@@ -251,7 +251,7 @@ const approveReturnRequest = async (req, res) => {
         .json({ success: false, message: "Return period has expired." });
     }
     if (
-      returnItem.status != "Delivered" &&
+      returnItem.status != "Delivered" ||
       returnItem.paymentStatus != "Paid"
     ) {
       return res
@@ -286,6 +286,7 @@ const approveReturnRequest = async (req, res) => {
     } else {
       wallet.transactionHistory.push(newTransaction);
     }
+    await wallet.save()
     returnItem.status = "Returned";
     returnItem.paymentStatus = "Refunded";
     returnItem.isApproved = true;
@@ -317,14 +318,15 @@ const declineReturnRequest = async (req, res) => {
     }
     const returnItem = order.items.find((item) => item._id.equals(itemId));
     if (
-      !returnItem.isRequested &&
-      returnItem.isApproved &&
+      !returnItem.isRequested ||
+      returnItem.isApproved ||
       returnItem.isResponseSend
     ) {
       return res
         .status(400)
         .json({ success: false, message: "Invalid decline request" });
     }
+    returnItem.isApproved=false;
     returnItem.isResponseSend = true;
     await order.save();
     res.status(200).json({ success: true, message: "Return Declined" });

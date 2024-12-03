@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ViewProduct from "@/components/user/ViewProduct";
 import {axiosInstance} from "@/config/axiosConfig";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
 import { Separator } from "@radix-ui/react-select";
@@ -10,8 +10,7 @@ import RelatedProducts from "@/components/user/product/RelatedProducts";
 const ProductPage = () => {
   const [product, setProduct] = useState({});
   const [relatedProducts,setRelatedProducts]=useState([])
-  const location = useLocation();
-  const { productId } = location.state;
+  const { _id } = useParams()
  
   const dummyReviews = [
     {
@@ -35,7 +34,7 @@ const ProductPage = () => {
     async function fetchProduct() {
       try {
         const response = await axiosInstance.get(
-          `/api/users/products/${productId}`
+          `/api/users/products/${_id}`
         );
         if (!response.data.product) {
           console.log("product not found");
@@ -54,7 +53,7 @@ const ProductPage = () => {
     }
 
     fetchProduct();
-  }, [productId]);
+  }, [_id]);
   return (
     <div>
       <Navbar />

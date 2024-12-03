@@ -205,7 +205,7 @@ console.log(data)
                         />
 
                         <div className="flex gap-2 justify-end items-end ">
-                        {item.status === "Delivered" && <RatingDialog />}
+                        {/* {item.status === "Delivered" && <RatingDialog />} */}
                           {item.status !== "Delivered" &&
                           item.status !="Returned" &&
                             item.status != "Cancelled" && (

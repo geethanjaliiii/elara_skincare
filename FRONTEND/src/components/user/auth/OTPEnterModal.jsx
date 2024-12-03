@@ -25,6 +25,7 @@ const OTPEnterModal = (
   const handleSubmit = (e) => {
     e.preventDefault();
     onSubmit(otp.join(""));
+    setOtp(["", "", "", "", "", ""])
   };
 
   const handleChange = (element, index) => {

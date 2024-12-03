@@ -190,9 +190,9 @@ export function CategoryOfferManagement({ categoryOffers, onAddOffer }) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {categoryOffers.map((offer) => (
+              {categoryOffers.length>0 && categoryOffers.map((offer) => (
                 <TableRow key={offer._id}>
-                  <TableCell>{offer.targetId?.name||''}</TableCell>
+                  <TableCell>{offer?.targetId?.name||''}</TableCell>
                   <TableCell>{offer.name}</TableCell>
                   <TableCell>{offer.offerValue}%</TableCell>
                   <TableCell>{offer.startDate}</TableCell>

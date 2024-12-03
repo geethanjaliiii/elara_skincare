@@ -56,33 +56,73 @@ const PriceDetails = ({ cart, step, handlePlaceOrder,checkLimit}) => {
     
   };
 
-  const handleClick = () => {
+  // const handleClick = () => {
+  //   console.log('status',checkStock());
+    
+  //   if (step === "bag") {
+  //     if (checkStock()) {
+  //       fetchCart()
+  //       navigate("/checkout/address");
+  //     } else {
+  //       toast.error("Stock limit exceeded!");
+  //     }
+  //   } else if (step === "address") {
+  //     if (checkStock()) {
+  //       fetchCart()
+  //       navigate("/checkout/payment");
+  //     } else {
+  //       toast.error("Stock limit exceeded!");
+  //     }
+  //   } else if (step === "payment") {
+      
+  //     if (checkStock()) {
+  //       fetchCart()
+  //       console.log('coupon code',couponCode);
+        
+  //       handlePlaceOrder(couponCode,couponDiscount);
+  //     } else {
+  //       toast.error("Stock limit exceeded!");
+  //     }
+  //   }
+  // };
+
+ const handleClick =async () => {
+    
+    console.log(fetchCart());
+    
+    const cartStatus=await checkStock()
+    await fetchCart()
+    console.log('status',cartStatus);
+    
     if (step === "bag") {
-      if (checkStock()) {
-        fetchCart()
+      if (cartStatus) {
+        
         navigate("/checkout/address");
       } else {
         toast.error("Stock limit exceeded!");
       }
     } else if (step === "address") {
-      if (checkStock()) {
-        fetchCart()
+      if (cartStatus) {
+        
         navigate("/checkout/payment");
       } else {
         toast.error("Stock limit exceeded!");
       }
     } else if (step === "payment") {
-      if (checkStock()) {
-        fetchCart()
+      
+      if (cartStatus) {
+        
         console.log('coupon code',couponCode);
         
         handlePlaceOrder(couponCode,couponDiscount);
       } else {
+        const cart=await fetchCart()
+        console.log("caaaart",cart);
+        
         toast.error("Stock limit exceeded!");
       }
     }
   };
-
   return (
     <div className="lg:sticky lg:top-6 lg:h-fit">
       <Toaster />
@@ -183,7 +223,7 @@ const PriceDetails = ({ cart, step, handlePlaceOrder,checkLimit}) => {
           </CardContent>
         </Card>
       )}
-
+    
       <CouponModal
         open={open}
         onOpenChange={setOpen}

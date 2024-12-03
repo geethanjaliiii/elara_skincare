@@ -363,6 +363,41 @@ const sendReturnRequest = async (req, res) => {
       .json({ success: false, message: "Return request not sent" });
   }
 };
+
+
+const fetchBestProducts = async (req, res) => {
+ 
+  try {
+    
+   const bestProducts= await Order.aggregate([
+      { $unwind: "$items" },
+      {
+        $group: {
+          _id: "$items.productId",
+          totalQuantity: { $sum: "$items.quantity" },
+          totalRevenue: {
+            $sum: { $multiply: ["$items.quantity", "$items.totalPrice"] },
+          },
+        },
+      },
+      {$sort:{
+        totalQuantity:-1
+      }},
+      {$limit:10},
+      {$lookup:{
+        from:'products',
+        localField:'_id',
+        foreignField:'_id',
+        as:'productDetails'
+      }},
+      {$unwind:"$productDetails"}
+    ]);
+    res.status(200).json({success:true,bestProducts})
+  } catch (error) {
+    console.error("Failed to fetch best products",error);
+    
+    res.status(500).json({success:false,message:"Failed to fetch best products"})
+  }}
 module.exports = {
   placeOrder,
   getOrderDetails,
@@ -370,6 +405,7 @@ module.exports = {
   cancelOrder,
   changePaymentStatus,
   sendReturnRequest,
+  fetchBestProducts
 };
 //   const updatedOrder =
 //     order.paymentMethod == "Cash on Delivery"

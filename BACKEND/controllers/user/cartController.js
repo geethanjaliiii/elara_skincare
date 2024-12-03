@@ -95,8 +95,7 @@ const showCart = async (req, res) => {
     const frontendCart = JSON.parse(JSON.stringify(cart));
       //recalculate totals with offer discount
      const finalFrontendCart= recalculateCartTotals(frontendCart)
-      console.log(finalFrontendCart, "final frontend cart with offers");
-
+     
       return res.status(200).json({success:true, message:'Cart updated with oferdiscount',cart:finalFrontendCart})
     }
   
@@ -237,7 +236,38 @@ const checkProduct = async (req, res) => {
     console.err("error checking", error.message);
   }
 };
-module.exports = { addToCart, showCart, updateCart, removeItem, checkProduct };
+
+const checkItemStock=async(req,res)=>{
+  try {
+    let inStock=true
+    const { userId } = req.params;
+const cart= await Cart.findOne({userId}).populate('items.productId')
+const allStockOut=cart.items.every((item)=>item.productId.sizes.find(s=>s.stock==0 && s.size==item.size))
+
+console.log("all stockk",allStockOut);
+
+if(allStockOut){
+  
+  return res.status(200).json({inStock:false})
+}
+for(let item of cart.items){
+  const selectedSize=item.productId.sizes.find((size)=>size.size==item.size )
+  if(item.quantity>selectedSize.stock && selectedSize.stock!=0){
+    console.log(`stcok limit of ${item.productId.name} exceeded, ${selectedSize.stock}`);
+    
+      inStock=false;
+      break;
+  }
+}
+console.log("instock",inStock);
+
+res.status(200).json({success:false,message:"Stock limit exceeded",inStock})
+  } catch (error) {
+    console.log("failed to check stock",error);
+    res.status(500).json({message:"failed to check stock"})
+  }
+}
+module.exports = { addToCart, showCart, updateCart, removeItem, checkProduct ,checkItemStock};
 
 
 // const showCart = async (req, res) => {

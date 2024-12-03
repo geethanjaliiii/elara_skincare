@@ -1,5 +1,6 @@
 const User = require("../../models/userModel");
-
+const Wallet=require('../../models/WalletModel')
+const { v4: uuidv4 } = require("uuid");
 
 const showProfile = async (req, res) => {
   const { id } = req.params;
@@ -40,4 +41,63 @@ const editProfile=async(req,res)=>{
     res.status(500).json({message:"Internal servere error",error})
   }
 }
-module.exports = { showProfile ,editProfile};
+
+const claimReferral=async(req,res)=>{
+ const {userId}=req.params
+ const {code}=req.body
+ if(!userId || !code){
+  return res.status(400).json({success:false,message:""})
+ }
+  try {
+    const user=await User.findOne({_id:userId})
+    if(!user){
+     return res.status(404).json({success:false,message:"User not found."})
+    }
+    if(user.isReferralRewarded){
+     return res.status(400).json({success:false,message:"This reward is already claimed"})
+    }
+    const referrer=await User.findOne({referralCode:code,isBlocked:false})
+    if(!referrer){
+   return res.status(400).json({success:false,message:"Referral code is invalid!"})
+    }
+    let userWallet=await Wallet.findOne({userId:user._id})
+    const userTransactionDetails={
+     transactionId:`WELCOME-${uuidv4()}`,
+     type:"credit",
+     amount:50,
+     status:"success"
+    }
+   
+    if(!userWallet){
+   userWallet=new Wallet({
+     userId,
+   transactionHistory:[userTransactionDetails]
+   })
+    }else{
+     userWallet.transactionHistory.push(userTransactionDetails)
+    }
+    await userWallet.save()
+    let referrerWallet=await Wallet.findOne({userId:referrer._id})
+    const referrerTansactionDetails={
+     transactionId:`ELA-${uuidv4()}`,
+     type:"credit",
+     amount:100,
+     status:"success"
+    }
+    if(!referrerWallet){
+   referrerWallet=new Wallet({
+     userId:referrer._id,
+     transactionHistory:[referrerTansactionDetails]
+   })
+    }else{
+     referrerWallet.transactionHistory.push(referrerTansactionDetails)
+    }
+    await referrerWallet.save()
+    res.status(200).json({success:true,message:"Referral Offer claimed",amount:50})
+  } catch (error) {
+    console.log("eerro claiming referral",error);
+    res.status(500).json({success:false,message:"Unable to claim referral offer."})
+    
+  }
+}
+module.exports = { showProfile ,editProfile,claimReferral};

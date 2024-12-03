@@ -1,5 +1,6 @@
 import {adminAxiosInstance} from '@/config/axiosConfig';
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const AddCategory = () => {
   const [categoryName, setCategoryName] = useState('');
@@ -8,6 +9,7 @@ const AddCategory = () => {
     categoryName: '',
     categoryDescription: '',
   });
+  const navigate=useNavigate()
 const [error,setError]= useState("")
   // Edge condition checks
   const validateForm = () => {
@@ -56,7 +58,7 @@ const [error,setError]= useState("")
             const response= await adminAxiosInstance.post('/api/admin/categories',{name:categoryName,description:categoryDescription})
       // Add your logic for submitting the category data (e.g., API call)
       console.log("");
-      
+      navigate('/admin/dashboard/categories')
       console.log('Category Name:', categoryName);
       console.log('Category Description:', categoryDescription);
 

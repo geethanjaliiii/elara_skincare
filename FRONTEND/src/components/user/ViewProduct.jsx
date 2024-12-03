@@ -99,7 +99,7 @@ try {
    
   }
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
+    <div className="max-w-6xl mx-auto px-4 py-8 mt-8">
       <Toaster />
       <Breadcrumbs
         category={

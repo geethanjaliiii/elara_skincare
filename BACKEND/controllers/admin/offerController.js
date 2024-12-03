@@ -39,7 +39,7 @@ const createProductoffer = async (req, res) => {
 
       return res.status(400).json({
         success: false,
-        message: "Validation failed. Please check the input data.",
+        message:errorMessages[0] ,
         errors: errorMessages, // Array of detailed errors
       });
     }

@@ -35,7 +35,7 @@ const statusOrder = Object.keys(statusColors);
 
 export function OrderItem({ order,onApproveReturn,onDeclineReturn }) {
   // State to manage status for each item individually
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsmodalOpen] = useState(false);
   const [modalData, setModalData] = useState(null);
   const queryClient = useQueryClient();
 const[returnModalOpen,setReturnModalOpen]=useState(false)
@@ -184,7 +184,7 @@ const[returnModalOpen,setReturnModalOpen]=useState(false)
                       <SelectItem 
                       value={status}
                        key={status}
-                       disabled={statusOrder.indexOf(status)<statusOrder.indexOf(statusMap[item._id])}>
+                       disabled={statusOrder.indexOf(status)<statusOrder.indexOf(statusMap[item._id])||item.status=='Returned'}>
                         <Badge className={`${statusColors[status]} text-white`}>
                           {status}
                         </Badge>

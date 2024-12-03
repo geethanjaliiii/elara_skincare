@@ -6,13 +6,11 @@ import { Card, CardContent } from "@/components/ui/card"
 import { useNavigate } from 'react-router-dom'
 
 
-
 export default function ProductCard({ _id, name, categoryId, price, sizes, reviews,rating=4.6, images,isFeatured ,discount}) {
   const [isHovered, setIsHovered] = useState(false)
-  const [isWishlisted, setIsWishlisted] = useState(false)
   const navigate=useNavigate()
  const discountPrice=price-(price*discount)/100
-
+const isStockOut=sizes.every(size=>size.stock==0)
   return (
     <Card 
       className="overflow-hidden relative  "
@@ -24,12 +22,12 @@ export default function ProductCard({ _id, name, categoryId, price, sizes, revie
         <motion.div
           animate={{ scale: isHovered ? 1.05 : 1 }}
           transition={{ duration: 0.3 }}
-          onClick={()=>navigate('/product',{state: {productId:_id}})}
+          onClick={()=>navigate(`/product/${_id}`,{state: {productId:_id}})}
         >
           {images &&<img src={images[0]} alt={name} className="w-full h-48 object-cover" loading="lazy" />}
         </motion.div>
         <motion.div
-         onClick={()=>navigate('/product',{state: {productId:_id}})}
+         onClick={()=>navigate(`/product/${_id}`,{state: {productId:_id}})}
           initial={{ opacity: 0 }}
           animate={{ opacity: isHovered ? 1 : 0 }}
           transition={{ duration: 0.3 }}
@@ -39,19 +37,22 @@ export default function ProductCard({ _id, name, categoryId, price, sizes, revie
             View Product
           </Button>
         </motion.div>
-        <button
+        {/* <button
           className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md"
           onClick={() => setIsWishlisted(!isWishlisted)}
         >
           <Heart className={`h-5 w-5 ${isWishlisted ? 'fill-red-500 text-red-500' : 'text-gray-500'}`} />
-        </button>
-        {isFeatured && (
-          <div className="absolute top-2 left-2 bg-orange-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
-            Must Try
+        </button> */}
+        {isStockOut? (
+          <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
+            Sold Out
           </div>
-        )}
+        ):isFeatured?(<div className="absolute top-2 left-2 bg-orange-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
+          Must Try
+        </div>):""}
+        {}
       </div>
-      <CardContent className="p-4"       onClick={()=>navigate('/product',{state: {productId:_id}})}>
+      <CardContent className="p-4"       onClick={()=>navigate(`/product/${_id}`)}>
         <h3 className="font-semibold text-sm mb-1 truncate">{name}</h3>
        <p className="text-xs text-gray-500 mb-2">{categoryId?.name?categoryId.name: ""}</p>
         <div className="flex items-center space-x-2 mb-2">

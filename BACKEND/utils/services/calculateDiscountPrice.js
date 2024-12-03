@@ -6,4 +6,4 @@ const calculateDiscountPrice=(product)=>{
 return totalDiscount
 }
 
-module.exports=calculateDiscountPrice
+module.exports=calculateDiscountPrice 

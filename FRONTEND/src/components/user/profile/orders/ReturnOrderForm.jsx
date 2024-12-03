@@ -1,5 +1,6 @@
 import React, { useState ,useEffect} from "react";
 import { Button } from "@/components/ui/button";
+import toast, { Toaster } from "react-hot-toast";
 
 export function ReturnRequestModal({ isOpen, onClose, onSubmit, orderId, itemId }) {
   const [reason, setReason] = useState("");
@@ -15,7 +16,7 @@ export function ReturnRequestModal({ isOpen, onClose, onSubmit, orderId, itemId 
   const handleSubmit = (e) => {
     e.preventDefault()
     if (!reason) {
-      alert("Please select a reason for the return.");
+      toast.error("Please select a reason for the return.");
       return;
     }
 
@@ -37,6 +38,7 @@ export function ReturnRequestModal({ isOpen, onClose, onSubmit, orderId, itemId 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       {/* Modal Content */}
+      <Toaster/>
       <div className="relative bg-white rounded-lg p-6 w-full max-w-lg shadow-xl">
         <h2 className="text-lg font-semibold mb-4 text-center">Return Request</h2>
         <form onSubmit={handleSubmit}>

@@ -40,16 +40,16 @@ const ProfilePage = () => {
     <div className="min-h-screen bg-gray-50">
         <Toaster/>
         <Navbar/>
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 py-8 mt-2">
         <Breadcrumbs items={breadcrumbItems} />
-        <div className="grid gap-8 md:grid-cols-[300px_1fr] lg:grid-cols-[300px_1fr]">
+        <div className='mt-6 flex flex-col lg:flex-row lg:gap-8'>
             <ProfileSidebar 
                user={user}
                activeItem={activeItem}
                onNavigate={setActiveItem}
                
                />
-               <main >
+               <main className="mt-6 lg:mt-0 flex-grow">
                 {activeItem=='My Profile' && <ProfileForm user={user}/>}
                 {activeItem=='Address Book' && <AddressBook userId={user._id}/>}
                 {activeItem=='My Orders' &&  <Orders/>}

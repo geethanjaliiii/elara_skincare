@@ -5,8 +5,6 @@ import { useSelector } from "react-redux";
 const CartContext = createContext();
 
 export function CartProvider({ children }) {
-  console.log("cart provider mounterd");
-
   const [cart, setCart] = useState({});
   const [cartItems, setCartItems] = useState([]);
   const userId = useSelector((state) => state?.user?.userInfo?._id);
@@ -15,38 +13,50 @@ export function CartProvider({ children }) {
     fetchCart();
   }, [userId]);
 
-
-  function checkStock() {
-    
-    console.log("checking");
-    if(!cart.items || cart.items.length<0) return false
-    for (let item of cart.items) {
-      const selectedSize = item.productId.sizes.find(
-        (size) => size.size === item.size
-      );
-      if (item.quantity > selectedSize.stock && selectedSize.stock!=0) {
-        console.log("quantity exceeded",item.quantity);
-        
-        return false;
-      }
-   
+  async function checkStock() {
+    try {
+     const response= await axiosInstance.get(`/api/users/${userId}/cart/stock`)
+     console.log(response.data.inStock);
+     
+     return response?.data?.inStock
+    } catch (error) {
+      console.log("Error checking stock");
+      
     }
-    console.log("quantity not exceeded");
-    
-    return true;
+   
   }
+  //  function checkStock() {
+    
+  //   console.log("checking..");
+  //   if(!cart.items || cart.items.length<0) return false
+  //   for (let item of cart.items) {
+  //     const selectedSize = item.productId.sizes.find(
+  //       (size) => size.size === item.size
+  //     );
+  //     console.log("selectedsiz",selectedSize);
+      
+  //     if (selectedSize.stock===0||(item.quantity > selectedSize.stock && selectedSize.stock!=0)) {
+  //       console.log("quantity exceeded",item.quantity);
+        
+  //       return false;
+  //     }
+   
+  //   }
+  //   console.log("quantity not exceeded");
+    
+  //   return true;
+  // }
   function allStockOut(){
     return cartItems.every((item)=>!item.inStock)
   }
   async function fetchCart() {
     if (userId) {
       try {
-        console.log("User ID:", userId);
         const response = await axiosInstance.get(`/api/users/${userId}/cart`);
         const { items, ...cartInfo } = response.data.cart;
         setCart(response.data.cart);
         setCartItems(items);
-        console.log("cart items fetched");
+       
       } catch (error) {
         console.log("Cart not found", error);
       }
@@ -102,7 +112,5 @@ export function useCart() {
   if (!context) {
     throw new Error("useCart must be used within a CartProvider");
   }
-  console.log("cartcontxt", context);
-
   return context;
 }

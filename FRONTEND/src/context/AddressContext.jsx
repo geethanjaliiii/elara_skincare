@@ -18,7 +18,6 @@ export function AddressProvider({ children }) {
     if (!userId) return;
     try {
       const response = await axiosInstance.get(`/api/users/addresses/${userId}`);
-      console.log("addresses fetched", response.data.addresses);
       setAddresses(response.data.addresses);
     } catch (error) {
       console.log("Error fetching addresses", error);

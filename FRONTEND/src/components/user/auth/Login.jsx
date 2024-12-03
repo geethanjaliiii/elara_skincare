@@ -11,7 +11,7 @@ import { axiosInstance } from "@/config/axiosConfig";
 import { useDispatch } from "react-redux";
 import { setUserDetails } from "@/store/slices/userSlice";
 import toast, { Toaster } from "react-hot-toast";
-import { Eye,EyeClosed } from "lucide-react";
+import { Eye,EyeClosed ,EyeOff,EyeIcon} from "lucide-react";
 import GoogleAuth from "@/components/user/auth/GoogleAuth";
 const Login = () => {
   const [formData, setFormData] = useState(null);
@@ -50,19 +50,8 @@ const Login = () => {
         }, 1000);
       }
     } catch (error) {
-      toast.error("User login failed.");
-      console.log("error in login", error.message);
-      if (error?.response?.status === 400) {
-        setError("Invalid credentials");
-      } else if (error?.response.status === 401) {
-        setError("Invalid email or password.");
-      } else if (error?.response.status === 404) {
-        setError("User doesn't exist.Please create a new account.");
-      } else if (error?.response.status === 500) {
-        setError("Account is blocked. Please contact support.");
-      } else {
-        setError("Something went wrong! Please try again.");
-      }
+      toast.error("Login failed. Please try again.");
+      setError(error?.response?.data?.message||"Something went wrong! Please try again.")
     }
   };
 
@@ -135,10 +124,10 @@ const Login = () => {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600"
+                    className="absolute right-3 top-1/2 pt-2 transform -translate-y-1/2 text-gray-400  "
                   >
                    
-                    {showPassword ? <Eye/> :<EyeClosed/>}
+                    {showPassword ? <EyeIcon/> :<EyeOff/>}
                   </button>
                 </div>
                 <Button

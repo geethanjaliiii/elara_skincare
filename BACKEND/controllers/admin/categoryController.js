@@ -5,7 +5,7 @@ const addCategory = async (req, res) => {
   const { name, description } = req.body;
   try {
     //check if category exist
-    const { error } = validateCategory(req.body);
+    const { error } = categoryValidationSchema.validate(req.body);
     if (error) {
       console.log("error in category req body", error);
 

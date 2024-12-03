@@ -15,6 +15,7 @@ const { generateAccessToken, generateRefreshToken,} = require("../../utils/jwt/g
 const generateOTP = require("../../utils/otp/generateOTP");
 const sendVerificationEmail = require("../../utils/nodemailer/sendVerificationEmail");
 const sendResetPasswordMail = require("../../utils/nodemailer/forgetPasswordMail");
+const generateReferralCode = require("../../utils/services/generateReferralCode");
 
 //create instance of OAuth
 const client =new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
@@ -27,8 +28,8 @@ const login = async (req, res) => {
     const userExist = await User.findOne({ email });
     if (!userExist) {
       return res.status(404).json({
-        success: false,
-        message: "User doesn't exist",
+        success:false,
+        message: "User doesn't exist.Please create a new account.",
       });
     }
     if (userExist.isBlocked) {
@@ -36,9 +37,15 @@ const login = async (req, res) => {
       
       return res
         .status(403)
-        .json({ message: "User is blocked.Please contact support." ,error});
+        .json({ message:"Account is blocked. Please contact support." ,error});
     }
-
+ // Check if the user signed up via Google
+ if (!userExist.password) {
+  return res.status(400).json({
+    success: false,
+    message: "You signed up with Google. Please log in using Google.",
+  });
+}
     const isPasswordCorrect = await bcrypt.compare(
       password,
       userExist.password
@@ -73,12 +80,15 @@ const login = async (req, res) => {
         name: userExist.name,
         email: userExist.email,
         phone: userExist.phone,
+        isReferralRewarded:userExist.isReferralRewarded,
+        referralRewards:userExist.referralRewards,
+        referralCode:userExist.referralCode
       },
       accessToken,
     });
   } catch (error) {
-    console.log("error in login", error.message);
-    res.status(500).json({ success: false, message: "Login failed", error });
+    console.log("error in login", error);
+    res.status(500).json({ success: false, message: "Something went wrong! Please try again.", error });
   }
 };
 
@@ -93,10 +103,12 @@ const signup = async (req, res) => {
         .json({ success: false, message: "User already exist" ,error});
     }
     const securePassword = await hashPassword(password);
+    const referralCode=generateReferralCode()
     const newUser = await User.create({
       name,
       email,
       phone,
+      referralCode,
       password: securePassword,
     });
     console.log("User registered successfully");
@@ -121,6 +133,9 @@ const signup = async (req, res) => {
         name: newUser.name,
         email: newUser.email,
         phone: newUser.phone,
+        isReferralRewarded:newUser.isReferralRewarded,
+        referralRewards:newUser.referralRewards,
+        referralCode:newUser.referralCode
       },
       accessToken,
     });
@@ -245,15 +260,14 @@ const googleAuth=async(req,res)=>{
     let user = await User.findOne({email}).select(-'password')
     if(!user){
   //proceed sign up
-     user =await User.create({name,email})
+  const referralCode=generateReferralCode()
+     user =await User.create({name,email,referralCode})
      console.log("proceed signup");
      
     }else{
       //check if blocked
-      
       if(user.isBlocked){
         console.log("user is blocked");
-        
         return res.status(403).json({success:false, message:"User is blocked"})
       }
     //proceed login
@@ -269,9 +283,7 @@ const googleAuth=async(req,res)=>{
       user:user._id,
       expiresAt:new Date(Date.now()+  24 * 60 * 60 * 1000)
     })
-    
     setCookie("userRefreshToken",refreshToken,24 * 60 * 60 * 1000, res)
-
     res.status(200).json({ success:true, message:"User logged in successfully", user,accessToken})
   } catch (error) {
     console.log("Error in google authentication",error);
@@ -299,21 +311,17 @@ const forgetPassword=async(req,res)=>{
     email,
     otp
    })
-  
     //send mail with to email
     sendResetPasswordMail(email,otp)
     res.status(201).json({ success: true, message: "OTP sent successfully" });
-
   } catch (error) {
     res.status(error.status||500).json({message:"Internal server error."})
   }
 }
 
 const verifyResetOtp=async(req,res)=>{
-  
   const {email,otp}=req.body;
   console.log("verifying otp",otp);
-  
   try {
     //check otp with email and otp and newest otp
    const otpData= await OTP.findOne({  email}).sort({createdAt:-1}).limit(1)
@@ -377,11 +385,8 @@ res.status(200).json({success:true, message:"Password verified."})
 
 const changePassword=async(req,res)=>{
   console.log("changing");
-  
   const {userId}=req.params
   const {currentPassword,newPassword}=req.body;
-  
-  
   if(!newPassword.trim()||newPassword.length<6||!userId){
     return res.status(400).json({success:false,message:"Invalid credentials"})
   }
@@ -395,7 +400,6 @@ if(currentPassword===newPassword){
     }
     const securePassword= await hashPassword(newPassword)
     await User.findOneAndUpdate({_id:userId},{$set:{password:securePassword}})
-    
     res.status(200).json({success:true,message:"Password updated"})
   } catch (error) {
     console.log("Error CHANGING PASSWORD",error);

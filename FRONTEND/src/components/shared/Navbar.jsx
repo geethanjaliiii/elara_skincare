@@ -5,24 +5,36 @@ import { FaUser, FaHeart, FaSearch } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logoutUser } from '../../store/slices/userSlice';
-
+import { throttle,debounce } from 'lodash';
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const isLoggedIn = useSelector((state) => state.user.userInfo);
+  const isLoggedIn = useSelector((state) => state?.user?.userInfo);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const handleSearch=(e)=>{
-    console.log("search");
-    
-    if(e.key=='Enter' && searchTerm.trim()){
-      console.log("searching");
-      
-      navigate(`/shop?term=${searchTerm}`)
+
+  //limit navigation calls
+  const throttledNavigate=throttle((term)=>{
+    const trimmedTerm=term.trim()
+    if(trimmedTerm){
+      navigate(`/shop?term=${trimmedTerm}`)
+    }else{
+      navigate("/shop")
     }
+  },1000)
+
+  //debounce input handler//handle frequent typing events
+  //wait 300ms for last input
+  const handleSearch=debounce((term)=>{
+    throttledNavigate(term)
+  },300)
+  const handleInputChange=(e)=>{
+const value=e.target.value;
+setSearchTerm(value);
+handleSearch(value)//debounce call
   }
   const handleCartClick = () => {
     if (isLoggedIn) {
@@ -45,8 +57,9 @@ const Navbar = () => {
   }, []);
 
   return (
+    
     <header className="fixed top-0 w-full z-50">
-      <div className={`w-full  px-4 py-3 flex items-center justify-between transition-all ease-in-out duration-300  ${isScrolled ? 'bg-white bg-opacity-90 shadow-lg' : 'bg-white'} md:rounded-b-lg`}>
+      <div className={`w-full  px-4 py-2 flex items-center justify-between transition-all ease-in-out duration-300  ${isScrolled ? 'bg-white bg-opacity-90 shadow-lg' : 'bg-white shadow-lg bg-opacity-95'} sm:rounded-b-lg`}>
         {/* Logo */}
         <h1 className="text-xl md:text-2xl font-serif cursor-pointer" onClick={() => navigate('/')}>
           Elara
@@ -65,18 +78,17 @@ const Navbar = () => {
           {/* Search Box */}
           <div className=" sm:flex items-center relative">
             <input
-            onChange={(e)=>setSearchTerm(e.target.value)}
+            onChange={handleInputChange}
             value={searchTerm}
-            onKeyDown={handleSearch}
               type="text"
-              placeholder="Search"
+              placeholder="Search "
               className="w-24  md:w-36 lg:w-48 rounded-full border bg-gray-100 px-3 py-1 text-sm focus:outline-none focus:ring focus:border-primary"
             />
             <FaSearch className="absolute right-3 top-2 text-gray-500" />
           </div>
 
           {!isLoggedIn && (
-            <Button className="hidden md:block font-medium" onClick={() => navigate('/login')}>
+            <Button className="hidden md:block font-sm" onClick={() => navigate('/login')}>
               Login
             </Button>
           )}
@@ -95,9 +107,9 @@ const Navbar = () => {
               </button>
               {isDropdownOpen && (
                 <div className="absolute right-0 mt-2 w-40 bg-white border rounded-md shadow-lg z-10">
-                  <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</Link>
+                  <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">PROFILE</Link>
                   <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onClick={handleLogout}>
-                    Logout
+                    LOGOUT
                   </button>
                 </div>
               )}
@@ -126,9 +138,9 @@ const Navbar = () => {
             )}
             {isLoggedIn && (
               <>
-                <Link to="/profile" className="text-sm font-medium hover:text-primary">Profile</Link>
+                <Link to="/profile" className="text-sm font-medium hover:text-primary">PROFILE</Link>
                 <button className="text-sm text-left font-medium hover:text-primary" onClick={handleLogout}>
-                  Logout
+                  LOGOUT
                 </button>
               </>
             )}

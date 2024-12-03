@@ -53,11 +53,15 @@ const Wishlist = () => {
       <div className="max-w-8xl mx-auto px-6 py-8 mt-10">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-2">
-            <h1 className="text-2xl font-semibold">Wishlist</h1>
+            
             {hasItems && (
+              <>
+              <h1 className="text-2xl font-semibold">Wishlist</h1>
               <span className="text-gray-500">
                 ({wishlistData.items.length})
               </span>
+              </>
+              
             )}
           </div>
           

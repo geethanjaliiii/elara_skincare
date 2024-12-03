@@ -85,7 +85,10 @@ export default function CheckoutPayment() {
 
   const handlePlaceOrder = async (couponCode, couponDiscount) => {
     console.log(couponCode, couponDiscount);
+     if(cart.totalMRP==0){
+      return toast.error("All products are sold Out")
 
+     }
     const totalAmount = cart.totalAmount - (couponDiscount || 0);
     if (selectedPayment==='Wallet' && checkLimit(totalAmount)) {
       if (!wallet) {
@@ -158,7 +161,7 @@ export default function CheckoutPayment() {
         walletLoading={walletLoading}
         walletError={walletError}
       />
-      {!allStockOut() && (
+      {(
         <PriceDetails
           cart={cart}
           step={"payment"}

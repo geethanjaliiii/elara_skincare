@@ -3,6 +3,7 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { toast, Toaster } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { Eye,EyeClosed ,EyeOff,EyeIcon} from "lucide-react";
 import { sendOtp, verifyOtp, resetPassword, resendOtp } from '@/services/forgetPassword';
 
 const ForgetPassword = () => {
@@ -10,6 +11,7 @@ const ForgetPassword = () => {
   const [email, setEmail] = useState("");
   const [resendCoolDown, setResendCoolDown] = useState(60);
   const [canResend, setCanResend] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -192,11 +194,20 @@ const ForgetPassword = () => {
                 <div>
                   <Field
                     name="newPassword"
-                    type="password"
+                    type={showPassword?'text':"password"}
                     placeholder="Enter new password"
                     className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <ErrorMessage name="newPassword" component="div" className="text-red-500 text-sm mt-1" />
+                  {/* Eye icon for toggling visibility */}
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 pt-2 transform -translate-y-1/2 text-gray-400  "
+                  >
+                   
+                    {showPassword ? <EyeIcon/> :<EyeOff/>}
+                  </button>
                 </div>
                 <div>
                   <Field

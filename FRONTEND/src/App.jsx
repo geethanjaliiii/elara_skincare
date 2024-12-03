@@ -89,7 +89,7 @@ export default function App() {
           <Route path="/" element={<LandingPage />} />
 
           <Route
-            path="/product"
+            path="/product/:_id"
             element={
               <IsUserLogin>
                 <ProductPage />

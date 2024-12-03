@@ -11,7 +11,7 @@ import { useCart } from "@/context/CartContext";
 export default function CheckoutPage() {
   const navigate = useNavigate();
   const[payActive,setPayActive]=useState(false)
-  const {cart}=useCart()
+  const {cart,fetchCart}=useCart()
   
  useEffect(()=>{
 if(cart?.items?.length===0){
@@ -24,10 +24,16 @@ navigate('/cart')
     <div className="container mx-auto p-4 mt-16">
       <div className="mb-8 border-b pb-4">
         <div className="flex items-center justify-between max-w-2xl mx-auto">
-          <NavigationStep icon={ShoppingBag} label="BAG" onClick={() => navigate("/cart")} isActive={true}/>
-          <NavigationStep icon={MapPin} label="ADDRESS" onClick={() => {navigate("/checkout/address")}} isActive={!payActive} />
-          <NavigationStep icon={CreditCard} label="PAYMENT" onClick={() => {
+          <NavigationStep icon={ShoppingBag} label="BAG" onClick={async() => {
+            await fetchCart();
+            navigate("/cart")}} isActive={true}/>
+          <NavigationStep icon={MapPin} label="ADDRESS" onClick={async() => {
+            await fetchCart()
+            navigate("/checkout/address")}} 
+            isActive={!payActive} />
+          <NavigationStep icon={CreditCard} label="PAYMENT" onClick={async() => {
             setPayActive(true)
+            await fetchCart()
             navigate("/checkout/payment")
           }}
           isActive={payActive} />

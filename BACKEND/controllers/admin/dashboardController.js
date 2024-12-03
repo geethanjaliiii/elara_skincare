@@ -102,6 +102,10 @@ const productsSoldResult = await Order.aggregate([{$match:periodFilter},
 ])
 stats.totalProductsSold = productsSoldResult[0]?.totalProductsSold || 0;
 const activeUsers = await User.countDocuments()
+if(totalOrders==0){
+  return 0
+}
+stats.averageOrderValue=totalOrders==0?0:(revenueResult[0]?.totalRevenue||0)/totalOrders
 stats.conversionRate=(totalOrders/activeUsers)*100
 stats.activeUsers=activeUsers
 

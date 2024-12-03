@@ -9,7 +9,7 @@ export default function ShopHeader() {
        
       <div className="relative h-64 md:h-65 overflow-hidden md:block hidden">
         <img
-          src="/images/banner/shop.jpg"
+          src="https://res.cloudinary.com/dby2ebbkr/image/upload/v1733253773/shop_1_ggxrl2.jpg"
           alt="Skincare products with leaves and soft lighting"
           className="w-full h-full object-cover "
         />

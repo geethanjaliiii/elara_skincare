@@ -383,7 +383,7 @@ const fetchBestProducts = async (req, res) => {
       {$sort:{
         totalQuantity:-1
       }},
-      {$limit:10},
+      {$limit:4},
       {$lookup:{
         from:'products',
         localField:'_id',
@@ -407,78 +407,3 @@ module.exports = {
   sendReturnRequest,
   fetchBestProducts
 };
-//   const updatedOrder =
-//     order.paymentMethod == "Cash on Delivery"
-//       ? await Order.findOneAndUpdate(
-//           { orderNumber: orderId },
-
-//           {
-//             $set: { "items.$[elem].status": "Cancelled" },
-//             $push: {
-//               activityLog: {
-//                 status: `Cancelled item:${item.name}`,
-//               },
-//             },
-//           },
-//           { arrayFilters: [{ "elem._id": itemId }], new: true }
-//         )
-//       : await Order.findOneAndUpdate(
-//           { orderNumber: orderId },
-//           {
-//             $set: {
-//               "items.$[elem].status": "Cancelled",
-//               "items.$[elem].paymentStatus": "Refunded",
-//             },
-//             $push: {
-//               activityLog: {
-//                 status: `Cancelled item:${item.name}`,
-//               },
-//             },
-//           },
-//           { arrayFilters: [{ "elem._id": itemId }], new: true }
-//         );
-//   //update order records
-//   //if payment mod not cashon delivery payemnt status to refunded and
-//   const calculateRefundPrice=(order,item)=>{
-
-//     const offerDiscount=(item.discount*item.totalPrice)/100
-//     const itemCouponDiscount=order.couponDiscount/order.items.length;
-//     const itemshippingFee=order.shippingFee/order.items.length
-//     const itemTax=order.tax/order.items.length
-//     const totalPrice=item.totalPrice+itemTax+itemshippingFee
-//     return totalPrice-offerDiscount-itemCouponDiscount
-//   }
-
-//   if(order.paymentMethod!=='Cash on Delivery'){
-//     const refundAmount=calculateRefundPrice(order)
-//    let wallet= await Wallet.findOne({userId:order.userId})
-//    const newTransaction={
-//     transactionId:order.transactionId,
-//     type:'refund',
-//     amount:refundAmount,
-//     orderId:order._id,
-//     status:'success'
-//   }
-//    if(!wallet){
-//     wallet= new Wallet({
-//       userId:order.userId,
-//       transactionHistory:[newTransaction]
-//     })
-//    }
-//   }else{
-//      wallet.transactionHistory.push(newTransaction)
-//   }
-//  await wallet.save()
-//   //save to wallet schema
-
-//   //increase stock
-//   const product = await Product.findOneAndUpdate(
-//     { _id: item.productId },
-//     { $inc: { "sizes.$[elem].stock": item.quantity } },
-//     { arrayFilters: [{ "elem.size": item.size }] }
-//   );
-//   console.log("up order", updatedOrder);
-//   await product.save();
-//   res
-//     .status(200)
-//     .json({ success: true, message: "Order cancelled", order: updatedOrder });

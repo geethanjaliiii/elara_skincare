@@ -10,6 +10,7 @@ const { createCoupon,  showCoupons, changeCouponStatus } = require('../controlle
 const {fetchProducts,createProductoffer, createCategoryoffer,fetchOffers, listedCategories}=require('../controllers/admin/offerController')
 const fetchSalesData = require('../controllers/admin/salesController')
 const { fetchBestProducts ,fetchBestCategories, getOverviewStats, getRecentOrders, getRevenue} = require('../controllers/admin/dashboardController')
+const { fetchBanners, deleteBanner, updateBanner, addBanner } = require('../controllers/admin/BannerController')
 
 const adminRoute = express()
 
@@ -57,6 +58,11 @@ adminRoute.post('/offers/products',authenticateAdminToken,createProductoffer)
 adminRoute.post('/offers/categories',authenticateAdminToken,createCategoryoffer)
 adminRoute.get('/offers/products',authenticateAdminToken,fetchProducts)
 
+//banner
+adminRoute.get('/banners',authenticateAdminToken,fetchBanners)
+adminRoute.patch('/banners/:bannerId',authenticateAdminToken,deleteBanner)
+adminRoute.put('/banners/:bannerId',authenticateAdminToken,updateBanner)
+adminRoute.post('/banners',authenticateAdminToken,addBanner)
 //sales
 adminRoute.get('/sales',authenticateAdminToken,fetchSalesData)
 module.exports = adminRoute

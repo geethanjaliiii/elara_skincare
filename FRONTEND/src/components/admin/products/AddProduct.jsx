@@ -176,6 +176,7 @@ export default function AddProduct() {
     });
     try {
       setLoading(true)
+      
       window.alert("Product is adding.Please wait.")
       // {loading && toast.loading("Product is addding.Please wait.")}
       const response = await adminAxiosInstance.post(

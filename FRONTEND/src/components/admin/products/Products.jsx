@@ -47,12 +47,12 @@ import {
 import  { adminAxiosInstance } from "@/config/axiosConfig";
 
 const skinTypes = [
-  "Dry",
-  "Oily",
-  "Combination",
-  "Normal",
-  "Sensitive",
-  "All Skin Types",
+"normal",
+      "dry",
+      "oily",
+      "combination",
+      "sensitive",
+      "All skin types",
 ];
 
 export default function Products() {
@@ -61,8 +61,8 @@ export default function Products() {
   const [sortOption, setSortOption] = useState("recommended");
   const [categoryFilters, setCategoryFilters] = useState([]);
   const [skinTypeFilters, setSkinTypeFilters] = useState([]);
-  const [priceRange, setPriceRange] = useState([0, 500]);
-  const [viewMode, setViewMode] = useState("grid");
+  const [priceRange, setPriceRange] = useState([0, 2000]);
+  const [viewMode, setViewMode] = useState("list");
   const [searchTerm, setSearchTerm] = useState("");
   const [list, setList] = useState(false);
   const navigate =useNavigate()
@@ -105,7 +105,7 @@ export default function Products() {
       }
     }
     fetchData();
-  }, [list, categoryFilters, priceRange, searchTerm, sortOption]);
+  }, [list, categoryFilters, priceRange, searchTerm, sortOption,skinTypeFilters]);
 
   //fetch category details
   useEffect(() => {
@@ -118,7 +118,8 @@ export default function Products() {
           console.log("categories not found");
           return;
         }
-        setCategories(response?.data?.categories);
+        const fetchedCategories=response?.data?.categories
+        setCategories(fetchedCategories.filter(category=>category.isListed));
         console.log(response.data.categories);
       } catch (error) {
         console.log("categoried not found", error);
@@ -150,6 +151,7 @@ export default function Products() {
           ? { ...product, isListed: !product.isListed }
           : product
       )
+      
     );
     try {
       await adminAxiosInstance.patch(`/api/admin/products/${_id}`);
@@ -200,7 +202,7 @@ export default function Products() {
         ))}
       </div>
 
-      <div>
+      {/* <div>
         <h3 className="font-semibold mb-2">Price Range</h3>
         <Slider
           min={0}
@@ -213,7 +215,7 @@ export default function Products() {
           <span>₹{priceRange[0]}</span>
           <span>₹{priceRange[1]}</span>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 

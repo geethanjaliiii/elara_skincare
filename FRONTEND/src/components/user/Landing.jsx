@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import Navbar from '@/components/shared/Navbar';
 import Footer from '../shared/Footer';
@@ -9,32 +9,113 @@ import { ReferralModal } from './referalCode/ReferalModal';
 import { useSelector } from 'react-redux';
 import { useQuery } from '@tanstack/react-query';
 import { fetchBestSellers } from '@/services/shop';
+import { fetchBanners } from '@/services/banner';
 
 export default function EvaraLandingPage() {
-  // const [bestsellers, setBestsellers] = useState([]);
+
   const navigate = useNavigate();
   useScrollAnimation();
   const user = useSelector((state) => state?.user?.userInfo);
   const isReferralRewarded = user ? user?.isReferralRewarded : null;
+  const [currentBanner, setCurrentBanner] = useState(0);
+
+  const {data:banners}=useQuery({
+    queryKey:['userBanners'],
+    queryFn:fetchBanners,
+   
+  })
+  
 
   const {data:bestsellers,isLoading}=useQuery({
     queryKey:['bestSellers'],
     queryFn:fetchBestSellers,
     select:(data)=>data.map((item)=>item?.productDetails)
   })
+
+  useEffect(() => {
+    console.log("banners",banners);
+    
+    const timer = setInterval(() => {
+      setCurrentBanner((prev) => (prev + 1) % banners.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [banners]);
+
   const routineSteps = [
-    { title: 'Cleanse', image: '/images/category/clense.jpg', description: 'Start with a gentle cleanser to remove impurities.' },
-    { title: 'Exfoliate', image: '/images/category/exfoliate.jpg', description: 'Use a natural scrub to remove dead skin cells.' },
-    { title: 'Moisturize', image: '/images/category/moisturise.jpg', description: 'Apply a hydrating moisturizer to keep skin supple.' },
-    { title: 'Nourish', image: '/images/category/nourish.jpg', description: 'Finish with a nourishing serum or oil for extra care.' },
+    { title: 'Cleanse', image: 'https://res.cloudinary.com/dby2ebbkr/image/upload/v1733253394/clense_kblgvv.webp', description: 'Start with a gentle cleanser to remove impurities.' },
+    { title: 'Exfoliate', image: 'https://res.cloudinary.com/dby2ebbkr/image/upload/v1733253394/exfoliate_nmalbh.webp', description: 'Use a natural scrub to remove dead skin cells.' },
+    { title: 'Moisturize', image: 'https://res.cloudinary.com/dby2ebbkr/image/upload/v1733253403/moisturise_vrd5z3.webp', description: 'Apply a hydrating moisturizer to keep skin supple.' },
+    { title: 'Nourish', image: 'https://res.cloudinary.com/dby2ebbkr/image/upload/v1733253404/nourish_lhz4bo.webp', description: 'Finish with a nourishing serum or oil for extra care.' },
   ];
 
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <main className="flex-1 ">
+      {banners?.length>0 && (<section className="relative h-[450px] sm:h-[500px] md:h-[630px] overflow-hidden">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentBanner}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5 }}
+              className="absolute inset-0"
+            >
+              <img
+                src={banners[currentBanner].image}
+                alt={banners[currentBanner].title}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
+                <div className="text-center max-w-3xl px-4">
+                  <motion.h1
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.2 }}
+                    className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight"
+                  >
+                    {banners[currentBanner].title}
+                  </motion.h1>
+                  <motion.p
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.4 }}
+                    className="text-lg sm:text-xl md:text-2xl text-white mb-6 font-light"
+                  >
+                    {banners[currentBanner].content}
+                  </motion.p>
+                  <motion.div
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.6 }}
+                  >
+                    <Button
+                      className="bg-white text-black hover:bg-gray-200 transition-colors duration-300 text-base sm:text-lg py-2 px-4 sm:px-6"
+                      onClick={() => navigate('/shop')}
+                    >
+                      Discover ELARA
+                    </Button>
+                  </motion.div>
+                </div>
+              </div>
+            </motion.div>
+          </AnimatePresence>
+          <div className="absolute bottom-4 left-0 right-0 flex justify-center space-x-2">
+            {banners.map((_, index) => (
+              <button
+                key={index}
+                className={`w-3 h-3 rounded-full ${
+                  index === currentBanner ? 'bg-white' : 'bg-gray-400'
+                }`}
+                onClick={() => setCurrentBanner(index)}
+              />
+            ))}
+          </div>
+        </section>)}
+
         {/* Hero Section */}
-        <section className="relative h-[450px] sm:h-[500px] md:h-[630px] overflow-hidden">
+        {/* <section className="relative h-[450px] sm:h-[500px] md:h-[630px] overflow-hidden">
           <img
             src="/images/banner/banner.png"
             alt="EVARA Skincare Banner"
@@ -56,10 +137,10 @@ export default function EvaraLandingPage() {
               </Button>
             </div>
           </div>
-        </section>
+        </section> */}
 
         {/* Bestsellers Section */}
-        {bestsellers &&<section className="w-full py-12 md:py-24 lg:py-14">
+        {bestsellers?.length==4 && bestsellers?.length>0 &&<section className="w-full py-12 md:py-24 lg:py-14">
           <div className="container px-4 md:px-6 mx-auto">
           <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-center mb-12">
              Our Bestsellers
@@ -133,7 +214,7 @@ export default function EvaraLandingPage() {
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tighter text-center mb-8 sm:mb-12">Experience the Natural Difference</h2>
             <div className="grid gap-8 lg:grid-cols-2 items-center">
               <motion.img
-                src="/images/category/ingre.png"
+                src="https://res.cloudinary.com/dby2ebbkr/image/upload/v1733253404/ingre_xi1p3j.png"
                 alt="Natural ingredients"
                 className="w-full h-[200px] sm:h-[300px] md:h-[400px] lg:h-[500px] object-cover rounded-xl"
                 initial={{ opacity: 0, y: 50 }}
@@ -158,7 +239,7 @@ export default function EvaraLandingPage() {
             </div>
           </div>
         </section>
-
+        {!isReferralRewarded && user && <ReferralModal/> }
         {/* Customer Reviews Section */}
         <section className="w-full py-12 md:py-24 lg:py-32 bg-[#f5ede4]">
           <div className="container px-4 md:px-6 mx-auto">

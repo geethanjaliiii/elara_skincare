@@ -43,6 +43,7 @@ import Wallet from "./components/user/wallet/wallet.jsx";
 import SalesReport from "./components/admin/sales/salesReport.jsx";
 import Dashboard from "./components/admin/dashboard/Dashboard.jsx";
 import Wishlist from "./components/user/whishlist/wishlist.jsx";
+import BannerManagement from "./components/admin/banners/BannerManagement.jsx";
 
 
 
@@ -239,6 +240,8 @@ export default function App() {
             <Route path="offers" element={<OfferManagement/>}/>
             <Route path="coupons/add" element={<AddCoupon/>}/>
             <Route path="sales" element={<SalesReport/>} />
+            <Route path='banners' element={<BannerManagement/>}/>
+            
             <Route path="settings" element={<div>Settings Content</div>} />
           </Route>
         </Routes>

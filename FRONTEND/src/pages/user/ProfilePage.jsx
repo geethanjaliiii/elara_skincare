@@ -12,11 +12,18 @@ import Orders from '@/components/user/profile/orders/Orders'
 import Wallet from '@/components/user/wallet/wallet'
 import Coupons from '@/components/user/coupons/Coupons'
 import Wishlist from '@/components/user/whishlist/wishlist'
+import ReferAndEarn from '@/components/user/profile/Refer/ReferAndEarn'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 const ProfilePage = () => {
-    const [activeItem ,setActiveItem]=useState('My Profile')
+    // const [activeItem ,setActiveItem]=useState('My Profile')
+   const [searchParams,setSearchParams]=useSearchParams()
+   const navigate=useNavigate()
     const [user,setUser]=useState({})
     const userId=useSelector((state)=>state?.user?.userInfo?._id)
+
+    //setting active item from search params
+    const activeItem=searchParams.get('tab')||'My Profile'
     const breadcrumbItems=[
         {label:'Account' , href:'/profile'},
         {label:activeItem}
@@ -36,26 +43,30 @@ const ProfilePage = () => {
          }
          getUserDetails()
     },[userId])
+    const handleNavigation=(item)=>{
+setSearchParams({tab:item})//update the query params
+    }
   return (
     <div className="min-h-screen bg-gray-50">
         <Toaster/>
         <Navbar/>
-        <div className="container mx-auto px-4 py-8 mt-2">
+        <div className="container mx-auto px-4 py-8 mt-2 ">
         <Breadcrumbs items={breadcrumbItems} />
         <div className='mt-6 flex flex-col lg:flex-row lg:gap-8'>
             <ProfileSidebar 
                user={user}
                activeItem={activeItem}
-               onNavigate={setActiveItem}
+               onNavigate={handleNavigation}
                
                />
-               <main className="mt-6 lg:mt-0 flex-grow">
+               <main className="lg:mt-0 flex-grow">
                 {activeItem=='My Profile' && <ProfileForm user={user}/>}
                 {activeItem=='Address Book' && <AddressBook userId={user._id}/>}
                 {activeItem=='My Orders' &&  <Orders/>}
                 {activeItem=='Wallet' && <Wallet  />}
                 {activeItem=='Coupons' && <Coupons/>}
                 {activeItem=='My Wishlist' && <Wishlist/>}
+                {activeItem=='Refer & Earn' && <ReferAndEarn user={user}/>}
                </main>
         </div>
         </div>

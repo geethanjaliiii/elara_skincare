@@ -8,37 +8,49 @@ import { X, Wallet } from 'lucide-react'
 
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { claimReward } from '@/utils/getReward'
-import { useSelector } from 'react-redux'
+import { claimReward } from '@/services/getReward'
+import { useDispatch, useSelector } from 'react-redux'
+import { setUserDetails } from '@/store/slices/userSlice'
 // import { submitReferralCode } from '../actions/submitReferralCode'
 
 export function ReferralModal() {
   const [open, setOpen] = useState(true)
+  const dispatch=useDispatch()
   const[referalCode,setReferalCode]=useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [message, setMessage] = useState('')
  const navigate=useNavigate()
 const userId=useSelector((state)=>state?.user?.userInfo?._id)
 
-  async function onSubmit(e) {
+  async function onSubmit (e) {
     e.preventDefault()
     console.log("submitting referal");
     
     setIsSubmitting(true)
-    const result=claimReward(userId,referalCode)
-    // const result = await submitReferralCode(formData)
-    setIsSubmitting(false)
-    if (result.success) {
+    try {
+      const result= await claimReward(userId,referalCode)
+      setIsSubmitting(false)
+     
         toast.success(`Success! $${result.amount} has been added to your wallet.`)
       setMessage(`Success! $${result.amount} has been added to your wallet.`)
-      setTimeout(() => {
-        setOpen(false)
-        // window.location.reload()
-      }, 3000)
-    } else {
-      setMessage('Invalid referral code. Please try again.')
+      dispatch(setUserDetails(result?.user))
+      console.log("Closing modal after success.");
+        
+      setOpen(false)
+      // setTimeout(() => {
+      //   console.log("Closing modal after success.");
+
+      //   setOpen(false)
+      //   // window.location.reload()
+      // }, 3000)
+     
+    } catch (error) {
+      const errorMessage=error?.response?.data?.message||'Invalid referral code. Please try again.'
+      setMessage(errorMessage)
+      setIsSubmitting(false)
     }
   }
+  
 const handleChange=(e)=>{
   setReferalCode(e.target.value)
 }
@@ -76,7 +88,7 @@ const handleChange=(e)=>{
                 </p>
               </div>
 
-              <form action={onSubmit} className="space-y-4">
+              <form onSubmit={onSubmit} className="space-y-4">
                 <input
                   type="text"
                   name="referralCode"

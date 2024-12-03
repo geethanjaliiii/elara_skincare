@@ -19,7 +19,8 @@ const userSchema = new mongoose.Schema({
     },
     referralCode:{type:String,unique:true},
     referredBy:{type:String},//code
-    referralRewards:{type:String,default:0},
+    referralRewards:{type:Number,default:0},
+    totalReferrals:{type:Number,default:0},
     isReferralRewarded:{type:Boolean,default:false},
     isBlocked:{
          type:Boolean,

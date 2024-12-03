@@ -1,7 +1,7 @@
 
 
 import React from 'react'
-import { User, MapPin, ShoppingBag, Heart, Wallet, Ticket, AlertCircle, Trash2 } from 'lucide-react'
+import { User, MapPin, ShoppingBag, Heart, Wallet, Ticket, AlertCircle, Trash2,DollarSign } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -27,7 +27,8 @@ function ProfileSidebar({ user, activeItem, onNavigate }) {
     { label: 'My Orders', icon: ShoppingBag },
     { label: 'My Wishlist', icon: Heart },
     { label: 'Wallet', icon: Wallet },
-    { label: 'Coupons', icon: Ticket }
+    { label: 'Coupons', icon: Ticket },
+    {label:"Refer & Earn", icon:DollarSign }
   ]
 
   const renderNavItems = () => (
@@ -72,7 +73,7 @@ function ProfileSidebar({ user, activeItem, onNavigate }) {
       <div className="lg:hidden">
         <Sheet>
           <SheetTrigger asChild>
-            <Button variant="outline" className="mb-4">
+            <Button variant="outline" >
               <User className="mr-2 h-4 w-4" />
               Menu
             </Button>

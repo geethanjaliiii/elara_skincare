@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom'
 export default function ProductCard({ _id, name, categoryId, price, sizes, reviews,rating=4.6, images,isFeatured ,discount}) {
   const [isHovered, setIsHovered] = useState(false)
   const navigate=useNavigate()
- const discountPrice=price-(price*discount)/100
+ const discountPrice=(price-(price*discount)/100).toFixed(2)
 const isStockOut=sizes.every(size=>size.stock==0)
   return (
     <Card 

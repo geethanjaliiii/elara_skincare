@@ -49,7 +49,7 @@ const claimReferral=async(req,res)=>{
   return res.status(400).json({success:false,message:""})
  }
   try {
-    const user=await User.findOne({_id:userId})
+    const user=await User.findOne({_id:userId}).select('-password -__v -created_at')
     if(!user){
      return res.status(404).json({success:false,message:"User not found."})
     }
@@ -57,12 +57,12 @@ const claimReferral=async(req,res)=>{
      return res.status(400).json({success:false,message:"This reward is already claimed"})
     }
     const referrer=await User.findOne({referralCode:code,isBlocked:false})
-    if(!referrer){
+    if(!referrer||user.referralCode===code){
    return res.status(400).json({success:false,message:"Referral code is invalid!"})
     }
     let userWallet=await Wallet.findOne({userId:user._id})
     const userTransactionDetails={
-     transactionId:`WELCOME-${uuidv4()}`,
+     transactionId:`WELCOME-${uuidv4().slice(0,5)}`,
      type:"credit",
      amount:50,
      status:"success"
@@ -77,9 +77,10 @@ const claimReferral=async(req,res)=>{
      userWallet.transactionHistory.push(userTransactionDetails)
     }
     await userWallet.save()
+    //crediting to reffere account
     let referrerWallet=await Wallet.findOne({userId:referrer._id})
     const referrerTansactionDetails={
-     transactionId:`ELA-${uuidv4()}`,
+     transactionId:`ELA-${uuidv4().slice(0,8)}`,
      type:"credit",
      amount:100,
      status:"success"
@@ -93,7 +94,15 @@ const claimReferral=async(req,res)=>{
      referrerWallet.transactionHistory.push(referrerTansactionDetails)
     }
     await referrerWallet.save()
-    res.status(200).json({success:true,message:"Referral Offer claimed",amount:50})
+    //update user details
+    user.isReferralRewarded=true
+    user.referralRewards=50
+    await user.save()
+    //updating reffer schema
+    referrer.referralRewards+=100
+    referrer.totalReferrals+=1
+    await referrer.save()
+    res.status(200).json({success:true,message:"Referral Offer claimed",amount:50,user})
   } catch (error) {
     console.log("eerro claiming referral",error);
     res.status(500).json({success:false,message:"Unable to claim referral offer."})

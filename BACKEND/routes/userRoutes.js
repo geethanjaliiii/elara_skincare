@@ -11,6 +11,7 @@ const { createOrder, verifyPayment, retryPayment } = require('../controllers/use
 const { getCoupons, applyCoupon, getAllCoupons } = require('../controllers/user/couponController')
 const {addToWishlist,removeFromWishlist,getWishlist, toggleWishlist} = require("../controllers/user/wishlistController");
 const { fetchWallet,addMoney } = require('../controllers/user/walletController')
+const { fetchBanners } = require('../controllers/user/bannerController')
 
 const userRoute = express()
 
@@ -82,4 +83,7 @@ userRoute.post("/wishlist/toggle", authenticateToken,toggleWishlist);
 //wallet
 userRoute.get('/wallet/:userId',authenticateToken,fetchWallet)
 userRoute.post(`/wallet/credit`,authenticateToken,addMoney)
+
+//banners
+userRoute.get('/banners',fetchBanners)
 module.exports = userRoute

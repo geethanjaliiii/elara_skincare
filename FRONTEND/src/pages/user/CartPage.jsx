@@ -30,17 +30,7 @@ export default function CartPage() {
         {cartItems && cartItems.length>0 ?(
           <div className="grid gap-6 lg:grid-cols-3">
             <div className="lg:col-span-2">
-              <div className="mb-6">
-                <Label htmlFor="pincode">Delivery Pincode</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="pincode"
-                    placeholder="Enter Delivery Pincode"
-                    className="max-w-[200px]"
-                  />
-                  <Button variant="outline">Check</Button>
-                </div>
-              </div>
+           
               {/* cartitems */}
               <CartItem
                 cartItems={cartItems}

@@ -25,7 +25,7 @@ const paymentStatusColors = {
 };
 const statusColors = {
   Pending: "bg-yellow-500",
-  Processing: "bg-blue-500",
+  Confirmed: "bg-blue-500",
   Shipped: "bg-purple-500",
   Delivered: "bg-green-600",
   Cancelled: "bg-red-600",
@@ -78,11 +78,18 @@ const[returnModalOpen,setReturnModalOpen]=useState(false)
   };
   //api function call
   const changeStatus = async (orderId, itemId, newStatus) => {
-    const response = await adminAxiosInstance.patch(
-      `/api/admin/orders/${orderId}/items/${itemId}`,
-      { status: newStatus }
-    );
-    return response.data.item;
+    try {
+      const response = await adminAxiosInstance.patch(
+        `/api/admin/orders/${orderId}/items/${itemId}`,
+        { status: newStatus }
+      );
+      return response.data.item;
+    } catch (error) {
+      console.log("error updating status",error);
+      
+      throw error
+    }
+    
   };
   //api call to cancel order item
   const cancelOrder = async (itemId) => {
@@ -107,7 +114,7 @@ const[returnModalOpen,setReturnModalOpen]=useState(false)
     },
     onError: (error) => {
       const errorMessage =
-        error?.response?.data?.error || "Status updating failed.";
+        error?.response?.data?.message || "Status updating failed.";
       console.log("Error in status update", error);
       toast.error(errorMessage);
     },

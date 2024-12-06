@@ -19,12 +19,13 @@ export const loadRazorpayScript = () => {
 export const initiateRazorpayPayment = async ({
   orderData,
   onSuccess,
+ 
   onError,
   orderId, //orderId for retry
 }) => {
   try {
     console.log("orderId for retry",orderId,orderData);
-    
+    let isPaymentDone=false
     //load razorpay script
     const isLoaded = await loadRazorpayScript();
     if (!isLoaded) {
@@ -52,6 +53,8 @@ export const initiateRazorpayPayment = async ({
       order_id: data.order.id,
       //success handler
       handler: async (response) => {
+        if(isPaymentDone) return 
+        isPaymentDone=true
         console.log("create payment resp", response);
 
         const { data: verificationData } = await axiosInstance.post(
@@ -70,6 +73,8 @@ export const initiateRazorpayPayment = async ({
             paymentMethod: "Razorpay",
             paymentStatus:"Paid"
           };
+
+        
           onSuccess(finalOrderData);
         } else {
           throw new Error("Payment verification failed");
@@ -86,11 +91,14 @@ export const initiateRazorpayPayment = async ({
 
       //Error handlers
       modal:{
-        ondismiss:()=>{
-            onError(new Error('Payment process was cancelled'))
-        }
-      },
+       
+        ondismiss: () => {
+          if (!isPaymentDone) {
+            onError(new Error('Payment process was cancelled'));
+          }
 
+      },
+    },
       callback_url:null,
       redirect:false
     };
@@ -99,6 +107,8 @@ export const initiateRazorpayPayment = async ({
 
     //payment failure handler
     paymentObject.on('payment.failed',async function (response) {
+      if(isPaymentDone) return
+      isPaymentDone=true
         try {
             //detailed error
             console.error('Razorpay Payment Failed', {
@@ -114,7 +124,14 @@ export const initiateRazorpayPayment = async ({
                paymentMethod:"Razorpay",
                paymentStatus:"Failed"
               }
-
+                     // Close Razorpay modal if it's still open
+        if (paymentObject) {
+          try {
+            paymentObject.close();
+          } catch (closeError) {
+            console.warn("Error closing Razorpay modal:", closeError);
+          }
+        }
               onSuccess(failedOrderData)
               const errorMessage = response.error.description || 'Payment failed';
               onError(new Error(errorMessage));
@@ -126,7 +143,7 @@ export const initiateRazorpayPayment = async ({
     paymentObject.open();
   } catch (error) {
     console.log("Payment not completed", error);
-
+    
     onError(error);
   }
 };
@@ -201,6 +218,8 @@ onSuccess})=>{
       //Error handlers
       modal:{
         ondismiss:()=>{
+          console.log("paiment modal is closiing");
+          
             onError(new Error('Payment process cancelled'))
         }
       },

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import PaymentSection from "@/components/user/checkout/PaymentSection";
 import PriceDetails from "@/components/user/cart/PriceDetails";
 import { useCart } from "@/context/CartContext";
@@ -18,6 +18,7 @@ import { calculateDiscountPrice } from "@/utils/calculateDiscountPrice";
 export default function CheckoutPayment() {
   const [selectedPayment, setSelectedPayment] = useState("");
   const user = useSelector((state) => state?.user?.userInfo);
+  const [orderId,setOrderId]=useState('')
   const userId=user._id
   const name=user.name
  
@@ -53,13 +54,13 @@ export default function CheckoutPayment() {
 
   useEffect(() => {
     if (cart.items?.length == 0) {
-      navigate("/cart");
+      navigate("/orders");
     }
   }, [cart]);
   const placeOrder = async (orderData) => {
     const response = await axiosInstance.post(`/api/users/orders`, orderData);
     return response.data;
-  };
+  }; 
 
   const orderMutation = useMutation({
     mutationFn: placeOrder,
@@ -70,12 +71,19 @@ export default function CheckoutPayment() {
 
         //Invalidate 'orderDetails to refetch fresh data
         queryClient.invalidateQueries(["orderDetails", data.orderId]);
-
+        setOrderId(data.orderId)
         navigate(`/checkout/success/${data.orderId}`);
       }
       console.log(data);
     },
     onError: (error) => {
+    console.log("error in payment",error,orderId);
+    
+      if(cart.items?.length==0 && orderId){
+        navigate(`/checkout/success/${orderId}`);
+      }else{
+        navigate('/orders')
+      }
       const errorMessage =
         error?.response?.data?.error || "Ordet not placed.Please try again.";
       toast.error(errorMessage);
@@ -107,6 +115,7 @@ export default function CheckoutPayment() {
         quantity: item.quantity,
         price: item.latestPrice,
         discount: item.discount, //in %,
+        paymentStatus:selectedPayment=='Wallet'?'Paid':'Unpaid',
         couponDiscountPrice:calculateDiscountPrice(cart,item,couponDiscount).itemCouponDiscount,
         offerDiscountPrice:calculateDiscountPrice(cart,item,couponDiscount).offerDiscount,
         totalMRP:item.latestPrice*item.quantity,
@@ -142,6 +151,7 @@ export default function CheckoutPayment() {
       totalAmount:roundToTwo( Math.max((cart.totalAmount - (couponDiscount || 0)),0)),
       shippingAddress: address,
       paymentMethod: selectedPayment,
+      
     };
     console.log("orderdata", orderData);
     if (selectedPayment === "Razorpay") {

@@ -11,9 +11,15 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchBestSellers } from '@/services/shop';
 import { fetchBanners } from '@/services/banner';
 
+import FounderHero from './landing/Founder';
+import VisitUs from './landing/VisitUs';
+import { Badge } from '../ui/badge';
+import { Gift } from 'lucide-react';
+
 export default function EvaraLandingPage() {
 
   const navigate = useNavigate();
+  const [showReward,setShowReward]=useState(false)
   useScrollAnimation();
   const user = useSelector((state) => state?.user?.userInfo);
   const isReferralRewarded = user ? user?.isReferralRewarded : null;
@@ -114,31 +120,6 @@ export default function EvaraLandingPage() {
           </div>
         </section>)}
 
-        {/* Hero Section */}
-        {/* <section className="relative h-[450px] sm:h-[500px] md:h-[630px] overflow-hidden">
-          <img
-            src="/images/banner/banner.png"
-            alt="EVARA Skincare Banner"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
-            <div className="text-center max-w-3xl px-4">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
-                Unveil Your Skin's Natural Radiance
-              </h1>
-              <p className="text-lg sm:text-xl md:text-2xl text-white mb-6 font-light">
-                Experience the transformative power of nature-inspired skincare
-              </p>
-              <Button
-                className="bg-white text-black hover:bg-gray-200 transition-colors duration-300 text-base sm:text-lg py-2 px-4 sm:px-6"
-                onClick={() => navigate('/shop')}
-              >
-                Discover ELARA
-              </Button>
-            </div>
-          </div>
-        </section> */}
-
         {/* Bestsellers Section */}
         {bestsellers?.length==4 && bestsellers?.length>0 &&<section className="w-full py-12 md:py-24 lg:py-14">
           <div className="container px-4 md:px-6 mx-auto">
@@ -229,19 +210,43 @@ export default function EvaraLandingPage() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5 }}
               >
-                <p className="text-gray-500 text-base sm:text-lg leading-relaxed">
-                  At EVARA, we believe in the power of nature. Our products are crafted with carefully selected natural ingredients to nourish and revitalize your skin. Experience the difference of truly natural skincare that works in harmony with your body's natural processes.
+                <p className="text-gray-500 text-base sm:text-lg leading-relaxed"
+                >
+                  At ELARA, we believe in the power of nature. Our products are crafted with carefully selected natural ingredients to nourish and revitalize your skin. Experience the difference of truly natural skincare that works in harmony with your body's natural processes.
                 </p>
-                <Button className="w-fit transition-transform hover:scale-105 bg-black text-white hover:bg-gray-800 text-sm sm:text-base">
+                <Button className="w-fit transition-transform hover:scale-105 bg-black text-white hover:bg-gray-800 text-sm sm:text-base"
+                onClick={()=>navigate('/our-story')}>
                   Discover Our Ingredients
                 </Button>
               </motion.div>
             </div>
           </div>
         </section>
-        {!isReferralRewarded && user && <ReferralModal/> }
-        {/* Customer Reviews Section */}
-        <section className="w-full py-12 md:py-24 lg:py-32 bg-[#f5ede4]">
+        
+        {!isReferralRewarded && user && (
+  <div className="fixed bottom-4 left-4 z-50">
+    <Badge 
+      className="cursor-pointer hover:scale-105 transition-transform 
+                 bg-white/80 backdrop-blur-sm rounded-full p-2 
+                 shadow-lg hover:shadow-xl"
+      onClick={() => setShowReward(true)}
+    >
+      <Gift className="w-6 h-6 text-primary" />
+    </Badge>
+    {<ReferralModal setOpen={setShowReward} open={showReward}/>}
+  </div>
+)}
+
+        <section>
+         <FounderHero/>
+        </section>
+     
+
+       <section>
+        <VisitUs/>
+       </section>
+   {/* Customer Reviews Section */}
+   {/* <section className="w-full py-12 md:py-24 lg:py-32 bg-[#f5ede4]">
           <div className="container px-4 md:px-6 mx-auto">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tighter text-center mb-8 sm:mb-12">What Our Customers Say</h2>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -260,34 +265,7 @@ export default function EvaraLandingPage() {
               ))}
             </div>
           </div>
-        </section>
-
-        {/* Newsletter Section */}
-        <section className="w-full py-12 md:py-24 lg:py-32">
-          <div className="container px-4 md:px-6 mx-auto">
-            <motion.div 
-              className="bg-primary text-primary-foreground rounded-lg p-8 md:p-12 text-center"
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-            >
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">Stay Connected</h2>
-              <p className="text-lg mb-6">Subscribe to our newsletter for exclusive offers and skincare tips.</p>
-              <form className="flex flex-col sm:flex-row gap-4 justify-center">
-                <input 
-                  type="email" 
-                  placeholder="Enter your email" 
-                  className="px-4 py-2 rounded-md text-black"
-                />
-                <Button className="bg-white text-primary hover:bg-gray-200">
-                  Subscribe
-                </Button>
-              </form>
-            </motion.div>
-          </div>
-        </section>
-
+        </section> */}
       </main>
       <Footer />
     </div>

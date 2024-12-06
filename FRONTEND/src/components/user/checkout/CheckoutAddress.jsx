@@ -17,7 +17,7 @@ export default function CheckoutAddress() {
     fetchAddresses();
     fetchCart();
     if(cart.items?.length==0){
-     navigate('/cart')
+     navigate('/orders')
     }
   }, []);
 

@@ -44,7 +44,7 @@ export default function PaymentSection({
             label="Cash On Delivery (Cash/UPI)"
           />
           {/* <PaymentOption value="Credit Card" icon={CreditCard} label="Credit/Debit Card" offers="4 Offers" /> */}
-          <PaymentOption value="PayPal" icon={Building2} label="PayPal" />
+         
           <PaymentOption
             value="Wallet"
             icon={Wallet}

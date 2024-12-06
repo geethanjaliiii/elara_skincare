@@ -1,9 +1,10 @@
 const Order = require("../../models/orderModel");
 const Product = require("../../models/productModel");
 const Cart = require("../../models/cartModel");
+const Wallet = require("../../models/WalletModel");
 const { v4: uuidv4 } = require("uuid");
 const { Coupon, UserCoupon } = require("../../models/couponModel");
-const Wallet = require("../../models/WalletModel");
+
 const generateOrderNumber = require("../../utils/generateOrderNumber");
 const recalculateCartTotals = require("../../utils/services/recalculateCartTotals");
 const calculateRefundPrice = require("../../utils/services/calculateRefundAmount");
@@ -28,10 +29,10 @@ const placeOrder = async (req, res) => {
     } = req.body;
     console.log("placing order");
 
-    if (!userId || !items || !totalAmount || !shippingAddress) {
+    if (!userId || !items || !totalAmount || !shippingAddress||!paymentMethod) {
       return res
         .status(404)
-        .json({ success: false, message: "required fields are missing" });
+        .json({ success: false, message: "Required fields are missing" });
     }
 
     const orderNumber = await generateOrderNumber();
@@ -51,7 +52,7 @@ const placeOrder = async (req, res) => {
       const size = product.sizes.find((size) => size.size === item.size);
       if (!size || size.stock < item.quantity) {
         throw new Error(
-          `Insufficient stock for product: ${product.name}, size: ${item.size}`
+          `Insufficient stock for product: ${product.name} - ${item.size}`
         );
       }
       //Reduce stock
@@ -60,6 +61,24 @@ const placeOrder = async (req, res) => {
       await product.save();
     }
 
+      //debit money from wallet
+      if(paymentMethod=='Wallet'){
+        const wallet=await Wallet.findOne({userId})
+        if(!wallet){
+          return res.status(404).json({success:false,message:"Wallet not found"})
+        }
+        if(wallet.balance<totalAmount){
+          return res.status(400).json({success:false,message:"Insufficient balance in wallet"})
+        }
+        const newTransaction={
+          transactionId: `pay-${uuidv4()}`,
+          type:"debit",
+          amount:totalAmount,
+          status:'success'
+        }
+        wallet.transactionHistory.push(newTransaction)
+        await wallet.save()
+            }
     //create new order
     const order = new Order({
       orderNumber,
@@ -86,6 +105,8 @@ const placeOrder = async (req, res) => {
     });
 
     await order.save();
+
+  
     //REMOVE ORDERED ITEMS FROM CART
     const cart = await Cart.findOneAndUpdate(
       { userId },
@@ -312,6 +333,8 @@ const changePaymentStatus = async (req, res) => {
 
 const sendReturnRequest = async (req, res) => {
   const { orderId, itemId, reason, comment } = req.body;
+  console.log(req.body,'return req');
+  
   if (!orderId || !itemId || !reason) {
     return res
       .status(400)

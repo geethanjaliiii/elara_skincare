@@ -289,8 +289,8 @@ const approveReturnRequest = async (req, res) => {
     await wallet.save()
     returnItem.status = "Returned";
     returnItem.paymentStatus = "Refunded";
-    returnItem.isApproved = true;
-    returnItem.isResponseSend = true;
+    returnItem.returnRequest.isApproved = true;
+    returnItem.returnRequest.isResponseSend = true;
     order.paymentStatus = "Refunded";
     await order.save();
     res.status(200).json({ success: true, message: "Return approved." });
@@ -305,6 +305,8 @@ const approveReturnRequest = async (req, res) => {
 const declineReturnRequest = async (req, res) => {
   try {
     const { orderId, itemId } = req.params;
+    console.log(orderId,itemId,'decline req');
+    
     if (!orderId || !itemId) {
       return res
         .status(400)
@@ -318,16 +320,16 @@ const declineReturnRequest = async (req, res) => {
     }
     const returnItem = order.items.find((item) => item._id.equals(itemId));
     if (
-      !returnItem.isRequested ||
-      returnItem.isApproved ||
-      returnItem.isResponseSend
+      !returnItem.returnRequest.isRequested ||
+      returnItem.returnRequest.isApproved ||
+      returnItem.returnRequest.isResponseSend
     ) {
       return res
         .status(400)
         .json({ success: false, message: "Invalid decline request" });
     }
-    returnItem.isApproved=false;
-    returnItem.isResponseSend = true;
+    returnItem.returnRequest.isApproved=false;
+    returnItem.returnRequest.isResponseSend = true;
     await order.save();
     res.status(200).json({ success: true, message: "Return Declined" });
   } catch (error) {

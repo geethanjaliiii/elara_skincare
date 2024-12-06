@@ -14,19 +14,7 @@ const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 const queryClient= new QueryClient();
 
 createRoot(document.getElementById("root")).render(
-  // <GoogleOAuthProvider clientId={googleClientId}>
-  //   <StrictMode>
-  //     <ErrorBoundary fallback={<ErrorPage/>}>
-  //     <BrowserRouter>
-  //       <Provider store={store}>
-  //         <QueryClientProvider client={queryClient}>
-  //             <App />
-  //         </QueryClientProvider>
-  //       </Provider>
-  //     </BrowserRouter>
-  //     </ErrorBoundary>
-  //   </StrictMode>
-  // </GoogleOAuthProvider>
+
     <StrictMode>
     <BrowserRouter>
       <GoogleOAuthProvider clientId={googleClientId}>

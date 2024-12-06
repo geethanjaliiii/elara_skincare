@@ -145,7 +145,7 @@ try {
           `}
                   >
                     <span className="text-xs font-semibold text-gray-900">
-                      {size.size}
+                      {size.stock!=0?size.size:''}
                     </span>
                     {/* <span className="text-xs text-gray-600">
                       Rs. {size.price}

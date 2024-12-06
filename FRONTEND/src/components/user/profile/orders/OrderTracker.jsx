@@ -1,6 +1,6 @@
 
 
-import { Check, Clock, Package, Truck } from 'lucide-react'
+import { Check, Clock, Cross,CrossIcon, Package, Truck } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 
 export default function OrderTracker({ 
@@ -8,21 +8,28 @@ export default function OrderTracker({
   statusUpdates,
   expectedDelivery 
 }) {
-  const statuses = ['ordered', 'shipped', 'out-for-delivery', 'delivered']
+  const statuses = [ "Pending",
+    "Confirmed",
+    "Shipped",
+    "Delivered",
+    "Cancelled",
+    "Returned",]
   
   const getStatusIndex = (status) => statuses.indexOf(status)
   const currentStatusIndex = getStatusIndex(currentStatus)
 
   const getIcon = (status) => {
     switch(status) {
-      case 'ordered':
+      case 'Pending':
+        return Clock
+      case 'Confirmed':
         return Check
-      case 'shipped':
+      case 'Shipped':
         return Package
-      case 'out-for-delivery':
+      case 'Delivered':
         return Truck
-      case 'delivered':
-        return Check
+      case 'Cancelled':
+        return CrossIcon
       default:
         return Clock
     }
@@ -30,27 +37,40 @@ export default function OrderTracker({
 
   const getStatusDetails = (status) => {
     switch(status) {
-      case 'ordered':
+      case 'Pending':
+        return {
+          title: 'Processing your order',
+          date: statusUpdates.ordered.date,
+          time: statusUpdates.ordered.time,
+        }
+      case 'Confirmed':
         return {
           title: 'Order Confirmed',
           date: statusUpdates.ordered.date,
           time: statusUpdates.ordered.time,
         }
-      case 'shipped':
+      case 'Shipped':
         return {
           title: 'Shipped',
           date: statusUpdates.shipped?.date,
           time: statusUpdates.shipped?.time,
         }
-      case 'out-for-delivery':
-        return {
-          title: 'Out for delivery',
-          date: statusUpdates.outForDelivery?.date,
-          time: statusUpdates.outForDelivery?.time,
-        }
-      case 'delivered':
+      
+      case 'Delivered':
         return {
           title: 'Delivered',
+          date: statusUpdates.delivered?.date,
+          time: statusUpdates.delivered?.time,
+        }
+      case 'Cancelled':
+        return {
+          title: 'Cancelled',
+          date: statusUpdates.delivered?.date,
+          time: statusUpdates.delivered?.time,
+        }
+      case 'Returned':
+        return {
+          title: 'Returned',
           date: statusUpdates.delivered?.date,
           time: statusUpdates.delivered?.time,
         }

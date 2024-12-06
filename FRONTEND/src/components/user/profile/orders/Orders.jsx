@@ -1,5 +1,3 @@
-'use client'
-
 import React, { useState, Suspense } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -98,7 +96,7 @@ const handleRetryPayment=(order)=>{
     )
   return (
     <div className="container mx-auto p-4 space-y-4">
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+      <div className="flex items-center gap-2 text-sm text-muted-foreground mt-6">
         <Link to="/" className="hover:underline">
           Home
         </Link>
@@ -141,7 +139,7 @@ const handleRetryPayment=(order)=>{
                           </p>
                         </div>
                         <div>
-                        {order?.paymentStatus=='Failed' &&
+                        {order?.items?.every(item=>item.status=='Pending' && item.paymentStatus==='Failed') &&
                          <Button 
                          className="w-20 bg-orange-700"
                          onClick={()=>handleRetryPayment(order)}>PAY</Button>}
@@ -181,19 +179,7 @@ const handleRetryPayment=(order)=>{
                                 {['Pending','Confirmed','Shipped'].includes(product.status) && <> on {new Date(order.expectedDeliveryDate).toLocaleDateString()}</>}</span>
                               <p className="font-medium">₹{product.totalPrice}</p>
                             </div>
-                            <div className="mt-2 flex justify-between items-center">
-                              {product.status !== 'cancelled' ? (
-                                <Suspense fallback={<Button variant="outline" size="sm" disabled>Loading...</Button>}>
-                                  <RatingDialog productName={product.productId.name} />
-                                </Suspense>
-                              ) : (
-                                <Button variant="outline" size="sm">
-                                  <Package className="mr-2 h-4 w-4" />
-                                  Buy Again
-                                </Button>
-                              )}
-                             
-                            </div>
+                          
                           </div>
                         </div>
                       ))}

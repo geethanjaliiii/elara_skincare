@@ -35,17 +35,8 @@ const Header = ({ toggleSidebar }) => {
         >
           <FiMenu />
         </button>
-        <FiSearch className="text-gray-600 hidden md:block" />
-        <input
-          type="text"
-          placeholder="Search..."
-          className="px-3 py-2 border rounded-lg hidden md:block focus:outline-none focus:ring-2 focus:ring-primary"
-        />
       </div>
-      <div className="flex items-center space-x-4">
-        <FiBell className="text-gray-600" />
-        <div className="w-10 h-10 rounded-full bg-gray-300"></div>
-      </div>
+      
       <Button onClick={handleLogout}>Logout</Button>
     </header>
   );

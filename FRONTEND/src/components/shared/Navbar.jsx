@@ -69,7 +69,7 @@ handleSearch(value)//debounce call
         <div className="hidden md:flex items-center space-x-6">
           <Link to="/" className="text-sm font-medium hover:text-primary">HOME</Link>
           <Link to="/shop" className="text-sm font-medium hover:text-primary">SHOP</Link>
-          <Link to="/about" className="text-sm font-medium hover:text-primary">ABOUT US</Link>
+          <Link to="/our-story" className="text-sm font-medium hover:text-primary">OUR STORY</Link>
           <Link to="/contact" className="text-sm font-medium hover:text-primary">CONTACT</Link>
         </div>
 
@@ -129,7 +129,7 @@ handleSearch(value)//debounce call
           <div className="container mx-auto px-4 py-3 flex flex-col space-y-3">
             <Link to="/" className="text-sm font-medium hover:text-primary">HOME</Link>
             <Link to="/shop" className="text-sm font-medium hover:text-primary">SHOP</Link>
-            <Link to="/about" className="text-sm font-medium hover:text-primary">ABOUT US</Link>
+            <Link to="/our-story" className="text-sm font-medium hover:text-primary">OUR STORY</Link>
             <Link to="/contact" className="text-sm font-medium hover:text-primary">CONTACT</Link>
             {!isLoggedIn && (
               <Button className="font-medium" onClick={() => navigate('/login')}>

@@ -73,18 +73,12 @@ const onDeclineReturn=(orderId,itemId)=>{
               <AlertTitle>Pending Return Requests</AlertTitle>
               <AlertDescription>
                 There are <strong>{pendingRequests.length}</strong> return requests pending approval.{" "}
-                <Button
-                  variant="link"
-                  className="p-0 h-auto font-normal"
-                  onClick={() => setStatusFilter("return-pending")}
-                >
-                  View Pending Returns
-                </Button>
+               
               </AlertDescription>
             </Alert>
           )}
 
-          <SearchAndFilters
+          {/* <SearchAndFilters
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
             statusFilter={statusFilter}
@@ -93,7 +87,7 @@ const onDeclineReturn=(orderId,itemId)=>{
           <Button variant="outline" className="mb-6">
             <SlidersHorizontal className="mr-2 h-4 w-4" />
             Advanced Filters
-          </Button>
+          </Button> */}
           <OrdersTable 
           orders={filteredOrders}
           onApproveReturn={onApproveReturn}

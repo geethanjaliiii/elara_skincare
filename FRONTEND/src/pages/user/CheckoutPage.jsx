@@ -15,7 +15,7 @@ export default function CheckoutPage() {
   
  useEffect(()=>{
 if(cart?.items?.length===0){
-navigate('/cart')
+navigate('/orders')
 }
  },[cart])
   return (

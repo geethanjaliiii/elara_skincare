@@ -13,8 +13,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { setUserDetails } from '@/store/slices/userSlice'
 // import { submitReferralCode } from '../actions/submitReferralCode'
 
-export function ReferralModal() {
-  const [open, setOpen] = useState(true)
+export function ReferralModal({open,setOpen}) {
+  // const [open, setOpen] = useState(true)
   const dispatch=useDispatch()
   const[referalCode,setReferalCode]=useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)

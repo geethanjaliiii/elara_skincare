@@ -37,7 +37,7 @@ import { Download } from "lucide-react";
 
 
 export default function SalesReport() {
-  const [filterType, setFilterType] = useState("daily");
+  const [filterType, setFilterType] = useState("yearly");
   const [startDate, setStartDate] = useState();
   const [endDate, setEndDate] = useState();
   const [currentPage, setCurrentPage] = useState(1);
@@ -136,58 +136,6 @@ export default function SalesReport() {
       <Toaster />
       <h1 className="text-3xl font-bold mb-6">Sales Report</h1>
 
-      {data.salesData.length!=0?(<>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Sales</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              ₹{data.overallSalesData.totalSales}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Discounts
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              ₹{data.overallSalesData.totalDiscount}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {data.overallSalesData.totalOrders}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Average Order Value
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              ₹
-              {(
-                data.overallSalesData.totalSales /
-                data.overallSalesData.totalOrders
-              ).toFixed(2)}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
       <div className="flex flex-col sm:flex-row items-center gap-4 mb-6">
         <Select
           value={filterType}
@@ -198,7 +146,12 @@ export default function SalesReport() {
           </SelectTrigger>
           <SelectContent>
             {/* {["custom", "daily", "weekly", "monthly", "yearly"].map((type) =>  */}
-            {["daily", "weekly", "monthly", "yearly"].map((type) => (
+            {/* {["daily", "weekly", "monthly", "yearly"].map((type) => (
+              <SelectItem key={type} value={type}>
+                {type.charAt(0).toUpperCase() + type.slice(1)}
+              </SelectItem>
+            ))} */}
+            {['custom',"daily", "weekly", "monthly", "yearly"].map((type) => (
               <SelectItem key={type} value={type}>
                 {type.charAt(0).toUpperCase() + type.slice(1)}
               </SelectItem>
@@ -219,10 +172,63 @@ export default function SalesReport() {
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
               className="w-full sm:w-auto"
+              
             />
           </>
         )}
       </div>
+      {data.salesData ?(<>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Sales</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              ₹{data.overallSalesData.totalSales||0}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Total Discounts
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              ₹{data.overallSalesData.totalDiscount||0}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {data.overallSalesData.totalOrders||0}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Average Order Value
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              ₹
+              {(
+                data.overallSalesData.totalSales ||0/
+                data.overallSalesData.totalOrders||1
+              ).toFixed(2)||0}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
 
       <div className="bg-white shadow-md rounded-lg overflow-hidden mb-6">
         <div className="overflow-x-auto">
@@ -246,7 +252,7 @@ export default function SalesReport() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.salesData?.length != 0 &&
+              {data.salesData?.length != 0 ?
                 data.salesData.map((item) => (
                   <TableRow key={item._id}>
                     <TableCell className="text-xs sm:text-sm">
@@ -274,7 +280,7 @@ export default function SalesReport() {
                       ₹{item.finalPrice.toFixed(2)}
                     </TableCell>
                   </TableRow>
-                ))}
+                )): <div className="px-4">{' No sales to display.'}</div>}
             </TableBody>
           </Table>
         </div>

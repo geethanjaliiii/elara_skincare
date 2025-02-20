@@ -5,10 +5,14 @@ import path from "path"
 import { visualizer } from 'rollup-plugin-visualizer'
 import viteCompression from 'vite-plugin-compression'
 import { ViteImageOptimizer } from 'vite-plugin-image-optimizer'
+import removeConsole from 'vite-plugin-remove-console';
 
 export default defineConfig({
   plugins: [
     react(),
+    removeConsole({
+      exclude: ['error', 'warn'], // Keep only console.error and console.warn
+    }),
     visualizer({
       open: true,
       gzipSize: true,
